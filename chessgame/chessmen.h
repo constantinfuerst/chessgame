@@ -1,8 +1,6 @@
 #pragma once
-#include "pch.h"
 
-#define TRUE 1
-#define FALSE 0
+#include "pch.h"
 
 class chessmen {
 public:
@@ -14,28 +12,71 @@ public:
 	enum color {
 		white = 0, black = 1
 	};
+	enum chessfigure {
+		pawn = 0, rook = 1, knight = 2, bishop = 3, queen = 4, king = 5
+	};
+	enum position_status {
+		empty = 0, friendly = 1, enemy = 2
+	};
 
-	position current_position;
+	chessfigure figure;
+	position current_position = { 0, 0 };
 	color player_color;
+	bool hasMoved = FALSE;
 
-	chessmen(color color_input, position position_input) {
-		current_position = position_input;
+	virtual std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) {
+		std::vector <position> emptyreturn;
+		emptyreturn.push_back({ 0, 0 });
+		return emptyreturn;
+	};
+
+	static position_status positiocheck(std::vector <chessmen>& chessmen, position pos, color player) {
+		for (size_t i = 0; i < chessmen.size(); i++) {
+			if (chessmen[i].current_position[0] == pos[0] && chessmen[i].current_position[1] == pos[1]) {
+				if (chessmen[i].player_color == player) {
+					return friendly;
+				}
+				else {
+					return enemy;
+				}
+			}
+		}
+		return empty;
+	}
+
+	chessmen(color color_input, position position_input, chessfigure figure_input) {
+		current_position[0] = position_input[0];
+		current_position[1] = position_input[1];
 		player_color = color_input;
+		figure = figure_input;
 	}
 };
 
 class pawn : public chessmen {
-private:
-	bool m_hasMoved = FALSE;
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
-		if (m_hasMoved == FALSE && current_position[1] <= 6) {
-			returnpos.push_back(position{ current_position[0], current_position[1] + 2 });
+		const position hitleft = { current_position[0] - 1, current_position[1] + 1 };
+		const position hitright = { current_position[0] + 1, current_position[1] + 1 };
+		if (hasMoved == FALSE) {
+			const position pos = { current_position[0], current_position[1] + 2 };
+			if (positiocheck(chessmen, pos, player_color) == empty) {
+				returnpos.push_back(pos);
+			}
 		}
-		if (current_position[1] <= 7) {
-			returnpos.push_back(position{ current_position[0], current_position[1] + 1 });
+		if (current_position[1] <= 6 && current_position[1] >= 1) {
+			const position pos = { current_position[0], current_position[1] + 1 };
+			if (positiocheck(chessmen, pos, player_color) == empty) {
+				returnpos.push_back(pos);
+			}
+		}
+		if (positiocheck(chessmen, hitleft, player_color) == enemy && current_position[0] > 0) {
+			returnpos.push_back(hitleft);
+		}
+		if (positiocheck(chessmen, hitright, player_color) == enemy && current_position[0] < 7) {
+			returnpos.push_back(hitright);
 		}
 		return returnpos;
 	}
@@ -44,34 +85,59 @@ public:
 class rook : public chessmen {
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				int x = current_position[0] + 1;
+				unsigned int x = current_position[0] + 1;
 				while (x <= 7) {
-					returnpos.push_back(position{ x, current_position[1] });
+					const position pos = { x, current_position[1] };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++;
 				}
 			}
 			{
-				int x = current_position[0] - 1;
+				unsigned int x = current_position[0] - 1;
 				while (x >= 0) {
-					returnpos.push_back(position{ x, current_position[1] });
+					const position pos = { x, current_position[1] };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++;
 				}
 			}
 			{
-				int y = current_position[0] + 1;
+				unsigned int y = current_position[0] + 1;
 				while (y <= 7) {
-					returnpos.push_back(position{ current_position[0], y });
+					const position pos = { current_position[0], y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					y++;
 				}
 			}
 			{
-				int y = current_position[0] - 1;
+				unsigned int y = current_position[0] - 1;
 				while (y >= 0) {
-					returnpos.push_back(position{ current_position[0], y });
+					const position pos = { current_position[0], y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					y--;
 				}
 			}
@@ -83,38 +149,63 @@ public:
 class knight : public chessmen {
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
 		if (current_position[0] + 2 <= 7) {
 			if (current_position[1] + 1 <= 7) {
-				returnpos.push_back(position{ current_position[0] + 2, current_position[1] + 1 });
+				const position pos = { current_position[0] + 2, current_position[1] + 1 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 			if (current_position[1] - 1 >= 0) {
-				returnpos.push_back(position{ current_position[0] + 2, current_position[1] - 1 });
+				const position pos = { current_position[0] + 2, current_position[1] - 1 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 		}
 		if (current_position[0] - 2 >= 0) {
 			if (current_position[1] + 1 <= 7) {
-				returnpos.push_back(position{ current_position[0] - 2, current_position[1] + 1 });
+				const position pos = { current_position[0] - 2, current_position[1] + 1 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 			if (current_position[1] - 1 >= 0) {
-				returnpos.push_back(position{ current_position[0] - 2, current_position[1] - 1 });
+				const position pos = { current_position[0] - 2, current_position[1] - 1 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 		}
 		if (current_position[1] + 2 <= 7) {
 			if (current_position[0] + 1 <= 7) {
-				returnpos.push_back(position{ current_position[0] + 1, current_position[1] + 2 });
+				const position pos = { current_position[0] + 1, current_position[1] + 2 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 			if (current_position[0] - 1 >= 0) {
-				returnpos.push_back(position{ current_position[0] - 1, current_position[1] + 2 });
+				const position pos = { current_position[0] - 1, current_position[1] + 2 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 		}
 		if (current_position[1] - 2 >= 0) {
 			if (current_position[0] + 1 <= 7) {
-				returnpos.push_back(position{ current_position[0] + 1, current_position[1] - 2 });
+				const position pos = { current_position[0] + 1, current_position[1] - 2 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 			if (current_position[0] - 1 >= 0) {
-				returnpos.push_back(position{ current_position[0] - 1, current_position[1] - 2 });
+				const position pos = { current_position[0] - 1, current_position[1] - 2 };
+				if (positiocheck(chessmen, pos, player_color) != friendly) {
+					returnpos.push_back(pos);
+				}
 			}
 		}
 		return returnpos;
@@ -124,34 +215,59 @@ public:
 class bishop : public chessmen {
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				int x = current_position[0] + 1; int y = current_position[1] + 1;
+				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] + 1;
 				while (x <= 7 && y <= 7) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++; y++;
 				}
 			}
 			{
-				int x = current_position[0] - 1; int y = current_position[1] + 1;
+				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] + 1;
 				while (x >= 0 && y <= 7) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x--; y++;
 				}
 			}
 			{
-				int x = current_position[0] + 1; int y = current_position[1] - 1;
+				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] - 1;
 				while (x <= 7 && y >= 0) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++; y--;
 				}
 			}
 			{
-				int x = current_position[0] - 1; int y = current_position[1] - 1;
+				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] - 1;
 				while (x >= 0 && y >= 0) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x--; y--;
 				}
 			}
@@ -164,62 +280,111 @@ public:
 class queen : public chessmen {
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				int x = current_position[0] + 1; int y = current_position[1] + 1;
+				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] + 1;
 				while (x <= 7 && y <= 7) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++; y++;
 				}
 			}
 			{
-				int x = current_position[0] - 1; int y = current_position[1] + 1;
+				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] + 1;
 				while (x >= 0 && y <= 7) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x--; y++;
 				}
 			}
 			{
-				int x = current_position[0] + 1; int y = current_position[1] - 1;
+				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] - 1;
 				while (x <= 7 && y >= 0) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++; y--;
 				}
 			}
 			{
-				int x = current_position[0] - 1; int y = current_position[1] - 1;
+				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] - 1;
 				while (x >= 0 && y >= 0) {
-					returnpos.push_back(position{ x, y });
+					const position pos = { x, y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x--; y--;
 				}
 			}
 			{
-				int x = current_position[0] + 1;
+				unsigned int x = current_position[0] + 1;
 				while (x <= 7) {
-					returnpos.push_back(position{ x, current_position[1] });
+					const position pos = { x, current_position[1] };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++;
 				}
 			}
 			{
-				int x = current_position[0] - 1;
+				unsigned int x = current_position[0] - 1;
 				while (x >= 0) {
-					returnpos.push_back(position{ x, current_position[1] });
+					const position pos = { x, current_position[1] };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					x++;
 				}
 			}
 			{
-				int y = current_position[0] + 1;
+				unsigned int y = current_position[0] + 1;
 				while (y <= 7) {
-					returnpos.push_back(position{ current_position[0], y });
+					const position pos = { current_position[0], y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					y++;
 				}
 			}
 			{
-				int y = current_position[0] - 1;
+				unsigned int y = current_position[0] - 1;
 				while (y >= 0) {
-					returnpos.push_back(position{ current_position[0], y });
+					const position pos = { current_position[0], y };
+					if (positiocheck(chessmen, pos, player_color) != friendly) {
+						returnpos.push_back(pos);
+					}
+					else {
+						break;
+					}
 					y--;
 				}
 			}
@@ -231,13 +396,17 @@ public:
 class king : public chessmen {
 public:
 	using chessmen::chessmen;
-	std::vector<position> possibleMoves() {
+
+	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			for (int i = -1; i < 2; i++) {
 				for (int j = -1; j < 2; j++) {
 					if (current_position[0] + i <= 7 && current_position[1] + j <= 7) {
-						returnpos.push_back(position{ current_position[0] + i ,current_position[1] + j });
+						const position pos = { current_position[0] + i ,current_position[1] + j };
+						if (positiocheck(chessmen, pos, player_color) != friendly) {
+							returnpos.push_back(pos);
+						}
 					}
 				}
 			}
