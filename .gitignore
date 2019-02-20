@@ -26,3 +26,6 @@
 *.vcxproj
 *.filters
 *.enc
+build/obj/main.nativecodeanalysis.xml
+build/obj/pch.nativecodeanalysis.xml
+build/obj/vc.nativecodeanalysis.all.xml

@@ -24,26 +24,10 @@ public:
 	color player_color;
 	bool hasMoved = FALSE;
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) {
-		std::vector <position> emptyreturn;
-		emptyreturn.push_back({ 0, 0 });
-		return emptyreturn;
-	};
+	virtual std::vector<position> possibleMoves(std::vector<chessmen*>& chessmen);;
+	static position_status positiocheck(std::vector<chessmen*>& chessmen, position pos, color player);
 
-	static position_status positiocheck(std::vector <chessmen>& chessmen, position pos, color player) {
-		for (size_t i = 0; i < chessmen.size(); i++) {
-			if (chessmen[i].current_position[0] == pos[0] && chessmen[i].current_position[1] == pos[1]) {
-				if (chessmen[i].player_color == player) {
-					return friendly;
-				}
-				else {
-					return enemy;
-				}
-			}
-		}
-		return empty;
-	}
-
+protected:
 	chessmen(color color_input, position position_input, chessfigure figure_input) {
 		current_position[0] = position_input[0];
 		current_position[1] = position_input[1];
@@ -52,24 +36,63 @@ public:
 	}
 };
 
+inline std::vector<chessmen::position> chessmen::possibleMoves(std::vector<chessmen*>& chessmen) {
+	std::vector<position> emptyreturn;
+	return emptyreturn;
+}
+
+inline chessmen::position_status chessmen::positiocheck(std::vector<chessmen*>& chessmen, position pos, color player) {
+	for (size_t i = 0; i < chessmen.size(); i++) {
+		if (chessmen[i]->current_position[0] == pos[0] && chessmen[i]->current_position[1] == pos[1]) {
+			if (chessmen[i]->player_color == player) {
+				return friendly;
+			}
+			else {
+				return enemy;
+			}
+		}
+	}
+	return empty;
+}
+
 class pawn : public chessmen {
 public:
-	using chessmen::chessmen;
+	pawn(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input){}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
-		const position hitleft = { current_position[0] - 1, current_position[1] + 1 };
-		const position hitright = { current_position[0] + 1, current_position[1] + 1 };
+		position hitleft;
+		position hitright;
+		position onestep;
+		position twostep;
+		if (player_color == black) {
+			hitleft[0] = current_position[0] - 1;
+			hitleft[1] = current_position[1] - 1;
+			hitright[0] = current_position[0] + 1;
+			hitright[1] = current_position[1] - 1;
+			onestep[0] = current_position[0];
+			onestep[1] = current_position[1] - 1;
+			twostep[0] = current_position[0];
+			twostep[1] = current_position[1] - 2;
+		}
+		else {
+			hitleft[0] = current_position[0] - 1;
+			hitleft[1] = current_position[1] + 1;
+			hitright[0] = current_position[0] + 1;
+			hitright[1] = current_position[1] + 1;
+			onestep[0] = current_position[0];
+			onestep[1] = current_position[1] + 1;
+			twostep[0] = current_position[0];
+			twostep[1] = current_position[1] + 2;
+		}
 		if (hasMoved == FALSE) {
-			const position pos = { current_position[0], current_position[1] + 2 };
-			if (positiocheck(chessmen, pos, player_color) == empty) {
-				returnpos.push_back(pos);
+			if (positiocheck(chessmen, twostep, player_color) == empty) {
+				returnpos.push_back(twostep);
 			}
 		}
 		if (current_position[1] <= 6 && current_position[1] >= 1) {
-			const position pos = { current_position[0], current_position[1] + 1 };
-			if (positiocheck(chessmen, pos, player_color) == empty) {
-				returnpos.push_back(pos);
+			if (positiocheck(chessmen, onestep, player_color) == empty) {
+				returnpos.push_back(onestep);
 			}
 		}
 		if (positiocheck(chessmen, hitleft, player_color) == enemy && current_position[0] > 0) {
@@ -84,9 +107,9 @@ public:
 
 class rook : public chessmen {
 public:
-	using chessmen::chessmen;
+	rook(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
@@ -148,9 +171,9 @@ public:
 
 class knight : public chessmen {
 public:
-	using chessmen::chessmen;
+	knight(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
 		if (current_position[0] + 2 <= 7) {
 			if (current_position[1] + 1 <= 7) {
@@ -214,9 +237,9 @@ public:
 
 class bishop : public chessmen {
 public:
-	using chessmen::chessmen;
+	bishop(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
@@ -279,9 +302,9 @@ public:
 
 class queen : public chessmen {
 public:
-	using chessmen::chessmen;
+	queen(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
@@ -395,9 +418,9 @@ public:
 
 class king : public chessmen {
 public:
-	using chessmen::chessmen;
+	king(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
 
-	std::vector<position> possibleMoves(std::vector <chessmen>& chessmen) override {
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
 		std::vector<position> returnpos;
 		{
 			for (int i = -1; i < 2; i++) {
