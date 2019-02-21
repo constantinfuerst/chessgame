@@ -16,7 +16,7 @@ int main () {
 				while (TRUE) {
 					std::string selection;
 					getline(std::cin, selection);
-					if (validpos(strtopos(selection))) {
+					if (chessmen::validpos(strtopos(selection))) {
 						if (game.clickfield(strtopos(selection), current_player) == chessfield::selected) {
 							render_field(game);
 							break;
@@ -32,7 +32,7 @@ int main () {
 						render_field(game);
 						break;
 					}
-					else if (validpos(strtopos(selection))) {
+					else if (chessmen::validpos(strtopos(selection))) {
 						if (game.clickfield(strtopos(selection), current_player) == chessfield::running) {
 							render_field(game);
 							if (current_player == chessmen::white)

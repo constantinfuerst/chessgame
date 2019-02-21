@@ -4,47 +4,63 @@
 
 class chessmen {
 public:
+	static const unsigned int fieldsize_x_end = 7;
+	static const unsigned int fieldsize_x_start = 0;
+	static const unsigned int fieldsize_y_end = 7;
+	static const unsigned int fieldsize_y_start = 0;
 	typedef std::array<unsigned int, 2> position;
-	typedef unsigned int x_pos;
-	typedef unsigned int y_pos;
+	typedef int x_pos;
+	typedef int y_pos;
 	typedef unsigned int chessmen_id;
 
 	enum color {
 		white = 0, black = 1
 	};
 	enum chessfigure {
-		pawn = 0, rook = 1, knight = 2, bishop = 3, queen = 4, king = 5
+		pawn = 0, rook = 1, knight = 2, bishop = 3, queen = 4, king = 5, none = 6
 	};
 	enum position_status {
 		empty = 0, friendly = 1, enemy = 2
 	};
 
-	chessfigure figure;
+	virtual chessfigure figure() {
+		return none;
+	};
+
 	position current_position = { 0, 0 };
 	color player_color;
 	bool hasMoved = FALSE;
 
-	virtual std::vector<position> possibleMoves(std::vector<chessmen*>& chessmen);;
-	static position_status positiocheck(std::vector<chessmen*>& chessmen, position pos, color player);
+	virtual std::vector<position> possibleMoves(std::vector<chessmen*>* chessmen);;
+	static position_status positiocheck(std::vector<chessmen*>* chessmen, position pos, color player);
+	static bool validpos(chessmen::position position);
 
 protected:
-	chessmen(color color_input, position position_input, chessfigure figure_input) {
+	chessmen(color color_input, position position_input) {
 		current_position[0] = position_input[0];
 		current_position[1] = position_input[1];
 		player_color = color_input;
-		figure = figure_input;
 	}
 };
 
-inline std::vector<chessmen::position> chessmen::possibleMoves(std::vector<chessmen*>& chessmen) {
+inline bool chessmen::validpos(chessmen::position position) {
+	if (position[0] >= fieldsize_x_start && position[0] <= fieldsize_x_end && position[1] >= fieldsize_y_start && position[1] <= fieldsize_y_end) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+}
+
+inline std::vector<chessmen::position> chessmen::possibleMoves(std::vector<chessmen*>* chessmen) {
 	std::vector<position> emptyreturn;
 	return emptyreturn;
 }
 
-inline chessmen::position_status chessmen::positiocheck(std::vector<chessmen*>& chessmen, position pos, color player) {
-	for (size_t i = 0; i < chessmen.size(); i++) {
-		if (chessmen[i]->current_position[0] == pos[0] && chessmen[i]->current_position[1] == pos[1]) {
-			if (chessmen[i]->player_color == player) {
+inline chessmen::position_status chessmen::positiocheck(std::vector<chessmen*>* chessmen, position pos, color player) {
+	for (size_t i = 0; i < chessmen->size(); i++) {
+		if (chessmen->at(i)->current_position[0] == pos[0] && chessmen->at(i)->current_position[1] == pos[1]) {
+			if (chessmen->at(i)->player_color == player) {
 				return friendly;
 			}
 			else {
@@ -57,9 +73,12 @@ inline chessmen::position_status chessmen::positiocheck(std::vector<chessmen*>& 
 
 class pawn : public chessmen {
 public:
-	pawn(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input){}
+	pawn(color color_input, position position_input) : chessmen(color_input, position_input){}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::pawn;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
 		position hitleft;
 		position hitright;
@@ -75,7 +94,7 @@ public:
 			twostep[0] = current_position[0];
 			twostep[1] = current_position[1] - 2;
 		}
-		else {
+		else if (player_color == white) {
 			hitleft[0] = current_position[0] - 1;
 			hitleft[1] = current_position[1] + 1;
 			hitright[0] = current_position[0] + 1;
@@ -86,19 +105,19 @@ public:
 			twostep[1] = current_position[1] + 2;
 		}
 		if (hasMoved == FALSE) {
-			if (positiocheck(chessmen, twostep, player_color) == empty) {
+			if (positiocheck(chessmen, twostep, player_color) == empty && validpos(twostep)) {
 				returnpos.push_back(twostep);
 			}
 		}
 		if (current_position[1] <= 6 && current_position[1] >= 1) {
-			if (positiocheck(chessmen, onestep, player_color) == empty) {
+			if (positiocheck(chessmen, onestep, player_color) == empty && validpos(onestep)) {
 				returnpos.push_back(onestep);
 			}
 		}
-		if (positiocheck(chessmen, hitleft, player_color) == enemy && current_position[0] > 0) {
+		if (positiocheck(chessmen, hitleft, player_color) == enemy && current_position[0] > 0 && validpos(hitleft)) {
 			returnpos.push_back(hitleft);
 		}
-		if (positiocheck(chessmen, hitright, player_color) == enemy && current_position[0] < 7) {
+		if (positiocheck(chessmen, hitright, player_color) == enemy && current_position[0] < 7 && validpos(hitleft)) {
 			returnpos.push_back(hitright);
 		}
 		return returnpos;
@@ -107,17 +126,21 @@ public:
 
 class rook : public chessmen {
 public:
-	rook(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
+	rook(color color_input, position position_input) : chessmen(color_input, position_input) {}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::rook;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				unsigned int x = current_position[0] + 1;
-				while (x <= 7) {
+				int x = current_position[0] + 1;
+				while (x <= fieldsize_x_end) {
 					const position pos = { x, current_position[1] };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -126,11 +149,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1;
-				while (x >= 0) {
+				int x = current_position[0] - 1;
+				while (x >= fieldsize_x_start) {
 					const position pos = { x, current_position[1] };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -139,11 +163,12 @@ public:
 				}
 			}
 			{
-				unsigned int y = current_position[0] + 1;
-				while (y <= 7) {
+				int y = current_position[0] + 1;
+				while (y <= fieldsize_y_end) {
 					const position pos = { current_position[0], y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -152,11 +177,12 @@ public:
 				}
 			}
 			{
-				unsigned int y = current_position[0] - 1;
-				while (y >= 0) {
+				int y = current_position[0] - 1;
+				while (y >= fieldsize_x_start) {
 					const position pos = { current_position[0], y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -171,62 +197,65 @@ public:
 
 class knight : public chessmen {
 public:
-	knight(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
+	knight(color color_input, position position_input) : chessmen(color_input, position_input) {}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::knight;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
-		if (current_position[0] + 2 <= 7) {
-			if (current_position[1] + 1 <= 7) {
+		if (current_position[0] + 2 <= fieldsize_x_end) {
+			if (current_position[1] + 1 <= fieldsize_y_end) {
 				const position pos = { current_position[0] + 2, current_position[1] + 1 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
-			if (current_position[1] - 1 >= 0) {
+			if (current_position[1] - 1 >= fieldsize_y_end) {
 				const position pos = { current_position[0] + 2, current_position[1] - 1 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
 		}
-		if (current_position[0] - 2 >= 0) {
-			if (current_position[1] + 1 <= 7) {
+		if (current_position[0] - 2 >= fieldsize_x_start) {
+			if (current_position[1] + 1 <= fieldsize_y_end) {
 				const position pos = { current_position[0] - 2, current_position[1] + 1 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
-			if (current_position[1] - 1 >= 0) {
+			if (current_position[1] - 1 >= fieldsize_y_start) {
 				const position pos = { current_position[0] - 2, current_position[1] - 1 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
 		}
-		if (current_position[1] + 2 <= 7) {
-			if (current_position[0] + 1 <= 7) {
+		if (current_position[1] + 2 <= fieldsize_y_end) {
+			if (current_position[0] + 1 <= fieldsize_x_end) {
 				const position pos = { current_position[0] + 1, current_position[1] + 2 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
-			if (current_position[0] - 1 >= 0) {
+			if (current_position[0] - 1 >= fieldsize_x_start) {
 				const position pos = { current_position[0] - 1, current_position[1] + 2 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
 		}
-		if (current_position[1] - 2 >= 0) {
-			if (current_position[0] + 1 <= 7) {
+		if (current_position[1] - 2 >= fieldsize_y_start) {
+			if (current_position[0] + 1 <= fieldsize_x_end) {
 				const position pos = { current_position[0] + 1, current_position[1] - 2 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
-			if (current_position[0] - 1 >= 0) {
+			if (current_position[0] - 1 >= fieldsize_x_start) {
 				const position pos = { current_position[0] - 1, current_position[1] - 2 };
-				if (positiocheck(chessmen, pos, player_color) != friendly) {
+				if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
 			}
@@ -237,17 +266,21 @@ public:
 
 class bishop : public chessmen {
 public:
-	bishop(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
+	bishop(color color_input, position position_input) : chessmen(color_input, position_input) {}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::bishop;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] + 1;
-				while (x <= 7 && y <= 7) {
+				int x = current_position[0] + 1; int y = current_position[1] + 1;
+				while (x <= fieldsize_x_end && y <= fieldsize_y_end) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -256,11 +289,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] + 1;
-				while (x >= 0 && y <= 7) {
+				int x = current_position[0] - 1; int y = current_position[1] + 1;
+				while (x >= fieldsize_x_start && y <= fieldsize_y_end) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -269,11 +303,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] - 1;
-				while (x <= 7 && y >= 0) {
+				int x = current_position[0] + 1; int y = current_position[1] - 1;
+				while (x <= fieldsize_x_end && y >= fieldsize_y_start) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -282,11 +317,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] - 1;
-				while (x >= 0 && y >= 0) {
+				int x = current_position[0] - 1; int y = current_position[1] - 1;
+				while (x >= fieldsize_x_start && y >= fieldsize_y_start) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -302,17 +338,21 @@ public:
 
 class queen : public chessmen {
 public:
-	queen(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
+	queen(color color_input, position position_input) : chessmen(color_input, position_input) {}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::queen;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
 		{
 			{
-				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] + 1;
-				while (x <= 7 && y <= 7) {
+				int x = current_position[0] + 1; int y = current_position[1] + 1;
+				while (x <= fieldsize_x_end && y <= fieldsize_y_end) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -321,11 +361,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] + 1;
-				while (x >= 0 && y <= 7) {
+				int x = current_position[0] - 1; int y = current_position[1] + 1;
+				while (x >= fieldsize_x_start && y <= fieldsize_y_end) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -334,11 +375,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] + 1; unsigned int y = current_position[1] - 1;
-				while (x <= 7 && y >= 0) {
+				int x = current_position[0] + 1; int y = current_position[1] - 1;
+				while (x <= fieldsize_x_end && y >= fieldsize_y_start) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
-						returnpos.push_back(pos);
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
+						returnpos.push_back(pos);y >= fieldsize_y_end
+						break;
 					}
 					else {
 						break;
@@ -347,11 +389,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1; unsigned int y = current_position[1] - 1;
-				while (x >= 0 && y >= 0) {
+				int x = current_position[0] - 1; int y = current_position[1] - 1;
+				while (x >= fieldsize_x_start && y >= fieldsize_y_start) {
 					const position pos = { x, y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -360,11 +403,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] + 1;
-				while (x <= 7) {
+				int x = current_position[0] + 1;
+				while (x <= fieldsize_x_end) {
 					const position pos = { x, current_position[1] };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -373,11 +417,12 @@ public:
 				}
 			}
 			{
-				unsigned int x = current_position[0] - 1;
-				while (x >= 0) {
+				int x = current_position[0] - 1;
+				while (x >= fieldsize_x_start) {
 					const position pos = { x, current_position[1] };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -386,11 +431,12 @@ public:
 				}
 			}
 			{
-				unsigned int y = current_position[0] + 1;
-				while (y <= 7) {
+				int y = current_position[0] + 1;
+				while (y <= fieldsize_y_end) {
 					const position pos = { current_position[0], y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -399,11 +445,12 @@ public:
 				}
 			}
 			{
-				unsigned int y = current_position[0] - 1;
-				while (y >= 0) {
+				int y = current_position[0] - 1;
+				while (y >= fieldsize_y_start) {
 					const position pos = { current_position[0], y };
-					if (positiocheck(chessmen, pos, player_color) != friendly) {
+					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
+						break;
 					}
 					else {
 						break;
@@ -418,16 +465,19 @@ public:
 
 class king : public chessmen {
 public:
-	king(color color_input, position position_input, chessfigure figure_input) : chessmen(color_input, position_input, figure_input) {}
+	king(color color_input, position position_input) : chessmen(color_input, position_input) {}
 
-	virtual std::vector<position> possibleMoves(std::vector <chessmen*>& chessmen) override {
+	virtual chessfigure figure() override {
+		return chessmen::king;
+	}
+	virtual std::vector<position> possibleMoves(std::vector <chessmen*>* chessmen) override {
 		std::vector<position> returnpos;
 		{
 			for (int i = -1; i < 2; i++) {
 				for (int j = -1; j < 2; j++) {
-					if (current_position[0] + i <= 7 && current_position[1] + j <= 7) {
+					if (current_position[0] + i <= fieldsize_x_end && current_position[1] + j <= fieldsize_y_end) {
 						const position pos = { current_position[0] + i ,current_position[1] + j };
-						if (positiocheck(chessmen, pos, player_color) != friendly) {
+						if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 							returnpos.push_back(pos);
 						}
 					}

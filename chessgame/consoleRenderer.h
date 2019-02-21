@@ -13,15 +13,6 @@ inline std::string postostr(chessmen::position pos) {
 	return char(pos[0] + 65) + std::to_string(pos[1] + 1);
 }
 
-inline bool validpos (chessmen::position position) {
-	if (position[0] >= 0 && position[0] <= 7 && position[1] >= 0 && position[1] <= 7) {
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
-}
-
 inline unsigned int translateX (const unsigned int& org_x) {
 	unsigned int x = 0;
 	if (org_x == 0)
@@ -109,60 +100,71 @@ inline void render_field(chessfield board) {
 		const unsigned int x = translateX(board.chessmen_onfield[i]->current_position[0]);
 		const unsigned int y = translateY(board.chessmen_onfield[i]->current_position[1]);
 
-		if (board.chessmen_onfield[i]->figure == chessmen::queen)
+		if (board.chessmen_onfield[i]->figure() == chessmen::queen)
 			displayBoard[y][x] = 'Q';
-		else if (board.chessmen_onfield[i]->figure == chessmen::rook)
+		else if (board.chessmen_onfield[i]->figure() == chessmen::rook)
 			displayBoard[y][x] = 'R';
-		else if (board.chessmen_onfield[i]->figure == chessmen::knight)
+		else if (board.chessmen_onfield[i]->figure() == chessmen::knight)
 			displayBoard[y][x] = 'N';
-		else if (board.chessmen_onfield[i]->figure == chessmen::bishop)
+		else if (board.chessmen_onfield[i]->figure() == chessmen::bishop)
 			displayBoard[y][x] = 'B';
-		else if (board.chessmen_onfield[i]->figure == chessmen::pawn)
+		else if (board.chessmen_onfield[i]->figure() == chessmen::pawn)
 			displayBoard[y][x] = 'P';
-		else if (board.chessmen_onfield[i]->figure == chessmen::king)
+		else if (board.chessmen_onfield[i]->figure() == chessmen::king)
 			displayBoard[y][x] = 'K';
 		else
 			displayBoard[y][x] = ' ';
 		if (board.chessmen_onfield[i]->player_color == chessmen::black)
 			displayBoard[y][x + 1] = 'B';
-		else
+		else if (board.chessmen_onfield[i]->player_color == chessmen::white)
 			displayBoard[y][x + 1] = 'W';
+		else
+			displayBoard[y][x + 1] = ' ';
 	}
 
 	if (!board.selected_chessmen.empty()) {
-		auto possibleMoves = board.selected_chessmen[0]->possibleMoves(board.chessmen_onfield);
+		auto possibleMoves = board.selected_chessmen[0]->possibleMoves(&board.chessmen_onfield);
 		if (!possibleMoves.empty()) {
 			for (size_t i = 0; i < possibleMoves.size(); i++) {
 				const unsigned int x = translateX(possibleMoves[i][0]);
 				const unsigned int y = translateY(possibleMoves[i][1]);
 
-				displayBoard[y + 1][x - 1] = char(177);
-				displayBoard[y][x - 1] = char(177);
-				displayBoard[y - 1][x - 1] = char(177);
-				displayBoard[y + 1][x] = char(177);
-				displayBoard[y - 1][x] = char(177);
+				displayBoard[y + 1][x - 2] = char(177);
+				displayBoard[y    ][x - 2] = char(177);
+				displayBoard[y - 1][x - 2] = char(177);
+				displayBoard[y + 1][x    ] = char(177);
+				displayBoard[y - 1][x    ] = char(177);
 				displayBoard[y + 1][x + 1] = char(177);
+				displayBoard[y - 1][x - 1] = char(177);
+				displayBoard[y + 1][x - 1] = char(177);
 				displayBoard[y - 1][x + 1] = char(177);
 				displayBoard[y + 1][x + 2] = char(177);
-				displayBoard[y][x + 2] = char(177);
 				displayBoard[y - 1][x + 2] = char(177);
+				displayBoard[y + 1][x + 3] = char(177);
+				displayBoard[y    ][x + 3] = char(177);
+				displayBoard[y - 1][x + 3] = char(177);
 			}
 		}
 		const unsigned int x = translateX(board.selected_chessmen[0]->current_position[0]);
 		const unsigned int y = translateY(board.selected_chessmen[0]->current_position[1]);
 
-		displayBoard[y + 1][x - 1] = char(192);
-		displayBoard[y][x - 1] = char(179);
-		displayBoard[y - 1][x - 1] = char(218);
+		displayBoard[y + 1][x - 2] = char(192);
+		displayBoard[y    ][x - 2] = char(179);
+		displayBoard[y - 1][x - 2] = char(218);
 
-		displayBoard[y + 1][x] = char(196);
-		displayBoard[y - 1][x] = char(196);
+		displayBoard[y + 1][x    ] = char(196);
+		displayBoard[y - 1][x    ] = char(196);
 		displayBoard[y + 1][x + 1] = char(196);
+		displayBoard[y - 1][x - 1] = char(196);
+		displayBoard[y + 1][x - 1] = char(196);
 		displayBoard[y - 1][x + 1] = char(196);
 
-		displayBoard[y + 1][x + 2] = char(217);
-		displayBoard[y][x + 2] = char(179);
-		displayBoard[y - 1][x + 2] = char(191);
+		displayBoard[y + 1][x + 2] = char(196);
+		displayBoard[y - 1][x + 2] = char(196);
+
+		displayBoard[y + 1][x + 3] = char(217);
+		displayBoard[y    ][x + 3] = char(179);
+		displayBoard[y - 1][x + 3] = char(191);
 	}
 
 	for (auto i = 0; i < 34; i++) {

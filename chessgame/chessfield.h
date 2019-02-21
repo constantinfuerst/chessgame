@@ -23,9 +23,10 @@ private:
 	enum move_sucess {
 		impossible = 0, wouldbecheck = 1, sucess = 2
 	};
-	static void movetoside(chessmen::position& position, chessboard& virtual_field, chessboard& virtual_side);
-	static void movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard& virtual_field);
-	static king_status check_check(chessmen::color& player, chessboard& chessmen);
+	static chessboard copyChessboard(chessboard* chessboard_pntr);
+	static void movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side);
+	static void movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, bool theoretical);
+	static king_status check_check(chessmen::color& player, chessboard* chessmen);
 	king_status king_situation(chessmen::color player);
 	move_sucess moveCharacter(chessmen::position& selectedMove, chessmen::color& player, bool theoretical = TRUE);
 public:
@@ -59,9 +60,6 @@ inline chessfield::game_status chessfield::clickfield(chessmen::position field, 
 				std::cout << "You can not move to your own chessmen" << std::endl;
 				return error;
 			}
-			else {
-				movetoside(field, chessmen_onfield, chessmen_onside);
-			}
 		}
 		catch (const std::exception& exception) {}
 		const auto result = moveCharacter(field, player, FALSE);
@@ -89,7 +87,7 @@ inline chessfield::game_status chessfield::clickfield(chessmen::position field, 
 				std::cout << "WHITE WINS" << std::endl << "The black king is mate" << std::endl;
 			}
 			else {
-				findChessmen(field)->hasMoved = TRUE;
+				//findChessmen(field)->hasMoved = TRUE;
 				return running;
 			}
 			return end;
@@ -108,8 +106,8 @@ inline chessmen* chessfield::findChessmen(chessmen::position& position) {
 
 inline chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMove, chessmen::color& player, bool theoretical) {
 	bool possible = FALSE;
-	for (size_t i = 0; i < selected_chessmen[0]->possibleMoves(chessmen_onfield).size(); i++) {
-		if (selected_chessmen[0]->possibleMoves(chessmen_onfield)[i][0] == selectedMove[0] && selected_chessmen[0]->possibleMoves(chessmen_onfield)[i][1] == selectedMove[1]) {
+	for (size_t i = 0; i < selected_chessmen[0]->possibleMoves(&chessmen_onfield).size(); i++) {
+		if (selected_chessmen[0]->possibleMoves(&chessmen_onfield)[i][0] == selectedMove[0] && selected_chessmen[0]->possibleMoves(&chessmen_onfield)[i][1] == selectedMove[1]) {
 			possible = TRUE;
 		}
 	}
@@ -130,12 +128,12 @@ inline chessfield::move_sucess chessfield::moveCharacter(chessmen::position& sel
 		//test the move
 		try {
 			if (findChessmen(selectedMove)->player_color != player) {
-				movetoside(selectedMove, *theoretical_field, *theoretical_side);
+				movetoside(selectedMove, theoretical_field, theoretical_side);
 			}
 		}
 		catch (const std::exception& exception) {}
-		movetoempty(selected_chessmen[0]->current_position, selectedMove, *theoretical_field);
-		if (check_check(player, *theoretical_field) == none) {
+		movetoempty(selected_chessmen[0]->current_position, selectedMove, theoretical_field, theoretical);
+		if (check_check(player, theoretical_field) == check) {
 			return wouldbecheck;
 		}
 		else if (theoretical == TRUE) {
@@ -151,38 +149,52 @@ inline chessfield::move_sucess chessfield::moveCharacter(chessmen::position& sel
 	}
 }
 
-inline void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard& virtual_field) {
-	for (size_t i = 0; i < virtual_field.size(); i++) {
-		if (virtual_field[i]->current_position[0] == old_position[0] && virtual_field[i]->current_position[1] == old_position[1]) {
-			virtual_field[i]->current_position[0] = new_position[0];
-			virtual_field[i]->current_position[1] = new_position[1];
+inline void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, bool theoretical) {
+	if (old_position[0] == new_position[0] && old_position[1] == new_position[1]) {
+		return;
+	}
+	for (size_t i = 0; i < field->size(); i++) {
+		if (field->at(i)->current_position[0] == old_position[0] && field->at(i)->current_position[1] == old_position[1]) {
+			field->at(i)->current_position[0] = new_position[0];
+			field->at(i)->current_position[1] = new_position[1];
+			return;
 		}
 	}
 }
 
-inline void chessfield::movetoside(chessmen::position& position, chessboard& virtual_field, chessboard& virtual_side) {
-	for (size_t i = 0; i < virtual_field.size(); i++) {
-		if (virtual_field[i]->current_position[0] == position[0] && virtual_field[i]->current_position[1] == position[1]) {
-			virtual_side.push_back(virtual_field[i]);
-			virtual_field.erase(virtual_field.begin() + i);
+inline chessfield::chessboard chessfield::copyChessboard(chessboard* chessboard_pntr) {
+	chessboard returnboard;
+	for (size_t i = 0; i < chessboard_pntr->size(); i++) {
+		returnboard.push_back(new chessmen(*chessboard_pntr->at(i)));
+	}
+	return returnboard;
+}
+
+inline void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side) {
+	for (size_t i = 0; i < virtual_field->size(); i++) {
+		if (virtual_field->at(i)->current_position[0] == position[0] && virtual_field->at(i)->current_position[1] == position[1]) {
+			virtual_side->push_back(virtual_field->at(i));
+			virtual_field->erase(virtual_field->begin() + i);
+			return;
 		}
 	}
 }
 
 //not really intended for actual use, refer to
-inline chessfield::king_status chessfield::check_check(chessmen::color& player, chessboard& chessmen) {
+inline chessfield::king_status chessfield::check_check(chessmen::color& player, chessboard* chessmen) {
 	//get the current position of the king
 	chessmen::position kingpos;
-	for (size_t i = 0; i < chessmen.size(); i++) {
-		if (chessmen[i]->figure == chessmen::king && chessmen[i]->player_color == player) {
-			kingpos[0] = chessmen[i]->current_position[0];
-			kingpos[1] = chessmen[i]->current_position[1];
+	for (size_t i = 0; i < chessmen->size(); i++) {
+		if (chessmen->at(i)->figure() == chessmen::king && chessmen->at(i)->player_color == player) {
+			kingpos[0] = chessmen->at(i)->current_position[0];
+			kingpos[1] = chessmen->at(i)->current_position[1];
+			break;
 		}
 	}
 
-	for (size_t i = 0; i < chessmen.size(); i++) {
-		if (chessmen[i]->player_color == player) {
-			std::vector <chessmen::position> possible_moves = chessmen[i]->possibleMoves(chessmen);
+	for (size_t i = 0; i < chessmen->size(); i++) {
+		if (chessmen->at(i)->player_color == player) {
+			std::vector <chessmen::position> possible_moves = chessmen->at(i)->possibleMoves(chessmen);
 			for (size_t j = 0; j < possible_moves.size(); j++) {
 				if (possible_moves[j][0] == kingpos[0] && possible_moves[j][1] == kingpos[1]) {
 					return check;
@@ -201,26 +213,26 @@ inline chessfield::king_status chessfield::king_situation(chessmen::color player
 		if (chessmen_onfield[i]->player_color == player) {
 			chessmen* current_chessmen = chessmen_onfield[i];
 			//for every possible move of this chessmen
-			for (size_t j = 0; j < current_chessmen->possibleMoves(chessmen_onfield).size(); j++) {
+			for (size_t j = 0; j < current_chessmen->possibleMoves(&chessmen_onfield).size(); j++) {
 				//use a virtual version of the current chessboard
-				chessboard theoretical_field = chessmen_onfield;
+				chessboard theoretical_field = copyChessboard(&chessmen_onfield);
 				chessboard theoretical_side;
 				//execute the currently selected move on the virtual field
-				chessmen::position selectedMove = current_chessmen->possibleMoves(chessmen_onfield)[j];
+				chessmen::position selectedMove = current_chessmen->possibleMoves(&chessmen_onfield)[j];
 				try {
 					if (findChessmen(selectedMove)->player_color != player) {
-						movetoside(selectedMove, theoretical_field, theoretical_side);
+						movetoside(selectedMove, &theoretical_field, &theoretical_side);
 					}
 					else {
 						continue;
 					}
 				}
 				catch (const std::exception& exception) {}
-				movetoempty(current_chessmen->current_position, selectedMove, theoretical_field);
+				movetoempty(current_chessmen->current_position, selectedMove, &theoretical_field, TRUE);
 				//if the king is not in check with this theoretical board position, it is not checkmate
-				if (check_check(player, theoretical_field) == none) {
+				if (check_check(player, &theoretical_field) == none) {
 					//return check if the king is check in the actual board position, duh
-					if (check_check(player, chessmen_onfield) == check) {
+					if (check_check(player, &chessmen_onfield) == check) {
 						return check;
 					}
 					//if not return none
@@ -233,7 +245,7 @@ inline chessfield::king_status chessfield::king_situation(chessmen::color player
 	}
 	//if no check-free found the king is mate
 	//if the king is currently not in check then its a stale
-	if (check_check(player, chessmen_onfield) == none) {
+	if (check_check(player, &chessmen_onfield) == none) {
 		return stale;
 	}
 	//else its a checkmate
@@ -250,40 +262,40 @@ inline void chessfield::initGame() {
 	{
 		//placing pawns
 		for (unsigned int i = 0; i < 8; i++) {
-			chessmen_onfield.push_back(new pawn(chessmen::white, { i, 1 }, chessmen::pawn));
+			chessmen_onfield.push_back(new pawn(chessmen::white, { i, chessmen::fieldsize_y_start + 1 }));
 		}
 		//placing rooks
-		chessmen_onfield.push_back(new rook(chessmen::white, { 0, 0 }, chessmen::rook));
-		chessmen_onfield.push_back(new rook(chessmen::white, { 7, 0 }, chessmen::rook));
+		chessmen_onfield.push_back(new rook(chessmen::white, { 0, chessmen::fieldsize_y_start }));
+		chessmen_onfield.push_back(new rook(chessmen::white, { 7, chessmen::fieldsize_y_start }));
 		//placing knights
-		chessmen_onfield.push_back(new knight(chessmen::white, { 1, 0 }, chessmen::knight));
-		chessmen_onfield.push_back(new knight(chessmen::white, { 6, 0 }, chessmen::knight));
+		chessmen_onfield.push_back(new knight(chessmen::white, { 1, chessmen::fieldsize_y_start }));
+		chessmen_onfield.push_back(new knight(chessmen::white, { 6, chessmen::fieldsize_y_start }));
 		//placing bishops
-		chessmen_onfield.push_back(new bishop(chessmen::white, { 2, 0 }, chessmen::bishop));
-		chessmen_onfield.push_back(new bishop(chessmen::white, { 5, 0 }, chessmen::bishop));
+		chessmen_onfield.push_back(new bishop(chessmen::white, { 2, chessmen::fieldsize_y_start }));
+		chessmen_onfield.push_back(new bishop(chessmen::white, { 5, chessmen::fieldsize_y_start }));
 		//placing king
-		chessmen_onfield.push_back(new king(chessmen::white, { 3, 0 }, chessmen::king));
+		chessmen_onfield.push_back(new king(chessmen::white, { 3, chessmen::fieldsize_y_start }));
 		//placing queen
-		chessmen_onfield.push_back(new queen(chessmen::white, { 4, 0 }, chessmen::queen));
+		chessmen_onfield.push_back(new queen(chessmen::white, { 4, chessmen::fieldsize_y_start }));
 	}
 	//placing black chessmen
 	{
 		//placing pawns
 		for (unsigned int i = 0; i < 8; i++) {
-			chessmen_onfield.push_back(new pawn(chessmen::black, { i, 6 }, chessmen::pawn));
+			chessmen_onfield.push_back(new pawn(chessmen::black, { i, chessmen::fieldsize_y_end - 1 }));
 		}
 		//placing rooks
-		chessmen_onfield.push_back(new rook(chessmen::black, { 0, 7 }, chessmen::rook));
-		chessmen_onfield.push_back(new rook(chessmen::black, { 7, 7 }, chessmen::rook));
+		chessmen_onfield.push_back(new rook(chessmen::black, { 0, chessmen::fieldsize_y_end }));
+		chessmen_onfield.push_back(new rook(chessmen::black, { 7, chessmen::fieldsize_y_end }));
 		//placing knights
-		chessmen_onfield.push_back(new knight(chessmen::black, { 1, 7 }, chessmen::knight));
-		chessmen_onfield.push_back(new knight(chessmen::black, { 6, 7 }, chessmen::knight));
+		chessmen_onfield.push_back(new knight(chessmen::black, { 1, chessmen::fieldsize_y_end }));
+		chessmen_onfield.push_back(new knight(chessmen::black, { 6, chessmen::fieldsize_y_end }));
 		//placing bishops
-		chessmen_onfield.push_back(new bishop(chessmen::black, { 2, 7 }, chessmen::bishop));
-		chessmen_onfield.push_back(new bishop(chessmen::black, { 5, 7 }, chessmen::bishop));
+		chessmen_onfield.push_back(new bishop(chessmen::black, { 2, chessmen::fieldsize_y_end }));
+		chessmen_onfield.push_back(new bishop(chessmen::black, { 5, chessmen::fieldsize_y_end }));
 		//placing king
-		chessmen_onfield.push_back(new king(chessmen::black, { 3, 7 }, chessmen::king));
+		chessmen_onfield.push_back(new king(chessmen::black, { 3, chessmen::fieldsize_y_end }));
 		//placing queen
-		chessmen_onfield.push_back(new queen(chessmen::black, { 4, 7 }, chessmen::queen));
+		chessmen_onfield.push_back(new queen(chessmen::black, { 4, chessmen::fieldsize_y_end }));
 	}
 }
