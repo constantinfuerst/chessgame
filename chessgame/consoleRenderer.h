@@ -4,9 +4,17 @@
 #include "chessfield.h"
 
 inline chessmen::position strtopos (std::string input) {
+	if (input.size() != 2) {
+		throw notfound();
+	}
 	const unsigned int x = int(input[0]) - 65;
 	const unsigned int y = std::stoi(input.substr(1, 1)) - 1;
-	return { x, y };
+	if (chessmen::validpos({ x, y })) {
+		return { x, y };
+	}
+	else {
+		throw notfound();
+	}
 }
 
 inline std::string postostr(chessmen::position pos) {
@@ -123,9 +131,13 @@ inline void render_field(chessfield board) {
 	}
 
 	if (!board.selected_chessmen.empty()) {
-		auto possibleMoves = board.selected_chessmen[0]->possibleMoves(&board.chessmen_onfield);
+		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen[0], &board.chessmen_onfield);
 		if (!possibleMoves.empty()) {
 			for (size_t i = 0; i < possibleMoves.size(); i++) {
+
+				auto testx = possibleMoves[i][0];
+				auto testy = possibleMoves[i][1];
+
 				const unsigned int x = translateX(possibleMoves[i][0]);
 				const unsigned int y = translateY(possibleMoves[i][1]);
 
@@ -145,6 +157,7 @@ inline void render_field(chessfield board) {
 				displayBoard[y - 1][x + 3] = char(177);
 			}
 		}
+
 		const unsigned int x = translateX(board.selected_chessmen[0]->current_position[0]);
 		const unsigned int y = translateY(board.selected_chessmen[0]->current_position[1]);
 
@@ -174,4 +187,63 @@ inline void render_field(chessfield board) {
 		}
 	}
 	std::cout << std::endl << std::endl;
+}
+
+inline chessfield::game_status processOutput(chessfield::full_game_status status, chessfield board) {
+	if (status == chessfield::next) {
+		//std::cout << "Next player" << std::endl;
+		return chessfield::running;
+	}
+	else if (status == chessfield::error) {
+		std::cout << "ERROR: clickfield() reached control path end without a valid state" << std::endl;
+		return chessfield::end;
+	}
+	else if (status == chessfield::selected) {
+		//std::cout << "A chessmen was successfully selected" << std::endl;
+		return chessfield::running;
+	}
+	else if (status == chessfield::enemy) {
+		std::cout << "Please select one of your chessmen" << std::endl;
+		return chessfield::mistake;
+	}
+	else if (status == chessfield::emptyfield) {
+		std::cout << "That field seems to be empty" << std::endl;
+		return chessfield::mistake;
+	}
+	else if (status == chessfield::checked) {
+		std::cout << "This move would result in you being checked" << std::endl;
+		return chessfield::mistake;
+	}
+	else if (status == chessfield::impmove) {
+		std::cout << "This move is not possible" << std::endl;
+		return chessfield::mistake;
+	}
+	else if (status == chessfield::bkstale) {
+		board.selected_chessmen.clear();
+		render_field(board);
+		std::cout << "DRAW: the black king is stale" << std::endl;
+		return chessfield::end;
+	}
+	else if (status == chessfield::wkstale) {
+		board.selected_chessmen.clear();
+		render_field(board);
+		std::cout << "DRAW: the white king is stale" << std::endl;
+		return chessfield::end;
+	}
+	else if (status == chessfield::bkmate) {
+		board.selected_chessmen.clear();
+		render_field(board);
+		std::cout << "WHITE WINS: the black king is mate" << std::endl;
+		return chessfield::end;
+	}
+	else if (status == chessfield::wkmate) {
+		board.selected_chessmen.clear();
+		render_field(board);
+		std::cout << "BLACK WINS: the white king is mate" << std::endl;
+		return chessfield::end;
+	}
+	else {
+		//std::cout << "An internal error occured :(" << std::endl;
+		return chessfield::end;
+	}
 }
