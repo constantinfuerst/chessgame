@@ -1,7 +1,8 @@
 #pragma once
 
 #include "pch.h"
-#include "chessfield.h"
+#include "gameEngine/chessmen/chessmen.h"
+#include "gameEngine/chessfield/chessfield.h"
 
 inline chessmen::position strtopos (std::string input) {
 	if (input.size() != 2) {

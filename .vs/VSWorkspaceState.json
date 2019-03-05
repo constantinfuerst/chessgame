@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\chessgame",
+    "\\chessgame\\gameEngine",
+    "\\chessgame\\gameEngine\\chessfield",
+    "\\chessgame\\gameEngine\\chessmen",
+    "\\chessgame\\implementation"
+  ],
+  "SelectedNode": "\\chessgame\\implementation\\main.cpp",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskName": "task-pch",
+      "appliesTo": "chessgame/pch/pch.cpp",
+      "type": "launch"
+    }
+  ]
+}
