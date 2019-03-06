@@ -1,5 +1,3 @@
-#pragma once
-
 #include "pch.h"
 #include "gameEngine/chessmen/chessmen.h"
 #include "gameEngine/chessfield/chessfield.h"
@@ -8,12 +6,16 @@ inline chessmen::position strtopos (std::string input) {
 	if (input.size() != 2) {
 		throw notfound();
 	}
-	const unsigned int x = int(input[0]) - 65;
+	unsigned int x = int(input[0]) - 65;
 	const unsigned int y = std::stoi(input.substr(1, 1)) - 1;
 	if (chessmen::validpos({ x, y })) {
 		return { x, y };
 	}
 	else {
+		x = int(input[0]) - 97;
+		if (chessmen::validpos({ x, y })) {
+			return { x, y };
+		}
 		throw notfound();
 	}
 }
@@ -66,7 +68,7 @@ inline unsigned int translateY(const unsigned int& org_y) {
 	return y;
 }
 
-inline void render_field(chessfield board) {
+inline void render_field(chessfield& board) {
 	system("cls");
 	char displayBoard[34][61] = {
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', ' ', ' ', ' ', ' ', 'B', ' ', ' ', ' ', ' ', ' ', ' ', 'C', ' ', ' ', ' ', ' ', ' ', ' ', 'D', ' ', ' ', ' ', ' ', ' ', ' ', 'E', ' ', ' ', ' ', ' ', ' ', ' ', 'F', ' ', ' ', ' ', ' ', ' ', ' ', 'G', ' ', ' ', ' ', ' ', ' ', ' ', 'H', ' ', ' ', ' ', ' '},
@@ -131,8 +133,8 @@ inline void render_field(chessfield board) {
 			displayBoard[y][x + 1] = ' ';
 	}
 
-	if (!board.selected_chessmen.empty()) {
-		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen[0], &board.chessmen_onfield);
+	if (board.selected_chessmen != nullptr) {
+		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen, &board.chessmen_onfield);
 		if (!possibleMoves.empty()) {
 			for (size_t i = 0; i < possibleMoves.size(); i++) {
 
@@ -159,8 +161,8 @@ inline void render_field(chessfield board) {
 			}
 		}
 
-		const unsigned int x = translateX(board.selected_chessmen[0]->current_position[0]);
-		const unsigned int y = translateY(board.selected_chessmen[0]->current_position[1]);
+		const unsigned int x = translateX(board.selected_chessmen->current_position[0]);
+		const unsigned int y = translateY(board.selected_chessmen->current_position[1]);
 
 		displayBoard[y + 1][x - 2] = char(192);
 		displayBoard[y    ][x - 2] = char(179);
@@ -190,7 +192,7 @@ inline void render_field(chessfield board) {
 	std::cout << std::endl << std::endl;
 }
 
-inline chessfield::game_status processOutput(chessfield::full_game_status status, chessfield board) {
+inline chessfield::game_status processOutput(chessfield::full_game_status status) {
 	if (status == chessfield::next) {
 		//std::cout << "Next player" << std::endl;
 		return chessfield::running;
@@ -220,26 +222,18 @@ inline chessfield::game_status processOutput(chessfield::full_game_status status
 		return chessfield::mistake;
 	}
 	else if (status == chessfield::bkstale) {
-		board.selected_chessmen.clear();
-		render_field(board);
 		std::cout << "DRAW: the black king is stale" << std::endl;
 		return chessfield::end;
 	}
 	else if (status == chessfield::wkstale) {
-		board.selected_chessmen.clear();
-		render_field(board);
 		std::cout << "DRAW: the white king is stale" << std::endl;
 		return chessfield::end;
 	}
 	else if (status == chessfield::bkmate) {
-		board.selected_chessmen.clear();
-		render_field(board);
 		std::cout << "WHITE WINS: the black king is mate" << std::endl;
 		return chessfield::end;
 	}
 	else if (status == chessfield::wkmate) {
-		board.selected_chessmen.clear();
-		render_field(board);
 		std::cout << "BLACK WINS: the white king is mate" << std::endl;
 		return chessfield::end;
 	}

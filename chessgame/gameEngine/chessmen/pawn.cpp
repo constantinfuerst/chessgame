@@ -11,7 +11,7 @@ chessmen::chessfigure pawn::figure() {
 	return chessmen::pawn;
 }
 
-std::vector<chessmen::position> pawn::possibleMoves(std::vector <chessmen*>* chessmen) {
+std::vector<chessmen::position> pawn::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	position hitleft;
 	position hitright;

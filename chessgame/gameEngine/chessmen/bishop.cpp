@@ -10,7 +10,8 @@ chessmen* bishop::clone() const {
 chessmen::chessfigure bishop::figure() {
 	return chessmen::bishop;
 }
-std::vector<chessmen::position> bishop::possibleMoves(std::vector <chessmen*>* chessmen) {
+
+std::vector<chessmen::position> bishop::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	{
 		{

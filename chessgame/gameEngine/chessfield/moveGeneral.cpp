@@ -13,8 +13,8 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 			return sucess;
 		}
 	}
-	for (size_t i = 0; i < selected_chessmen[0]->possibleMoves(&chessmen_onfield).size(); i++) {
-		if (selected_chessmen[0]->possibleMoves(&chessmen_onfield)[i][0] == selectedMove[0] && selected_chessmen[0]->possibleMoves(&chessmen_onfield)[i][1] == selectedMove[1]) {
+	for (size_t i = 0; i < selected_chessmen->possibleMoves(&chessmen_onfield).size(); i++) {
+		if (selected_chessmen->possibleMoves(&chessmen_onfield)[i][0] == selectedMove[0] && selected_chessmen->possibleMoves(&chessmen_onfield)[i][1] == selectedMove[1]) {
 			possible = TRUE;
 			break;
 		}
@@ -35,13 +35,13 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 		}
 		//test the move
 		try {
-			if (findChessmen(selectedMove)->player_color != selected_chessmen[0]->player_color) {
+			if (findChessmen(selectedMove)->player_color != selected_chessmen->player_color) {
 				movetoside(selectedMove, theoretical_field, theoretical_side);
 			}
 		}
 		catch (const std::exception& exception) {}
-		movetoempty(selected_chessmen[0]->current_position, selectedMove, theoretical_field);
-		if (check_check(selected_chessmen[0]->player_color, theoretical_field) == check) {
+		movetoempty(selected_chessmen->current_position, selectedMove, theoretical_field);
+		if (check_check(selected_chessmen->player_color, theoretical_field) == check) {
 			return wouldbecheck;
 		}
 		else if (theoretical == oncetheoretical) {
@@ -55,6 +55,7 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 	else {
 		return impossible;
 	}
+	return impossible;
 }
 
 void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field) {
@@ -68,14 +69,16 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 			return;
 		}
 	}
+	return;
 }
 
 void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
 		if (virtual_field->at(i)->current_position[0] == position[0] && virtual_field->at(i)->current_position[1] == position[1]) {
-			virtual_side->push_back(virtual_field->at(i));
+			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
 			virtual_field->erase(virtual_field->begin() + i);
 			return;
 		}
 	}
+	return;
 }

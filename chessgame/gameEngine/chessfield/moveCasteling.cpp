@@ -2,12 +2,12 @@
 #include "chessfield.h"
 
 chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMove, theoretical theoretical) {
-	if (selected_chessmen[0]->figure() == chessmen::king) {
-		for (size_t i = 0; i < casteling(selected_chessmen[0]->player_color).size(); i++) {
-			auto newkingpos = std::get<0>(casteling(selected_chessmen[0]->player_color)[i]);
+	if (selected_chessmen->figure() == chessmen::king) {
+		for (size_t i = 0; i < casteling(selected_chessmen->player_color).size(); i++) {
+			auto newkingpos = std::get<0>(casteling(selected_chessmen->player_color)[i]);
 			if (selectedMove == newkingpos) {
-				auto oldrookpos = std::get<0>(std::get<1>(casteling(selected_chessmen[0]->player_color)[i]));
-				auto newrookpos = std::get<1>(std::get<1>(casteling(selected_chessmen[0]->player_color)[i]));
+				auto oldrookpos = std::get<0>(std::get<1>(casteling(selected_chessmen->player_color)[i]));
+				auto newrookpos = std::get<1>(std::get<1>(casteling(selected_chessmen->player_color)[i]));
 				//check if the resulting positions are valid
 				if (!chessmen::validpos(newrookpos) || !chessmen::validpos(newkingpos)) {
 					break;
@@ -32,7 +32,7 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 						}
 						else {
 							findChessmen(oldrookpos)->current_position = newrookpos;
-							selected_chessmen[0]->current_position = newkingpos;
+							selected_chessmen->current_position = newkingpos;
 							return sucess;
 						}
 					}
@@ -47,11 +47,11 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 }
 
 chessfield::castelingvec chessfield::casteling(chessmen::color& player) {
-	chessmen* king = nullptr;
 	castelingvec returnvec;
+	chessmen* king = nullptr;
 	for (size_t i = 0; i < chessmen_onfield.size(); i++) {
 		if (chessmen_onfield[i]->figure() == chessmen::king && chessmen_onfield[i]->player_color == player && chessmen_onfield[i]->hasMoved == FALSE) {
-			king = chessmen_onfield[i];
+			king = chessmen_onfield[i].get();
 			for (size_t j = 0; j < chessmen_onfield.size(); j++) {
 				if (chessmen_onfield[j]->figure() == chessmen::rook && chessmen_onfield[j]->player_color == player && chessmen_onfield[j]->hasMoved == FALSE) {
 					if (chessmen_onfield[j]->current_position[1] == king->current_position[1]) {

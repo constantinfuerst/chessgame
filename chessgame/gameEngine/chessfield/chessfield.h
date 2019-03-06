@@ -9,16 +9,19 @@ struct notfound:std::exception {
 
 class chessfield {
 public:
-	typedef std::vector <chessmen*> chessboard;
-	chessboard chessmen_onfield;
-	chessboard chessmen_onside;
-	chessboard selected_chessmen;
+	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
+	typedef std::vector <chessmen*> ref_chessboard;
 	enum full_game_status {
 		error, enemy, selected, next, ownchessmen, emptyfield, checked, impmove, bkstale, wkstale, bkmate, wkmate
 	};
 	enum game_status {
 		end, running, mistake
 	};
+
+	chessboard chessmen_onfield;
+	chessboard chessmen_onside;
+	chessmen* selected_chessmen = nullptr;
+	chessmen::color current_player;
 private:
 	enum king_status {
 		none = 0, check = 1, stale = 2, checkmate = 3
@@ -42,10 +45,14 @@ private:
 	chessmen* findChessmen(chessmen::position& position);
 	static chessmen* findChessmen(chessmen::position position, chessboard* chessboard);
 	castelingvec casteling(chessmen::color& player);
+	void createChessmen(chessboard* chessboard, chessmen::chessfigure type, unsigned int posx, unsigned int posy, chessmen::color colo, bool move);
 public:
+	~chessfield();
 	//this is what the player or gameloop interacts with
 	full_game_status clickfield(chessmen::position field, chessmen::color player);
-	void initGame();
+	void initGame(chessmen::color cur_player);
+	bool initSaveGame(const std::string& filename);
+	bool createSaveGame(const std::string& filename, chessmen::color current_player);
 	//this is what the renderer uses to display legal moves
 	std::vector<chessmen::position> truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate = FALSE);
 };

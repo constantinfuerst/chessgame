@@ -11,7 +11,7 @@ chessmen::chessfigure king::figure() {
 	return chessmen::king;
 }
 
-std::vector<chessmen::position> king::possibleMoves(std::vector <chessmen*>* chessmen) {
+std::vector<chessmen::position> king::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	{
 		for (int i = -1; i < 2; i++) {

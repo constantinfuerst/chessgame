@@ -10,7 +10,8 @@ chessmen* knight::clone() const {
 chessmen::chessfigure knight::figure() {
 	return chessmen::knight;
 }
-std::vector<chessmen::position> knight::possibleMoves(std::vector <chessmen*>* chessmen) {
+
+std::vector<chessmen::position> knight::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	if (current_position[0] + 2 <= fieldsize_x_end) {
 		if (current_position[1] + 1 <= fieldsize_y_end) {

@@ -29,3 +29,8 @@
 build/obj/main.nativecodeanalysis.xml
 build/obj/pch.nativecodeanalysis.xml
 build/obj/vc.nativecodeanalysis.all.xml
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+.vs/slnx.sqlite
+chessgame/chessgame.json
+*.json

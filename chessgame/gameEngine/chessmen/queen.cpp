@@ -10,7 +10,8 @@ chessmen* queen::clone() const {
 chessmen::chessfigure queen::figure() {
 	return chessmen::queen;
 }
-std::vector<chessmen::position> queen::possibleMoves(std::vector <chessmen*>* chessmen) {
+
+std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	{
 		{

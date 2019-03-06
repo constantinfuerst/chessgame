@@ -14,7 +14,7 @@ chessfield::king_status chessfield::check_check(chessmen::color& player, chessbo
 
 	for (size_t i = 0; i < chessmen->size(); i++) {
 		if (chessmen->at(i)->player_color != player) {
-			std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i), chessmen, TRUE);
+			std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
 			for (size_t j = 0; j < possible_moves.size(); j++) {
 				if (possible_moves[j][0] == kingpos[0] && possible_moves[j][1] == kingpos[1]) {
 					return check;
@@ -31,7 +31,7 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 	for (size_t i = 0; i < chessmen_onfield.size(); i++) {
 		//if it is a friendly
 		if (chessmen_onfield[i]->player_color == player) {
-			chessmen* current_chessmen = chessmen_onfield[i];
+			chessmen* current_chessmen = chessmen_onfield[i].get();
 			//for every possible move of this chessmen
 			for (size_t j = 0; j < truePossibleMoves(current_chessmen, &chessmen_onfield).size(); j++) {
 				//use a virtual version of the current chessboard
