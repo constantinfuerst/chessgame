@@ -14,7 +14,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 		size_t size = returnpos.size();
 		size_t count = 0;
 		while (count < size) {
-			if (moveCharacter(returnpos[count], onlytheoretical) == wouldbecheck) {
+			if (moveCharacter(returnpos[count], nullptr, onlytheoretical) == wouldbecheck) {
 				returnpos.erase(returnpos.begin() + count);
 				size = returnpos.size();
 			}
@@ -54,7 +54,8 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 		}
 	}
 	else {
-		const auto result = moveCharacter(field, oncetheoretical);
+		move changes;
+		const auto result = moveCharacter(field, &changes, oncetheoretical);
 		if (result != sucess) {
 			if (result == wouldbecheck) {
 				return checked;
@@ -68,13 +69,18 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			//replacing pawn at the end of field with queen
 			if (selected_chessmen->figure() == chessmen::pawn) {
 				if (selected_chessmen->current_position[1] == chessmen::fieldsize_y_start && selected_chessmen->player_color == chessmen::black || selected_chessmen->current_position[1] == chessmen::fieldsize_y_end && selected_chessmen->player_color == chessmen::white) {
-					const chessmen::position pos = selected_chessmen->current_position;
+					chessmen::position pos = selected_chessmen->current_position;
 					const chessmen::color col = selected_chessmen->player_color;
-					movetoside(selected_chessmen->current_position, &chessmen_onfield, &chessmen_onside);
-					chessmen_onfield.push_back(std::unique_ptr<chessmen>(new queen(col, pos)));
+					movetoside(selected_chessmen->current_position, &chessmen_onfield, &chessmen_onside, &changes);
+					newchessmen(pos, &changes, col, chessmen::queen);
 				}
 			}
 			selected_chessmen = nullptr;
+			//move::chessfield_info vboard;
+			//vboard.push_back(&chessmen_onfield);
+			//vboard.push_back(&chessmen_onside);
+			//move::traceBack(vboard, changes);
+			movetrace.push_back(std::unique_ptr<move>(new move(changes)));
 			if (king_situation(chessmen::black) == stale) {
 				return bkstale;
 			}

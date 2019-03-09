@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "chessfield.h"
 
-chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMove, theoretical theoretical) {
+chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMove, move* movecounter, theoretical theoretical) {
 	if (selected_chessmen->figure() == chessmen::king) {
 		for (size_t i = 0; i < casteling(selected_chessmen->player_color).size(); i++) {
 			auto newkingpos = std::get<0>(casteling(selected_chessmen->player_color)[i]);
@@ -31,8 +31,8 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 							return sucess;
 						}
 						else {
-							findChessmen(oldrookpos)->current_position = newrookpos;
-							selected_chessmen->current_position = newkingpos;
+							movetoempty(oldrookpos, newrookpos, &chessmen_onfield, movecounter);
+							movetoempty(selected_chessmen->current_position, newkingpos, &chessmen_onfield, movecounter);
 							return sucess;
 						}
 					}

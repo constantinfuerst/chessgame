@@ -4,7 +4,8 @@
 int main () {
 	chessfield game;
 	while (TRUE) {
-		game.initGame(chessmen::white);
+		//game.initGame(chessmen::white);
+		game.initSaveGame("C:\\Users\\Constantin\\Documents\\testsavegame.json");
 		chessfield::game_status game_status = chessfield::running;
 		render_field(game);
 
@@ -68,6 +69,8 @@ int main () {
 		std::string selection;
 		getline(std::cin, selection);
 		if (selection == "quit") {
+			game.createSaveGame("C:\\Users\\Constantin\\Documents\\testsavegame.json");
+			game.quit();
 			break;
 		}
 		break;

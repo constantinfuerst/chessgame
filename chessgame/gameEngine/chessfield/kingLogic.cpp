@@ -41,14 +41,14 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 				chessmen::position selectedMove = truePossibleMoves(current_chessmen, &chessmen_onfield)[j];
 				try {
 					if (findChessmen(selectedMove)->player_color != player) {
-						movetoside(selectedMove, &theoretical_field, &theoretical_side);
+						movetoside(selectedMove, &theoretical_field, &theoretical_side, nullptr);
 					}
 					else {
 						continue;
 					}
 				}
 				catch (const std::exception& exception) {}
-				movetoempty(current_chessmen->current_position, selectedMove, &theoretical_field);
+				movetoempty(current_chessmen->current_position, selectedMove, &theoretical_field, nullptr);
 				//if the king is not in check with this theoretical board position, it is not checkmate
 				if (check_check(player, &theoretical_field) == none) {
 					//return check if the king is check in the actual board position, duh
