@@ -28,7 +28,7 @@ std::vector<chessmen::position> pawn::possibleMoves(chessboard* chessmen) {
 		twostep[0] = current_position[0];
 		twostep[1] = current_position[1] - 2;
 	}
-	else if (player_color == white) {
+	else {
 		hitleft[0] = current_position[0] - 1;
 		hitleft[1] = current_position[1] + 1;
 		hitright[0] = current_position[0] + 1;

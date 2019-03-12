@@ -5,6 +5,7 @@
 
 class move {
 public:
+	chessmen::color current_player;
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
 	typedef chessboard* ref_chessboard;
 	typedef std::vector<ref_chessboard> chessfield_info;
@@ -28,6 +29,7 @@ public:
 	static void moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos);
 	move(const move& mve) {
 		changes = mve.changes;
+		current_player = mve.current_player;
 	}
 	move() = default;
 };

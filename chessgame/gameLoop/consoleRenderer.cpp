@@ -1,8 +1,7 @@
 #include "pch.h"
-#include "gameEngine/chessmen/chessmen.h"
-#include "gameEngine/chessfield/chessfield.h"
+#include "renderer.h"
 
-inline chessmen::position strtopos (std::string input) {
+chessmen::position consoleRenderer::strtopos (std::string input) {
 	if (input.size() != 2) {
 		throw notfound();
 	}
@@ -20,11 +19,11 @@ inline chessmen::position strtopos (std::string input) {
 	}
 }
 
-inline std::string postostr(chessmen::position pos) {
+std::string consoleRenderer::postostr(chessmen::position pos) {
 	return char(pos[0] + 65) + std::to_string(pos[1] + 1);
 }
 
-inline unsigned int translateX (const unsigned int& org_x) {
+unsigned int consoleRenderer::translateX (const unsigned int& org_x) {
 	unsigned int x = 0;
 	if (org_x == 0)
 		x = 7;
@@ -47,7 +46,7 @@ inline unsigned int translateX (const unsigned int& org_x) {
 	return x;
 }
 
-inline unsigned int translateY(const unsigned int& org_y) {
+unsigned int consoleRenderer::translateY(const unsigned int& org_y) {
 	unsigned int y = 0;
 	if (org_y == 0)
 		y = 31;
@@ -68,7 +67,7 @@ inline unsigned int translateY(const unsigned int& org_y) {
 	return y;
 }
 
-inline void render_field(chessfield& board) {
+void consoleRenderer::render(chessfield& board) {
 	system("cls");
 	char displayBoard[34][61] = {
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', ' ', ' ', ' ', ' ', 'B', ' ', ' ', ' ', ' ', ' ', ' ', 'C', ' ', ' ', ' ', ' ', ' ', ' ', 'D', ' ', ' ', ' ', ' ', ' ', ' ', 'E', ' ', ' ', ' ', ' ', ' ', ' ', 'F', ' ', ' ', ' ', ' ', ' ', ' ', 'G', ' ', ' ', ' ', ' ', ' ', ' ', 'H', ' ', ' ', ' ', ' '},
@@ -192,7 +191,7 @@ inline void render_field(chessfield& board) {
 	std::cout << std::endl << std::endl;
 }
 
-inline chessfield::game_status processOutput(chessfield::full_game_status status) {
+chessfield::game_status consoleRenderer::processOutput(chessfield::full_game_status status) {
 	if (status == chessfield::next) {
 		//std::cout << "Next player" << std::endl;
 		return chessfield::running;
@@ -241,4 +240,150 @@ inline chessfield::game_status processOutput(chessfield::full_game_status status
 		//std::cout << "An internal error occured :(" << std::endl;
 		return chessfield::end;
 	}
+}
+
+
+int consoleRenderer::gameLoop() {
+	chessfield game;
+	while (TRUE) {
+		while (TRUE) {
+			bool loaded = FALSE;
+			std::cout << "Would you like to load a savegame? Enter \"yes\" or \"no\"" << std::endl;
+			std::string selection;
+			getline(std::cin, selection);
+			if (selection == "yes") {
+				while (TRUE) {
+					std::cout << "Please enter the name and directory of the savegame you want to load or enter \"return\" to return" << std::endl;
+					std::string selection;
+					getline(std::cin, selection);
+					if (selection == "return") {
+						break;
+					}
+					else if (game.initSaveGame(selection) == FALSE) {
+						std::cout << "Something went wrong while reading from your savegame, please try that again" << std::endl;
+					}
+					else {
+						loaded = TRUE;
+						break;
+					}
+				}
+			}
+			else if (selection == "no") {
+				game.initGame();
+				loaded = TRUE;
+				break;
+			}
+			else {
+				std::cout << "Please try that again" << std::endl;
+			}
+			if (loaded == TRUE) {
+				break;
+			}
+		}
+
+		chessfield::game_status game_status = chessfield::running;
+		render(game);
+
+		while (TRUE) {
+			while (TRUE) {
+				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << ", please select a position" << std::endl;
+				std::string selection;
+				getline(std::cin, selection);
+				try {
+					auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
+					auto const move = processOutput(moveFull);
+					if (move == chessfield::running) {
+						render(game);
+						break;
+					}
+				}
+				catch (const std::exception& exception) {
+					render(game);
+					std::cout << "The entered position does not seem to be valid" << std::endl;
+				}
+			}
+			while (TRUE) {
+				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->current_position) << ", enter \"back\" to return or a position to move" << std::endl;
+				std::string selection;
+				getline(std::cin, selection);
+				try {
+					if (selection == "back") {
+						render(game);
+						game.selected_chessmen = nullptr;
+						break;
+					}
+					else {
+						auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
+						auto const move = processOutput(moveFull);
+						if (move == chessfield::running) {
+							render(game);
+							if (game.current_player == chessmen::white)
+								game.current_player = chessmen::black;
+							else
+								game.current_player = chessmen::white;
+							break;
+						}
+						else if (move == chessfield::end) {
+							render(game);
+							processOutput(moveFull);
+							game_status = chessfield::end;
+							break;
+						}
+					}
+				}
+				catch (const std::exception& exception) {
+					render(game);
+					std::cout << "The entered position does not seem to be valid" << std::endl;
+				}
+			}
+			if (game_status == chessfield::end) {
+				break;
+			}
+		}
+
+		std::cout << "Would you like to play another match? Enter enter \"quit\" to quit, press enter to rematch" << std::endl;
+		std::string selection;
+		getline(std::cin, selection);
+		if (selection == "quit") {
+			while (TRUE) {
+				bool saved = FALSE;
+				std::cout << "Would you like to save this game? Enter \"yes\" or \"no\"" << std::endl;
+				std::string selection;
+				getline(std::cin, selection);
+				if (selection == "yes") {
+					while (TRUE) {
+						std::cout << "Please enter a directory and name for your savegame or \"return\" to return" << std::endl;
+						std::string selection;
+						getline(std::cin, selection);
+						if (selection == "return") {
+							break;
+						}
+						else if (game.createSaveGame(selection) == FALSE) {
+							std::cout << "Something went wrong while writing your savegame, please try that again" << std::endl;
+						}
+						else {
+							game.quit();
+							saved = TRUE;
+							break;
+						}
+					}
+				}
+				else if (selection == "no") {
+					game.quit();
+					saved = TRUE;
+					break;
+				}
+				else {
+					std::cout << "Please try that again" << std::endl;
+				}
+				if (saved == TRUE) {
+					break;
+				}
+			}
+			break;
+		}
+		break;
+	}
+	std::cin.get();
+	return TRUE;
 }

@@ -34,3 +34,6 @@ build/obj/vc.nativecodeanalysis.all.xml
 .vs/slnx.sqlite
 chessgame/chessgame.json
 *.json
+assets/fonts/Saira-Regular.ttf
+assets/images/board.png
+assets/images/figures.png

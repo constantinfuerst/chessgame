@@ -55,6 +55,7 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 	}
 	else {
 		move changes;
+		changes.current_player = current_player;
 		const auto result = moveCharacter(field, &changes, oncetheoretical);
 		if (result != sucess) {
 			if (result == wouldbecheck) {
