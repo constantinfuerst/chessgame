@@ -12,35 +12,35 @@ sfmlRenderer::sfmlRenderer() {
 	chessmen_txt.loadFromFile(assets_image + "figures.png");
 	//asigning sprites
 	chessmen_king_white_spr.setTexture(chessmen_txt);
-	chessmen_king_white_spr.setTextureRect(sf::IntRect(224, 60, 56, 60));
+	chessmen_king_white_spr.setTextureRect(sf::IntRect(224, 56, 56, 56));
 	chessmen_knight_white_spr.setTexture(chessmen_txt);
-	chessmen_knight_white_spr.setTextureRect(sf::IntRect(56, 60, 56, 60));
+	chessmen_knight_white_spr.setTextureRect(sf::IntRect(56, 56, 56, 56));
 	chessmen_bishop_white_spr.setTexture(chessmen_txt);
-	chessmen_bishop_white_spr.setTextureRect(sf::IntRect(112, 60, 56, 60));
+	chessmen_bishop_white_spr.setTextureRect(sf::IntRect(112, 56, 56, 56));
 	chessmen_pawn_white_spr.setTexture(chessmen_txt);
-	chessmen_pawn_white_spr.setTextureRect(sf::IntRect(280, 60, 56, 60));
+	chessmen_pawn_white_spr.setTextureRect(sf::IntRect(280, 56, 56, 56));
 	chessmen_rook_white_spr.setTexture(chessmen_txt);
-	chessmen_rook_white_spr.setTextureRect(sf::IntRect(0, 60, 56, 60));
+	chessmen_rook_white_spr.setTextureRect(sf::IntRect(0, 56, 56, 56));
 	chessmen_queen_white_spr.setTexture(chessmen_txt);
-	chessmen_queen_white_spr.setTextureRect(sf::IntRect(168, 60, 56, 60));
+	chessmen_queen_white_spr.setTextureRect(sf::IntRect(168, 56, 56, 56));
 	chessmen_king_black_spr.setTexture(chessmen_txt);
-	chessmen_king_black_spr.setTextureRect(sf::IntRect(224, 0, 56, 60));
+	chessmen_king_black_spr.setTextureRect(sf::IntRect(224, 0, 56, 56));
 	chessmen_knight_black_spr.setTexture(chessmen_txt);
-	chessmen_knight_black_spr.setTextureRect(sf::IntRect(56, 0, 56, 60));
+	chessmen_knight_black_spr.setTextureRect(sf::IntRect(56, 0, 56, 56));
 	chessmen_bishop_black_spr.setTexture(chessmen_txt);
-	chessmen_bishop_black_spr.setTextureRect(sf::IntRect(112, 0, 56, 60));
+	chessmen_bishop_black_spr.setTextureRect(sf::IntRect(112, 0, 56, 56));
 	chessmen_pawn_black_spr.setTexture(chessmen_txt);
-	chessmen_pawn_black_spr.setTextureRect(sf::IntRect(280, 0, 56, 60));
+	chessmen_pawn_black_spr.setTextureRect(sf::IntRect(280, 0, 56, 56));
 	chessmen_rook_black_spr.setTexture(chessmen_txt);
-	chessmen_rook_black_spr.setTextureRect(sf::IntRect(0, 0, 56, 60));
+	chessmen_rook_black_spr.setTextureRect(sf::IntRect(0, 0, 56, 56));
 	chessmen_queen_black_spr.setTexture(chessmen_txt);
-	chessmen_queen_black_spr.setTextureRect(sf::IntRect(168, 0, 56, 60));
+	chessmen_queen_black_spr.setTextureRect(sf::IntRect(168, 0, 56, 56));
 
 	//loading UI texture
 	ui_back_txt.loadFromFile(assets_image + "back.png");
 	ui_back_spr.setTexture(ui_back_txt);
-	ui_forward_spr.setTexture(ui_back_txt);
-	ui_forward_spr.rotate(180);
+	ui_forward_txt.loadFromFile(assets_image + "forward.png");
+	ui_forward_spr.setTexture(ui_forward_txt);
 	ui_save_txt.loadFromFile(assets_image + "save.png");
 	ui_save_spr.setTexture(ui_save_txt);
 	ui_load_txt.loadFromFile(assets_image + "load.png");
@@ -115,7 +115,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 	sf::Vector2u chessboard_size = chessboard_txt.getSize();
 	int ui_height = screenHeight - chessboard_size.y;
 	int ui_width = screenWidth;
-	int ui_element_width = (ui_width / ui_elements.size()) - 16;
+	ui_element_width = (ui_width / ui_elements.size()) - 16;
 
 	for (size_t i = 0; i < ui_elements.size(); i++) {
 		float sizex = ui_elements[i]->getTextureRect().width;
@@ -226,6 +226,16 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 	}
 }
 
+bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) {
+	switch (ui_element) {
+	case 0:
+		game->stepback();
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
 int sfmlRenderer::gameLoop() {
 	//creating window
 	screenWidth = 500;
@@ -267,7 +277,14 @@ int sfmlRenderer::gameLoop() {
 				paused = FALSE;
 			}
 			else {
-				break;
+				if (paused == TRUE) {
+					sleep(sf::seconds(1));
+					window.clear();
+					window.display();
+				}
+				else {
+					break;
+				}
 			}
 		}
 
@@ -290,6 +307,14 @@ int sfmlRenderer::gameLoop() {
 						processOutput(game, returnval);
 					}
 					redraw = TRUE;
+				}
+				else {
+					if (mousePosition.y < screenHeight && mousePosition.y > chessboard_height) {
+						const unsigned int clickedUI = mousePosition.x / ui_element_width;
+						if (processUIInput(clickedUI, &game) == TRUE)
+							redraw = TRUE;
+						std::cout << "UI element " << clickedUI << " clicked" << std::endl;
+					}
 				}
 				lmb_press = FALSE;
 			}

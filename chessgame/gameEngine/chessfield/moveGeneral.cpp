@@ -76,7 +76,7 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 	for (size_t i = 0; i < field->size(); i++) {
 		if (field->at(i)->board_position.x == old_position.x && field->at(i)->board_position.y == old_position.y) {
 			if (movedata != nullptr) {
-				movedata->makemove(field->at(i).get(), old_position, new_position, move::toempty);
+				movedata->makemove(field->at(i).get(), old_position, new_position, field->at(i)->hasMoved, move::toempty);
 			}
 			field->at(i)->board_position.x = new_position.x;
 			field->at(i)->board_position.y = new_position.y;
@@ -91,7 +91,7 @@ void chessfield::movetoside(chessmen::position& position, chessboard* virtual_fi
 		if (virtual_field->at(i)->board_position.x == position.x && virtual_field->at(i)->board_position.y == position.y) {
 			if (movedata != nullptr) {
 				const chessmen::position undef = { 9, 9 };
-				movedata->makemove(virtual_field->at(i).get(), position, undef, move::toside);
+				movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->hasMoved, move::toside);
 			}
 			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
 			virtual_field->erase(virtual_field->begin() + i);
@@ -111,5 +111,5 @@ void chessfield::newchessmen(chessmen::position& position, move* movedata, chess
 	else
 		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new queen(color, position, TRUE)));
 	const chessmen::position undef = { 9, 9 };
-	movedata->makemove(undef, position, color, figure, move::newcm);
+	movedata->makemove(undef, position, color, figure, TRUE, move::newcm);
 }

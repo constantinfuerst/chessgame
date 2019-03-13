@@ -35,10 +35,11 @@ void move::placeBack(chessfield_info& board, chessmen::position pos) {
 	}
 }
 
-void move::moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos) {
+void move::moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold) {
 	for (size_t i = 0; i < board[0]->size(); i++) {
 		if (board[0]->at(i)->board_position.x == currentpos.x && board[0]->at(i)->board_position.y == currentpos.y) {
 			board[0]->at(i)->board_position = oldpos;
+			board[0]->at(i)->hasMoved = hasmovedold;
 		}
 	}
 }
@@ -52,7 +53,7 @@ void move::traceBack(chessfield_info& board, move* movetrace) {
 			movetrace->changes.pop_back(); movetrace->changes.pop_back();
 		}
 		else if (move->move == toempty) {
-			moveBack(board, move->oldPosition, move->newPosition);
+			moveBack(board, move->oldPosition, move->newPosition, move->hasmovedold);
 			movetrace->changes.pop_back();
 		}
 		else if (move->move == toside) {

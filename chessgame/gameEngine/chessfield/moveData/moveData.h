@@ -13,6 +13,7 @@ public:
 		toempty = 0, toside = 1, newcm = 2
 	};
 	struct chessmenMoved {
+		bool hasmovedold;
 		chessmen::chessfigure figure;
 		chessmen::color player;
 		chessmen::position oldPosition;
@@ -21,12 +22,12 @@ public:
 	};
 	std::vector<chessmenMoved> changes;
 	void pushmove(const chessmenMoved& movedata);
-	void makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, moveType move);
-	void makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, moveType move);
+	void makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move);
+	void makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move);
 	static void traceBack(chessfield_info& field, move* movetrace);
 	static void removeChessmen(chessfield_info& board, chessmen::position pos);
 	static void placeBack(chessfield_info& board, chessmen::position pos);
-	static void moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos);
+	static void moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
 	move(const move& mve) {
 		changes = mve.changes;
 		current_player = mve.current_player;

@@ -28,13 +28,96 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 
 		if (chessmen->figure() == chessmen::king) {
 			for (size_t i = 0; i < casteling(chessmen->player_color).size(); i++) {
-				auto position = std::get<0>(casteling(chessmen->player_color)[i]);
-				try {
-					findChessmen(position);
+				int required_empty = 0;
+				int empty = 0;
+				chessmen::position position = std::get<0>(casteling(chessmen->player_color)[i]);
+				if (position.x > chessmen->board_position.x && chessmen->player_color == chessmen::white) {
+					chessmen::position secondpos = { position.x - 1, position.y };
+					chessmen::position thrdpos = { position.x - 2, position.y };
+					required_empty = 3;
+					try {
+						findChessmen(position);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(secondpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(thrdpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+				}
+				else if (position.x < chessmen->board_position.x && chessmen->player_color == chessmen::black) {
+					chessmen::position secondpos = { position.x + 1, position.y };
+					chessmen::position thrdpos = { position.x + 2, position.y };
+					required_empty = 3;
+					try {
+						findChessmen(position);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(secondpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(thrdpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+				}
+				else if (position.x > chessmen->board_position.x && chessmen->player_color == chessmen::black) {
+					chessmen::position secondpos = { position.x - 1, position.y };
+					required_empty = 2;
+					try {
+						findChessmen(position);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(secondpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+				}
+				else if (position.x < chessmen->board_position.x && chessmen->player_color == chessmen::white) {
+					chessmen::position secondpos = { position.x + 1, position.y };
+					required_empty = 2;
+					try {
+						findChessmen(position);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+					try {
+						findChessmen(secondpos);
+					}
+					catch (const std::exception& exception) {
+						empty++;
+					}
+				}
+				else {
+					required_empty = 0;
 					continue;
 				}
-				catch (const std::exception& exception) {
+				if (empty == required_empty) {
 					returnpos.push_back(position);
+				}
+				else {
+					continue;
 				}
 			}
 		}

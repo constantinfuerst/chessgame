@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "moveData.h"
 
-void move::makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, moveType move) {
+void move::makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move) {
 	chessmenMoved change;
+	change.hasmovedold = hasmovedold;
 	change.move = move;
 	change.oldPosition = oldPosition;
 	change.newPosition = newPosition;
@@ -11,8 +12,9 @@ void move::makemove(chessmen::position oldPosition, chessmen::position newPositi
 	changes.push_back(change);
 }
 
-void move::makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, moveType move) {
+void move::makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move) {
 	chessmenMoved change;
+	change.hasmovedold = hasmovedold;
 	change.move = move;
 	change.oldPosition = oldPosition;
 	change.newPosition = newPosition;

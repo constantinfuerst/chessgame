@@ -49,6 +49,7 @@ private:
 	//loading UI assets
 	sf::Texture ui_back_txt;
 	sf::Sprite ui_back_spr;
+	sf::Texture ui_forward_txt;
 	sf::Sprite ui_forward_spr;
 	sf::Texture ui_save_txt;
 	sf::Texture ui_load_txt;
@@ -64,10 +65,12 @@ private:
 	unsigned int screenWidth;
 	unsigned int screenHeight;
 	//UI elements
+	int ui_element_width;
 	std::vector<sf::Sprite*> ui_elements;
 
-	void render(chessfield& game, sf::RenderWindow & window);
+	static bool processUIInput(unsigned int ui_element, chessfield* game);
 	static chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status);
+	void render(chessfield& game, sf::RenderWindow & window);
 
 public:
 	std::string assets_image;
