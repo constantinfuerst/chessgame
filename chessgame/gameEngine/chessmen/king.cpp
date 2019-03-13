@@ -16,8 +16,8 @@ std::vector<chessmen::position> king::possibleMoves(chessboard* chessmen) {
 	{
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
-				if (current_position[0] + i <= fieldsize_x_end && current_position[1] + j <= fieldsize_y_end) {
-					const position pos = { current_position[0] + i ,current_position[1] + j };
+				if (board_position.x + i <= fieldsize_x_end && board_position.y + j <= fieldsize_y_end) {
+					const position pos = { board_position.x + i ,board_position.y + j };
 					if (positiocheck(chessmen, pos, player_color) != friendly && validpos(pos)) {
 						returnpos.push_back(pos);
 					}

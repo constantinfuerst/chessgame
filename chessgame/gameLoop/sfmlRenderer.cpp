@@ -23,7 +23,6 @@ sfmlRenderer::sfmlRenderer() {
 	chessmen_rook_white_spr.setTextureRect(sf::IntRect(0, 60, 56, 60));
 	chessmen_queen_white_spr.setTexture(chessmen_txt);
 	chessmen_queen_white_spr.setTextureRect(sf::IntRect(168, 60, 56, 60));
-
 	chessmen_king_black_spr.setTexture(chessmen_txt);
 	chessmen_king_black_spr.setTextureRect(sf::IntRect(224, 0, 56, 60));
 	chessmen_knight_black_spr.setTexture(chessmen_txt);
@@ -36,6 +35,20 @@ sfmlRenderer::sfmlRenderer() {
 	chessmen_rook_black_spr.setTextureRect(sf::IntRect(0, 0, 56, 60));
 	chessmen_queen_black_spr.setTexture(chessmen_txt);
 	chessmen_queen_black_spr.setTextureRect(sf::IntRect(168, 0, 56, 60));
+
+	//loading UI texture
+	ui_back_txt.loadFromFile(assets_image + "back.png");
+	ui_back_spr.setTexture(ui_back_txt);
+	ui_forward_spr.setTexture(ui_back_txt);
+	ui_forward_spr.rotate(180);
+	ui_save_txt.loadFromFile(assets_image + "save.png");
+	ui_save_spr.setTexture(ui_save_txt);
+	ui_load_txt.loadFromFile(assets_image + "load.png");
+	ui_load_spr.setTexture(ui_load_txt);
+	ui_retry_txt.loadFromFile(assets_image + "retry.png");
+	ui_retry_spr.setTexture(ui_retry_txt);
+
+	ui_elements.push_back(&ui_back_spr); ui_elements.push_back(&ui_forward_spr); ui_elements.push_back(&ui_save_spr); ui_elements.push_back(&ui_load_spr); ui_elements.push_back(&ui_retry_spr);
 }
 
 chessfield::game_status sfmlRenderer::processOutput(chessfield& game, chessfield::full_game_status status) {
@@ -93,22 +106,53 @@ chessfield::game_status sfmlRenderer::processOutput(chessfield& game, chessfield
 }
 
 void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
+	//draw UI
+	if (game.current_player == chessmen::white)
+		ui_elements.push_back(new sf::Sprite(chessmen_king_white_spr));
+	else
+		ui_elements.push_back(new sf::Sprite(chessmen_king_black_spr));
+
+	sf::Vector2u chessboard_size = chessboard_txt.getSize();
+	int ui_height = screenHeight - chessboard_size.y;
+	int ui_width = screenWidth;
+	int ui_element_width = (ui_width / ui_elements.size()) - 16;
+
+	for (size_t i = 0; i < ui_elements.size(); i++) {
+		float sizex = ui_elements[i]->getTextureRect().width;
+		float sizey = ui_elements[i]->getTextureRect().height;
+		float scalex = (float)ui_element_width / sizex;
+		float scaley = (float)ui_height / sizey;
+		float posx = i * ui_element_width + 32;
+		float posy = chessboard_size.y;
+		ui_elements[i]->setColor(sf::Color::White);
+		if (scalex < scaley)
+			ui_elements[i]->setScale({ scalex, scalex });
+		else
+			ui_elements[i]->setScale({ scaley, scaley });
+		ui_elements[i]->setPosition({posx, posy });
+		window.draw(*ui_elements[i]);
+	}
+
+	delete ui_elements.back();
+	ui_elements.pop_back();
+
+	//draw game
 	window.draw(chessboard_spr);
 
 	if (game.selected_chessmen != nullptr) {
 		sf::RectangleShape selected(sf::Vector2f(field_width, field_height));
-		selected.setFillColor(sf::Color(0, 255, 0, 192));
-		int posx = game.selected_chessmen->current_position[0] * field_width + 28;
-		int posy = game.selected_chessmen->current_position[1] * field_height + 28;
+		selected.setFillColor(sf::Color(25, 225, 0, 225));
+		int posx = game.selected_chessmen->board_position.x * field_width + 28;
+		int posy = game.selected_chessmen->board_position.y * field_height + 28;
 		selected.setPosition(posx, posy);
 		window.draw(selected);
 
 		auto possibleMoves = game.truePossibleMoves(game.selected_chessmen, &game.chessmen_onfield);
 		for (size_t i = 0; i < possibleMoves.size(); i++) {
 			sf::RectangleShape pmindicator(sf::Vector2f(field_width, field_height));
-			pmindicator.setFillColor(sf::Color(255, 0,0,192));
-			int posx = possibleMoves[i][0] * field_width + 28;
-			int posy = possibleMoves[i][1] * field_height + 28;
+			pmindicator.setFillColor(sf::Color(50, 100,0,225));
+			int posx = possibleMoves[i].x * field_width + 28;
+			int posy = possibleMoves[i].y * field_height + 28;
 			pmindicator.setPosition(posx, posy);
 			window.draw(pmindicator);
 		}
@@ -116,8 +160,8 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 
 	for (size_t i = 0; i < game.chessmen_onfield.size(); i++) {
 		sf::Sprite* current_sprite = nullptr;
-		int posx = game.chessmen_onfield[i]->current_position[0] * field_width + 28;
-		int posy = game.chessmen_onfield[i]->current_position[1] * field_height + 28;
+		int posx = game.chessmen_onfield[i]->board_position.x * field_width + 28;
+		int posy = game.chessmen_onfield[i]->board_position.y * field_height + 28;
 
 		auto figure = game.chessmen_onfield[i]->figure();
 
@@ -184,8 +228,8 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 
 int sfmlRenderer::gameLoop() {
 	//creating window
-	unsigned int screenWidth = 500;
-	unsigned int screenHeight = 550;
+	screenWidth = 500;
+	screenHeight = 550;
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), L"Chessgame (c) 2019 Constantin Fürst", sf::Style::Titlebar | sf::Style::Close);
 
 	chessfield game;
@@ -238,7 +282,7 @@ int sfmlRenderer::gameLoop() {
 				const unsigned int clickedY = (mousePosition.y - 28) / field_height;
 				const chessmen::position clickedPOS = { clickedX, clickedY };
 				if (chessmen::validpos(clickedPOS)) {
-					if (game.selected_chessmen != nullptr && clickedX == game.selected_chessmen->current_position[0] && clickedY == game.selected_chessmen->current_position[1]) {
+					if (game.selected_chessmen != nullptr && clickedX == game.selected_chessmen->board_position.x && clickedY == game.selected_chessmen->board_position.y) {
 						game.selected_chessmen = nullptr;
 					}
 					else {

@@ -13,33 +13,33 @@ chessmen::chessfigure pawn::figure() {
 
 std::vector<chessmen::position> pawn::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
-	position hitleft;
-	position hitright;
-	position onestep;
-	position twostep;
+	position hitleft = { 0,0 };
+	position hitright = { 0,0 };
+	position onestep = { 0,0 };
+	position twostep = { 0,0 };
 
 	if (player_color == black) {
-		hitleft[0] = current_position[0] - 1;
-		hitleft[1] = current_position[1] - 1;
-		hitright[0] = current_position[0] + 1;
-		hitright[1] = current_position[1] - 1;
-		onestep[0] = current_position[0];
-		onestep[1] = current_position[1] - 1;
-		twostep[0] = current_position[0];
-		twostep[1] = current_position[1] - 2;
+		hitleft.x = board_position.x - 1;
+		hitleft.y = board_position.y - 1;
+		hitright.x = board_position.x + 1;
+		hitright.y = board_position.y - 1;
+		onestep.x = board_position.x;
+		onestep.y = board_position.y - 1;
+		twostep.x = board_position.x;
+		twostep.y = board_position.y - 2;
 	}
 	else {
-		hitleft[0] = current_position[0] - 1;
-		hitleft[1] = current_position[1] + 1;
-		hitright[0] = current_position[0] + 1;
-		hitright[1] = current_position[1] + 1;
-		onestep[0] = current_position[0];
-		onestep[1] = current_position[1] + 1;
-		twostep[0] = current_position[0];
-		twostep[1] = current_position[1] + 2;
+		hitleft.x = board_position.x - 1;
+		hitleft.y = board_position.y + 1;
+		hitright.x = board_position.x + 1;
+		hitright.y = board_position.y + 1;
+		onestep.x = board_position.x;
+		onestep.y = board_position.y + 1;
+		twostep.x = board_position.x;
+		twostep.y = board_position.y + 2;
 	}
 
-	if (current_position[1] <= fieldsize_y_end && current_position[1] >= fieldsize_y_start) {
+	if (board_position.y <= fieldsize_y_end && board_position.y >= fieldsize_y_start) {
 		if (hasMoved == FALSE) {
 			if (positiocheck(chessmen, onestep, player_color) == empty && positiocheck(chessmen, twostep, player_color) == empty && validpos(twostep)) {
 				returnpos.push_back(twostep);

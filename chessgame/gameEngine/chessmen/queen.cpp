@@ -15,7 +15,7 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	{
 		{
-			int x = current_position[0] + 1; int y = current_position[1] + 1;
+			int x = board_position.x + 1; int y = board_position.y + 1;
 			while (x <= fieldsize_x_end && y <= fieldsize_y_end) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -32,7 +32,7 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = current_position[0] - 1; int y = current_position[1] + 1;
+			int x = board_position.x - 1; int y = board_position.y + 1;
 			while (x >= fieldsize_x_start && y <= fieldsize_y_end) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -49,7 +49,7 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = current_position[0] + 1; int y = current_position[1] - 1;
+			int x = board_position.x + 1; int y = board_position.y - 1;
 			while (x <= fieldsize_x_end && y >= fieldsize_y_start) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -66,7 +66,7 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = current_position[0] - 1; int y = current_position[1] - 1;
+			int x = board_position.x - 1; int y = board_position.y - 1;
 			while (x >= fieldsize_x_start && y >= fieldsize_y_start) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -83,9 +83,9 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = current_position[0] + 1;
+			int x = board_position.x + 1;
 			while (x <= fieldsize_x_end) {
-				const position pos = { x, current_position[1] };
+				const position pos = { x, board_position.y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -100,9 +100,9 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = current_position[0] - 1;
+			int x = board_position.x - 1;
 			while (x >= fieldsize_x_start) {
-				const position pos = { x, current_position[1] };
+				const position pos = { x, board_position.y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -117,9 +117,9 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int y = current_position[1] + 1;
+			int y = board_position.y + 1;
 			while (y <= fieldsize_y_end) {
-				const position pos = { current_position[0], y };
+				const position pos = { board_position.x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -134,9 +134,9 @@ std::vector<chessmen::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int y = current_position[1] - 1;
+			int y = board_position.y - 1;
 			while (y >= fieldsize_y_start) {
-				const position pos = { current_position[0], y };
+				const position pos = { board_position.x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
 					returnpos.push_back(pos);
 				}

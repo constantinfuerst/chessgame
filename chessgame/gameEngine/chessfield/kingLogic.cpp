@@ -6,8 +6,8 @@ chessfield::king_status chessfield::check_check(chessmen::color& player, chessbo
 	chessmen::position kingpos;
 	for (size_t i = 0; i < chessmen->size(); i++) {
 		if (chessmen->at(i)->figure() == chessmen::king && chessmen->at(i)->player_color == player) {
-			kingpos[0] = chessmen->at(i)->current_position[0];
-			kingpos[1] = chessmen->at(i)->current_position[1];
+			kingpos.x = chessmen->at(i)->board_position.x;
+			kingpos.y = chessmen->at(i)->board_position.y;
 			break;
 		}
 	}
@@ -16,7 +16,7 @@ chessfield::king_status chessfield::check_check(chessmen::color& player, chessbo
 		if (chessmen->at(i)->player_color != player) {
 			std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
 			for (size_t j = 0; j < possible_moves.size(); j++) {
-				if (possible_moves[j][0] == kingpos[0] && possible_moves[j][1] == kingpos[1]) {
+				if (possible_moves[j].x == kingpos.x && possible_moves[j].y == kingpos.y) {
 					return check;
 				}
 			}
@@ -48,7 +48,7 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 					}
 				}
 				catch (const std::exception& exception) {}
-				movetoempty(current_chessmen->current_position, selectedMove, &theoretical_field, nullptr);
+				movetoempty(current_chessmen->board_position, selectedMove, &theoretical_field, nullptr);
 				//if the king is not in check with this theoretical board position, it is not checkmate
 				if (check_check(player, &theoretical_field) == none) {
 					//return check if the king is check in the actual board position, duh

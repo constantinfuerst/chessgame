@@ -5,7 +5,7 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 	if (selected_chessmen->figure() == chessmen::king) {
 		for (size_t i = 0; i < casteling(selected_chessmen->player_color).size(); i++) {
 			auto newkingpos = std::get<0>(casteling(selected_chessmen->player_color)[i]);
-			if (selectedMove == newkingpos) {
+			if (selectedMove.x == newkingpos.x && selectedMove.y == newkingpos.y) {
 				auto oldrookpos = std::get<0>(std::get<1>(casteling(selected_chessmen->player_color)[i]));
 				auto newrookpos = std::get<1>(std::get<1>(casteling(selected_chessmen->player_color)[i]));
 				//check if the resulting positions are valid
@@ -32,7 +32,7 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 						}
 						else {
 							movetoempty(oldrookpos, newrookpos, &chessmen_onfield, movecounter);
-							movetoempty(selected_chessmen->current_position, newkingpos, &chessmen_onfield, movecounter);
+							movetoempty(selected_chessmen->board_position, newkingpos, &chessmen_onfield, movecounter);
 							return sucess;
 						}
 					}
@@ -54,28 +54,28 @@ chessfield::castelingvec chessfield::casteling(chessmen::color& player) {
 			king = chessmen_onfield[i].get();
 			for (size_t j = 0; j < chessmen_onfield.size(); j++) {
 				if (chessmen_onfield[j]->figure() == chessmen::rook && chessmen_onfield[j]->player_color == player && chessmen_onfield[j]->hasMoved == FALSE) {
-					if (chessmen_onfield[j]->current_position[1] == king->current_position[1]) {
+					if (chessmen_onfield[j]->board_position.y == king->board_position.y) {
 						chessboard virtualfield = copyChessboard(&chessmen_onfield);
-						const unsigned int xposrook = chessmen_onfield[j]->current_position[0];
-						unsigned int xposking = king->current_position[0];
+						const unsigned int xposrook = chessmen_onfield[j]->board_position.x;
+						unsigned int xposking = king->board_position.x;
 						int kingmove = 0;
 						int rookmove = 0;
 						while (TRUE) {
 							if (xposking < xposrook) {
 								xposking++;
-								virtualfield[i]->current_position[0] = xposking;
+								virtualfield[i]->board_position.x = xposking;
 								kingmove = +2; rookmove = +1;
 							}
 							else if (xposking > xposrook) {
 								xposking--;
-								virtualfield[i]->current_position[0] = xposking;
+								virtualfield[i]->board_position.x = xposking;
 								kingmove = -2;  rookmove = -1;
 							}
 							else if (xposking == xposrook) {
 								//found a possible casteling move
-								chessmen::position newkingpos = { king->current_position[0] + kingmove, king->current_position[1] };
-								chessmen::position oldrookpos = chessmen_onfield[j]->current_position;
-								chessmen::position newrookpos = { chessmen_onfield[i]->current_position[0] + rookmove, chessmen_onfield[j]->current_position[1] };
+								chessmen::position newkingpos = { king->board_position.x + kingmove, king->board_position.y };
+								chessmen::position oldrookpos = chessmen_onfield[j]->board_position;
+								chessmen::position newrookpos = { chessmen_onfield[i]->board_position.x + rookmove, chessmen_onfield[j]->board_position.y };
 								returnvec.push_back(castelingtpl(newkingpos, posswaptpl(oldrookpos, newrookpos)));
 								break;
 							}
@@ -88,7 +88,7 @@ chessfield::castelingvec chessfield::casteling(chessmen::color& player) {
 							}
 							else {
 								try {
-									findChessmen({ xposking, king->current_position[1] }, &virtualfield);
+									findChessmen({ xposking, king->board_position.y }, &virtualfield);
 								}
 								catch (const std::exception& exception) {
 									break;

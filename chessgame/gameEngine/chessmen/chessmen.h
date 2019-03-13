@@ -8,7 +8,12 @@ public:
 	static const int fieldsize_x_start = 0;
 	static const int fieldsize_y_end = 7;
 	static const int fieldsize_y_start = 0;
-	typedef std::array<unsigned int, 2> position;
+
+	struct position {
+		unsigned int x;
+		unsigned int y;
+	};
+
 	typedef int x_pos;
 	typedef int y_pos;
 	typedef unsigned int chessmen_id;
@@ -27,7 +32,7 @@ public:
 		return none;
 	};
 
-	position current_position = { 0, 0 };
+	position board_position = { 0, 0 };
 	color player_color;
 	bool hasMoved = FALSE;
 

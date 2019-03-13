@@ -37,3 +37,7 @@ chessgame/chessgame.json
 assets/fonts/Saira-Regular.ttf
 assets/images/board.png
 assets/images/figures.png
+assets/images/back.png
+assets/images/load.png
+assets/images/retry.png
+assets/images/save.png

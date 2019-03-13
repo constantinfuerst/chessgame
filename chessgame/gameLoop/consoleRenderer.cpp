@@ -20,7 +20,7 @@ chessmen::position consoleRenderer::strtopos (std::string input) {
 }
 
 std::string consoleRenderer::postostr(chessmen::position pos) {
-	return char(pos[0] + 65) + std::to_string(pos[1] + 1);
+	return char(pos.x + 65) + std::to_string(pos.y + 1);
 }
 
 unsigned int consoleRenderer::translateX (const unsigned int& org_x) {
@@ -107,8 +107,8 @@ void consoleRenderer::render(chessfield& board) {
 	};
 
 	for (size_t i = 0; i < board.chessmen_onfield.size(); i++) {
-		const unsigned int x = translateX(board.chessmen_onfield[i]->current_position[0]);
-		const unsigned int y = translateY(board.chessmen_onfield[i]->current_position[1]);
+		const unsigned int x = translateX(board.chessmen_onfield[i]->board_position.x);
+		const unsigned int y = translateY(board.chessmen_onfield[i]->board_position.y);
 
 		if (board.chessmen_onfield[i]->figure() == chessmen::queen)
 			displayBoard[y][x] = 'Q';
@@ -137,11 +137,11 @@ void consoleRenderer::render(chessfield& board) {
 		if (!possibleMoves.empty()) {
 			for (size_t i = 0; i < possibleMoves.size(); i++) {
 
-				auto testx = possibleMoves[i][0];
-				auto testy = possibleMoves[i][1];
+				auto testx = possibleMoves[i].x;
+				auto testy = possibleMoves[i].y;
 
-				const unsigned int x = translateX(possibleMoves[i][0]);
-				const unsigned int y = translateY(possibleMoves[i][1]);
+				const unsigned int x = translateX(possibleMoves[i].x);
+				const unsigned int y = translateY(possibleMoves[i].y);
 
 				displayBoard[y + 1][x - 2] = char(177);
 				displayBoard[y    ][x - 2] = char(177);
@@ -160,8 +160,8 @@ void consoleRenderer::render(chessfield& board) {
 			}
 		}
 
-		const unsigned int x = translateX(board.selected_chessmen->current_position[0]);
-		const unsigned int y = translateY(board.selected_chessmen->current_position[1]);
+		const unsigned int x = translateX(board.selected_chessmen->board_position.x);
+		const unsigned int y = translateY(board.selected_chessmen->board_position.y);
 
 		displayBoard[y + 1][x - 2] = char(192);
 		displayBoard[y    ][x - 2] = char(179);
@@ -303,7 +303,7 @@ int consoleRenderer::gameLoop() {
 				}
 			}
 			while (TRUE) {
-				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->current_position) << ", enter \"back\" to return or a position to move" << std::endl;
+				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->board_position) << ", enter \"back\" to return or a position to move" << std::endl;
 				std::string selection;
 				getline(std::cin, selection);
 				try {

@@ -14,7 +14,7 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 		}
 	}
 	for (size_t i = 0; i < selected_chessmen->possibleMoves(&chessmen_onfield).size(); i++) {
-		if (selected_chessmen->possibleMoves(&chessmen_onfield)[i][0] == selectedMove[0] && selected_chessmen->possibleMoves(&chessmen_onfield)[i][1] == selectedMove[1]) {
+		if (selected_chessmen->possibleMoves(&chessmen_onfield)[i].x == selectedMove.x && selected_chessmen->possibleMoves(&chessmen_onfield)[i].y == selectedMove.y) {
 			possible = TRUE;
 			break;
 		}
@@ -47,10 +47,10 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 		}
 		catch (const std::exception& exception) {}
 		if (theoretical != nontheoretical) {
-			movetoempty(selected_chessmen->current_position, selectedMove, theoretical_field, nullptr);
+			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, nullptr);
 		}
 		else {
-			movetoempty(selected_chessmen->current_position, selectedMove, theoretical_field, movecounter);
+			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, movecounter);
 		}
 		if (check_check(selected_chessmen->player_color, theoretical_field) == check) {
 			return wouldbecheck;
@@ -70,16 +70,16 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 }
 
 void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata) {
-	if (old_position[0] == new_position[0] && old_position[1] == new_position[1]) {
+	if (old_position.x == new_position.x && old_position.y == new_position.y) {
 		return;
 	}
 	for (size_t i = 0; i < field->size(); i++) {
-		if (field->at(i)->current_position[0] == old_position[0] && field->at(i)->current_position[1] == old_position[1]) {
+		if (field->at(i)->board_position.x == old_position.x && field->at(i)->board_position.y == old_position.y) {
 			if (movedata != nullptr) {
 				movedata->makemove(field->at(i).get(), old_position, new_position, move::toempty);
 			}
-			field->at(i)->current_position[0] = new_position[0];
-			field->at(i)->current_position[1] = new_position[1];
+			field->at(i)->board_position.x = new_position.x;
+			field->at(i)->board_position.y = new_position.y;
 			return;
 		}
 	}
@@ -88,7 +88,7 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 
 void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
-		if (virtual_field->at(i)->current_position[0] == position[0] && virtual_field->at(i)->current_position[1] == position[1]) {
+		if (virtual_field->at(i)->board_position.x == position.x && virtual_field->at(i)->board_position.y == position.y) {
 			if (movedata != nullptr) {
 				const chessmen::position undef = { 9, 9 };
 				movedata->makemove(virtual_field->at(i).get(), position, undef, move::toside);

@@ -46,11 +46,25 @@ private:
 	sf::Sprite chessmen_pawn_black_spr;
 	sf::Sprite chessmen_rook_black_spr;
 	sf::Sprite chessmen_queen_black_spr;
+	//loading UI assets
+	sf::Texture ui_back_txt;
+	sf::Sprite ui_back_spr;
+	sf::Sprite ui_forward_spr;
+	sf::Texture ui_save_txt;
+	sf::Texture ui_load_txt;
+	sf::Sprite ui_save_spr;
+	sf::Sprite ui_load_spr;
+	sf::Texture ui_retry_txt;
+	sf::Sprite ui_retry_spr;
 	//scaling the fields
 	int chessboard_width;
 	int chessboard_height;
 	int field_height;
 	int field_width;
+	unsigned int screenWidth;
+	unsigned int screenHeight;
+	//UI elements
+	std::vector<sf::Sprite*> ui_elements;
 
 	void render(chessfield& game, sf::RenderWindow & window);
 	static chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status);

@@ -4,7 +4,6 @@
 std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate) {
 	std::vector<chessmen::position> returnpos = chessmen->possibleMoves(chessboard);
 	bool clear = FALSE;
-
 	if (dontCheckMate != TRUE) {
 		if (selected_chessmen == nullptr) {
 			clear = TRUE;
@@ -29,7 +28,14 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 
 		if (chessmen->figure() == chessmen::king) {
 			for (size_t i = 0; i < casteling(chessmen->player_color).size(); i++) {
-				returnpos.push_back(std::get<0>(casteling(chessmen->player_color)[i]));
+				auto position = std::get<0>(casteling(chessmen->player_color)[i]);
+				try {
+					findChessmen(position);
+					continue;
+				}
+				catch (const std::exception& exception) {
+					returnpos.push_back(position);
+				}
 			}
 		}
 	}
@@ -69,10 +75,10 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			selected_chessmen->hasMoved = TRUE;
 			//replacing pawn at the end of field with queen
 			if (selected_chessmen->figure() == chessmen::pawn) {
-				if (selected_chessmen->current_position[1] == chessmen::fieldsize_y_start && selected_chessmen->player_color == chessmen::black || selected_chessmen->current_position[1] == chessmen::fieldsize_y_end && selected_chessmen->player_color == chessmen::white) {
-					chessmen::position pos = selected_chessmen->current_position;
+				if (selected_chessmen->board_position.y == chessmen::fieldsize_y_start && selected_chessmen->player_color == chessmen::black || selected_chessmen->board_position.y == chessmen::fieldsize_y_end && selected_chessmen->player_color == chessmen::white) {
+					chessmen::position pos = selected_chessmen->board_position;
 					const chessmen::color col = selected_chessmen->player_color;
-					movetoside(selected_chessmen->current_position, &chessmen_onfield, &chessmen_onside, &changes);
+					movetoside(selected_chessmen->board_position, &chessmen_onfield, &chessmen_onside, &changes);
 					newchessmen(pos, &changes, col, chessmen::queen);
 				}
 			}
