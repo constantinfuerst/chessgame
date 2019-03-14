@@ -12,7 +12,8 @@ void move::removeChessmen(chessfield_info& board, chessmen::position pos) {
 
 void move::placeBack(chessfield_info& board, chessmen::position pos) {
 	for (size_t i = 0; i < board[1]->size(); i++) {
-		if (board[1]->at(i)->board_position.x == pos.x && board[1]->at(i)->board_position.y == pos.x) {
+		const chessmen::position boardpos = { board[1]->at(i)->board_position.x, board[1]->at(i)->board_position.y };
+		if (boardpos.x == pos.x && boardpos.y == pos.y) {
 			const chessmen::chessfigure type = board[1]->at(i)->figure();
 			const chessmen::color colo = board[1]->at(i)->player_color;
 			const unsigned int posx = board[1]->at(i)->board_position.x;
