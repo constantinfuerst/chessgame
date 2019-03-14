@@ -31,8 +31,8 @@ chessfield::move_sucess chessfield::moveCasteling(chessmen::position& selectedMo
 							return sucess;
 						}
 						else {
-							movetoempty(oldrookpos, newrookpos, &chessmen_onfield, movecounter);
-							movetoempty(selected_chessmen->board_position, newkingpos, &chessmen_onfield, movecounter);
+							movetoempty(oldrookpos, newrookpos, &chessmen_onfield, movecounter, FALSE);
+							movetoempty(selected_chessmen->board_position, newkingpos, &chessmen_onfield, movecounter, FALSE);
 							return sucess;
 						}
 					}

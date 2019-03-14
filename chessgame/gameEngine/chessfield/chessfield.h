@@ -41,13 +41,14 @@ private:
 	typedef std::tuple<chessmen::position, posswaptpl> castelingtpl;
 	typedef std::vector<castelingtpl> castelingvec;
 
-	moveregister movetrace;
+	moveregister backwardmovetrace;
+	moveregister forwardmovetrace;
 
 	static chessboard copyChessboard(chessboard* chessboard_pntr);
 	static void createChessmen(chessboard* chessboard, chessmen::chessfigure type, unsigned int posx, unsigned int posy, chessmen::color colo, bool move);
-	static void movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata);
-	static void movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata);
-	void newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure);
+	static void movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move);
+	static void movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata, bool register_move);
+	void newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move);
 	king_status check_check(chessmen::color& player, chessboard* chessmen);
 	king_status king_situation(chessmen::color player);
 	move_sucess moveCharacter(chessmen::position& selectedMove, move* movecounter, theoretical theoretical = oncetheoretical);
@@ -64,6 +65,7 @@ public:
 	void initGame();
 	void quit();
 	void stepback();
+	void stepforward();
 	bool initSaveGame(const std::string& filename);
 	bool createSaveGame(const std::string& filename);
 	//this is what the renderer uses to display legal moves

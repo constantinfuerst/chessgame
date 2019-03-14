@@ -44,20 +44,20 @@ void move::moveBack(chessfield_info& board, chessmen::position oldpos, chessmen:
 	}
 }
 
-void move::traceBack(chessfield_info& board, move* movetrace) {
+void move::traceBack(chessfield_info& field, move* movetrace) {
 	while (!movetrace->changes.empty()) {
 		chessmenMoved* move = &movetrace->changes.back();
 		if (move->move == newcm) {
-			removeChessmen(board, move->newPosition);
-			board[0]->push_back(std::unique_ptr<chessmen>(new pawn(move->player, move->newPosition, TRUE)));
+			removeChessmen(field, move->newPosition);
+			field[0]->push_back(std::unique_ptr<chessmen>(new pawn(move->player, move->newPosition, TRUE)));
 			movetrace->changes.pop_back(); movetrace->changes.pop_back();
 		}
 		else if (move->move == toempty) {
-			moveBack(board, move->oldPosition, move->newPosition, move->hasmovedold);
+			moveBack(field, move->oldPosition, move->newPosition, move->hasmovedold);
 			movetrace->changes.pop_back();
 		}
 		else if (move->move == toside) {
-			placeBack(board, move->oldPosition);
+			placeBack(field, move->oldPosition);
 			movetrace->changes.pop_back();
 		}
 		else {

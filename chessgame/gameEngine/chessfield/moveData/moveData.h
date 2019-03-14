@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "gameEngine/chessmen/chessmen.h"
 
+class chessfield;
+
 class move {
 public:
 	chessmen::color current_player;
@@ -28,9 +30,6 @@ public:
 	static void removeChessmen(chessfield_info& board, chessmen::position pos);
 	static void placeBack(chessfield_info& board, chessmen::position pos);
 	static void moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
-	move(const move& mve) {
-		changes = mve.changes;
-		current_player = mve.current_player;
-	}
+	move(const move& mve);
 	move() = default;
 };

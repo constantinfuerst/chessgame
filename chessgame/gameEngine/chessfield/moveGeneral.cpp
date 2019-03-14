@@ -38,19 +38,19 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 		try {
 			if (findChessmen(selectedMove)->player_color != selected_chessmen->player_color) {
 				if (theoretical != nontheoretical) {
-					movetoside(selectedMove, theoretical_field, theoretical_side, nullptr);
+					movetoside(selectedMove, theoretical_field, theoretical_side, nullptr, TRUE);
 				}
 				else {
-					movetoside(selectedMove, theoretical_field, theoretical_side, movecounter);
+					movetoside(selectedMove, theoretical_field, theoretical_side, movecounter, TRUE);
 				}
 			}
 		}
 		catch (const std::exception& exception) {}
 		if (theoretical != nontheoretical) {
-			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, nullptr);
+			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, nullptr, TRUE);
 		}
 		else {
-			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, movecounter);
+			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, movecounter, TRUE);
 		}
 		if (check_check(selected_chessmen->player_color, theoretical_field) == check) {
 			return wouldbecheck;
@@ -69,14 +69,16 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 	return impossible;
 }
 
-void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata) {
+void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata, bool register_move) {
 	if (old_position.x == new_position.x && old_position.y == new_position.y) {
 		return;
 	}
 	for (size_t i = 0; i < field->size(); i++) {
 		if (field->at(i)->board_position.x == old_position.x && field->at(i)->board_position.y == old_position.y) {
 			if (movedata != nullptr) {
-				movedata->makemove(field->at(i).get(), old_position, new_position, field->at(i)->hasMoved, move::toempty);
+				if (register_move == TRUE) {
+					movedata->makemove(field->at(i).get(), old_position, new_position, field->at(i)->hasMoved, move::toempty);
+				}
 			}
 			field->at(i)->board_position.x = new_position.x;
 			field->at(i)->board_position.y = new_position.y;
@@ -86,12 +88,14 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 	return;
 }
 
-void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata) {
+void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
 		if (virtual_field->at(i)->board_position.x == position.x && virtual_field->at(i)->board_position.y == position.y) {
 			if (movedata != nullptr) {
 				const chessmen::position undef = { 9, 9 };
-				movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->hasMoved, move::toside);
+				if (register_move == TRUE) {
+					movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->hasMoved, move::toside);
+				}
 			}
 			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
 			virtual_field->erase(virtual_field->begin() + i);
@@ -101,7 +105,7 @@ void chessfield::movetoside(chessmen::position& position, chessboard* virtual_fi
 	return;
 }
 
-void chessfield::newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure) {
+void chessfield::newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move) {
 	if (figure == chessmen::rook)
 		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new rook(color, position, TRUE)));
 	else if (figure == chessmen::knight)
@@ -111,5 +115,8 @@ void chessfield::newchessmen(chessmen::position& position, move* movedata, chess
 	else
 		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new queen(color, position, TRUE)));
 	const chessmen::position undef = { 9, 9 };
-	movedata->makemove(undef, position, color, figure, TRUE, move::newcm);
+	if (register_move == TRUE) {
+		movedata->makemove(undef, position, color, figure, TRUE, move::newcm);
+		forwardmovetrace.clear();
+	}
 }

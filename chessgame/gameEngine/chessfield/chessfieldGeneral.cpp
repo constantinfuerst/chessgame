@@ -9,17 +9,48 @@ chessfield::~chessfield() {
 	delete selected_chessmen;
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
-	movetrace.clear();
+	backwardmovetrace.clear();
+	forwardmovetrace.clear();
 }
 
 void chessfield::stepback() {
-	move::chessfield_info vboard;
-	vboard.push_back(&chessmen_onfield);
-	vboard.push_back(&chessmen_onside);
-	if (!movetrace.empty()) {
-		current_player = movetrace.back()->current_player;
-		move::traceBack(vboard, movetrace.back().get());
-		movetrace.pop_back();
+	if (!backwardmovetrace.empty()) {
+		forwardmovetrace.push_back(std::unique_ptr<move>(new move(*backwardmovetrace.back().get())));
+		move::chessfield_info vboard;
+		vboard.push_back(&chessmen_onfield);
+		vboard.push_back(&chessmen_onside);
+		current_player = backwardmovetrace.back()->current_player;
+		move::traceBack(vboard, backwardmovetrace.back().get());
+		backwardmovetrace.pop_back();
+	}
+}
+
+void chessfield::stepforward() {
+	if (!forwardmovetrace.empty()) {
+		backwardmovetrace.push_back(std::unique_ptr<move>(new move(*forwardmovetrace.back().get())));
+		move* movetracebackward = forwardmovetrace.back().get();
+		if (movetracebackward->current_player == chessmen::white)
+			current_player = chessmen::black;
+		else
+			current_player = chessmen::white;
+		while (!movetracebackward->changes.empty()) {
+			move::chessmenMoved* move = &movetracebackward->changes.back();
+			if (move->move == move::newcm) {
+				newchessmen(move->newPosition, nullptr, move->player, move->figure, FALSE);
+				movetracebackward->changes.pop_back(); movetracebackward->changes.pop_back();
+			}
+			else if (move->move == move::toempty) {
+				movetoempty(move->oldPosition, move->newPosition, &chessmen_onfield, nullptr, FALSE);
+				movetracebackward->changes.pop_back();
+			}
+			else if (move->move == move::toside) {
+				movetoside(move->oldPosition, &chessmen_onfield, &chessmen_onside, nullptr, FALSE);
+				movetracebackward->changes.pop_back();
+			}
+			else {
+				continue;
+			}
+		}
 	}
 }
 
@@ -27,7 +58,7 @@ void chessfield::quit() {
 	delete selected_chessmen;
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
-	movetrace.clear();
+	backwardmovetrace.clear();
 }
 
 chessmen* chessfield::findChessmen(chessmen::position& position) {
@@ -90,26 +121,47 @@ bool chessfield::initSaveGame(const std::string& filename) {
 			chessmen::position pos = { json["board"]["cmsl"]["cm0"]["posx"].get<int>(), json["board"]["cmsl"]["cm0"]["posy"].get<int>() };
 			selected_chessmen = findChessmen(pos);
 		}
-		for (int i = 0; i < json["movetrace"]["moves"].get<int>(); i++) {
+		for (int i = 0; i < json["movetracebackward"]["moves"].get<int>(); i++) {
 			move movedata;
-			movedata.current_player = json["movetrace"]["move" + std::to_string(i)]["player"].get<chessmen::color>();
-			for (int j = 0; j < json["movetrace"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
+			movedata.current_player = json["movetracebackward"]["move" + std::to_string(i)]["player"].get<chessmen::color>();
+			for (int j = 0; j < json["movetracebackward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
 				move::chessmenMoved changes;
-				changes.figure = json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"].get<chessmen::chessfigure>();
-				changes.move = json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"].get<move::moveType>();
-				changes.player = json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"].get<chessmen::color>();
+				changes.figure = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"].get<chessmen::chessfigure>();
+				changes.move = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"].get<move::moveType>();
+				changes.player = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"].get<chessmen::color>();
 				changes.newPosition = {
-					json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get<unsigned int>(),
-					json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get<unsigned int>()
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get<unsigned int>(),
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get<unsigned int>()
 				};
 				changes.oldPosition = {
-					json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get<unsigned int>(),
-					json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get<unsigned int>()
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get<unsigned int>(),
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get<unsigned int>()
 				};
 				movedata.pushmove(changes);
 			}
-			movetrace.push_back(std::unique_ptr<move>(new move(movedata)));
+			backwardmovetrace.push_back(std::unique_ptr<move>(new move(movedata)));
 		}
+		for (int i = 0; i < json["movetraceforward"]["moves"].get<int>(); i++) {
+			move movedata;
+			movedata.current_player = json["movetraceforward"]["move" + std::to_string(i)]["player"].get<chessmen::color>();
+			for (int j = 0; j < json["movetraceforward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
+				move::chessmenMoved changes;
+				changes.figure = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"].get<chessmen::chessfigure>();
+				changes.move = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"].get<move::moveType>();
+				changes.player = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"].get<chessmen::color>();
+				changes.newPosition = {
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get<unsigned int>(),
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get<unsigned int>()
+				};
+				changes.oldPosition = {
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get<unsigned int>(),
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get<unsigned int>()
+				};
+				movedata.pushmove(changes);
+			}
+			forwardmovetrace.push_back(std::unique_ptr<move>(new move(movedata)));
+		}
+		
 		json_input.close();
 	}
 	else {
@@ -168,18 +220,32 @@ bool chessfield::createSaveGame(const std::string& filename) {
 		else {
 			json["board"]["cmsl"]["count"] = 0;
 		}
-		json["movetrace"]["moves"] = movetrace.size();
-		for (size_t i = 0; i < movetrace.size(); i++) {
-			json["movetrace"]["move" + std::to_string(i)]["partmoves"] = movetrace[i]->changes.size();
-			json["movetrace"]["move" + std::to_string(i)]["player"] = movetrace[i]->current_player;
-			for (size_t j = 0; j < movetrace[i]->changes.size(); j++) {
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] = movetrace[i]->changes[j].figure;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] = movetrace[i]->changes[j].player;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] = movetrace[i]->changes[j].move;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] = movetrace[i]->changes[j].oldPosition.x;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] = movetrace[i]->changes[j].oldPosition.y;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] = movetrace[i]->changes[j].newPosition.x;
-				json["movetrace"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] = movetrace[i]->changes[j].newPosition.y;
+		json["movetracebackward"]["moves"] = backwardmovetrace.size();
+		for (size_t i = 0; i < backwardmovetrace.size(); i++) {
+			json["movetracebackward"]["move" + std::to_string(i)]["partmoves"] = backwardmovetrace[i]->changes.size();
+			json["movetracebackward"]["move" + std::to_string(i)]["player"] = backwardmovetrace[i]->current_player;
+			for (size_t j = 0; j < backwardmovetrace[i]->changes.size(); j++) {
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] = backwardmovetrace[i]->changes[j].figure;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] = backwardmovetrace[i]->changes[j].player;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] = backwardmovetrace[i]->changes[j].move;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] = backwardmovetrace[i]->changes[j].oldPosition.x;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] = backwardmovetrace[i]->changes[j].oldPosition.y;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] = backwardmovetrace[i]->changes[j].newPosition.x;
+				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] = backwardmovetrace[i]->changes[j].newPosition.y;
+			}
+		}
+		json["movetraceforward"]["moves"] = forwardmovetrace.size();
+		for (size_t i = 0; i < forwardmovetrace.size(); i++) {
+			json["movetraceforward"]["move" + std::to_string(i)]["partmoves"] = forwardmovetrace[i]->changes.size();
+			json["movetraceforward"]["move" + std::to_string(i)]["player"] = forwardmovetrace[i]->current_player;
+			for (size_t j = 0; j < forwardmovetrace[i]->changes.size(); j++) {
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] = forwardmovetrace[i]->changes[j].figure;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] = forwardmovetrace[i]->changes[j].player;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] = forwardmovetrace[i]->changes[j].move;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] = forwardmovetrace[i]->changes[j].oldPosition.x;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] = forwardmovetrace[i]->changes[j].oldPosition.y;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] = forwardmovetrace[i]->changes[j].newPosition.x;
+				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] = forwardmovetrace[i]->changes[j].newPosition.y;
 			}
 		}
 		json_output << json;
@@ -196,7 +262,7 @@ void chessfield::initGame() {
 	selected_chessmen = nullptr;
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
-	movetrace.clear();
+	backwardmovetrace.clear();
 
 	//ACTUAL CHESSBOARD
 	//placing white chessmen

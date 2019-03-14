@@ -230,6 +230,11 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) {
 	switch (ui_element) {
 	case 0:
 		game->stepback();
+		game->selected_chessmen = nullptr;
+		return TRUE;
+	case 1:
+		game->stepforward();
+		game->selected_chessmen = nullptr;
 		return TRUE;
 	default:
 		return FALSE;

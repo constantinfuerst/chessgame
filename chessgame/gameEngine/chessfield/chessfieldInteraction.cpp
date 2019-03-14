@@ -161,16 +161,14 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 				if (selected_chessmen->board_position.y == chessmen::fieldsize_y_start && selected_chessmen->player_color == chessmen::black || selected_chessmen->board_position.y == chessmen::fieldsize_y_end && selected_chessmen->player_color == chessmen::white) {
 					chessmen::position pos = selected_chessmen->board_position;
 					const chessmen::color col = selected_chessmen->player_color;
-					movetoside(selected_chessmen->board_position, &chessmen_onfield, &chessmen_onside, &changes);
-					newchessmen(pos, &changes, col, chessmen::queen);
+					movetoside(selected_chessmen->board_position, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
+					newchessmen(pos, &changes, col, chessmen::queen, TRUE);
 				}
 			}
 			selected_chessmen = nullptr;
-			//move::chessfield_info vboard;
-			//vboard.push_back(&chessmen_onfield);
-			//vboard.push_back(&chessmen_onside);
-			//move::traceBack(vboard, changes);
-			movetrace.push_back(std::unique_ptr<move>(new move(changes)));
+			forwardmovetrace.clear();
+			std::cout << "clear" << std::endl;
+			backwardmovetrace.push_back(std::unique_ptr<move>(new move(changes)));
 			if (king_situation(chessmen::black) == stale) {
 				return bkstale;
 			}
