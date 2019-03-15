@@ -1,68 +1,43 @@
 #include "pch.h"
 #include "moveData.h"
 
-void move::removeChessmen(chessfield_info& board, chessmen::position pos) {
-	for (size_t i = 0; i < board[0]->size(); i++) {
-		if (board[0]->at(i)->board_position.x == pos.x && board[0]->at(i)->board_position.y == pos.y) {
-			board[0]->erase(board[0]->begin() + i);
+void move::removeChessmen(chessboard& onfield, const chessmen::position pos) {
+	for (size_t i = 0; i < onfield.size(); i++) {
+		if (onfield.at(i)->board_position.x == pos.x && onfield.at(i)->board_position.y == pos.y) {
+			onfield.erase(onfield.begin() + i);
 			break;
 		}
 	}
 }
 
-void move::placeBack(chessfield_info& board, chessmen::position pos) {
-	for (size_t i = 0; i < board[1]->size(); i++) {
-		const chessmen::position boardpos = { board[1]->at(i)->board_position.x, board[1]->at(i)->board_position.y };
+void move::placeBack(chessboard& onfield, chessboard& onside, const chessmen::position pos) {
+	for (size_t i = 0; i < onside.size(); i++) {
+		const chessmen::position boardpos = { onside.at(i)->board_position.x, onside.at(i)->board_position.y };
 		if (boardpos.x == pos.x && boardpos.y == pos.y) {
-			const chessmen::chessfigure type = board[1]->at(i)->figure();
-			const chessmen::color colo = board[1]->at(i)->player_color;
-			const unsigned int posx = board[1]->at(i)->board_position.x;
-			const unsigned int posy = board[1]->at(i)->board_position.y;
+			const chessmen::chessfigure type = onside.at(i)->figure();
 			if (type == chessmen::rook)
-				board[0]->push_back(std::unique_ptr<chessmen>(new rook(colo, { posx, posy }, TRUE)));
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
 			else if (type == chessmen::knight)
-				board[0]->push_back(std::unique_ptr<chessmen>(new knight(colo, { posx, posy }, TRUE)));
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<knight>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
 			else if (type == chessmen::pawn)
-				board[0]->push_back(std::unique_ptr<chessmen>(new pawn(colo, { posx, posy }, TRUE)));
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<pawn>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
 			else if (type == chessmen::bishop)
-				board[0]->push_back(std::unique_ptr<chessmen>(new bishop(colo, { posx, posy }, TRUE)));
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<bishop>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
 			else if (type == chessmen::king)
-				board[0]->push_back(std::unique_ptr<chessmen>(new king(colo, { posx, posy }, TRUE)));
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<king>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
 			else
-				board[0]->push_back(std::unique_ptr<chessmen>(new queen(colo, { posx, posy }, TRUE)));
-			board[1]->erase(board[1]->begin() + i);
+				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
+			onside.erase(onside.begin() + i);
 			break;
 		}
 	}
 }
 
-void move::moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold) {
-	for (size_t i = 0; i < board[0]->size(); i++) {
-		if (board[0]->at(i)->board_position.x == currentpos.x && board[0]->at(i)->board_position.y == currentpos.y) {
-			board[0]->at(i)->board_position = oldpos;
-			board[0]->at(i)->hasMoved = hasmovedold;
-		}
-	}
-}
-
-void move::traceBack(chessfield_info& field, move* movetrace) {
-	while (!movetrace->changes.empty()) {
-		chessmenMoved* move = &movetrace->changes.back();
-		if (move->move == newcm) {
-			removeChessmen(field, move->newPosition);
-			field[0]->push_back(std::unique_ptr<chessmen>(new pawn(move->player, move->newPosition, TRUE)));
-			movetrace->changes.pop_back(); movetrace->changes.pop_back();
-		}
-		else if (move->move == toempty) {
-			moveBack(field, move->oldPosition, move->newPosition, move->hasmovedold);
-			movetrace->changes.pop_back();
-		}
-		else if (move->move == toside) {
-			placeBack(field, move->oldPosition);
-			movetrace->changes.pop_back();
-		}
-		else {
-			continue;
+void move::moveBack(chessboard& onfield, const chessmen::position oldpos, const chessmen::position currentpos, const bool hasmovedold) {
+	for (auto& i : onfield) {
+		if (i->board_position.x == currentpos.x && i->board_position.y == currentpos.y) {
+			i->board_position = oldpos;
+			i->hasMoved = hasmovedold;
 		}
 	}
 }

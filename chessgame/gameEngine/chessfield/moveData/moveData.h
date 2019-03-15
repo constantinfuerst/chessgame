@@ -9,8 +9,6 @@ class move {
 public:
 	chessmen::color current_player;
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
-	typedef chessboard* ref_chessboard;
-	typedef std::vector<ref_chessboard> chessfield_info;
 	enum moveType {
 		toempty = 0, toside = 1, newcm = 2
 	};
@@ -26,10 +24,9 @@ public:
 	void pushmove(const chessmenMoved& movedata);
 	void makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move);
 	void makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move);
-	static void traceBack(chessfield_info& field, move* movetrace);
-	static void removeChessmen(chessfield_info& board, chessmen::position pos);
-	static void placeBack(chessfield_info& board, chessmen::position pos);
-	static void moveBack(chessfield_info& board, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
+	static void removeChessmen(chessboard& onfield, chessmen::position pos);
+	static void placeBack(chessboard& onfield, chessboard& onside, chessmen::position pos);
+	static void moveBack(chessboard& onfield, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
 	move(const move& mve);
 	move() = default;
 };

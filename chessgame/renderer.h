@@ -13,12 +13,12 @@ protected:
 
 class consoleRenderer final : public renderer {
 protected:
-	void render(chessfield& game);
-	chessfield::game_status processOutput(chessfield::full_game_status status);
+	static chessfield::game_status processOutput(chessfield::full_game_status status);
 	static unsigned int translateY(const unsigned int& org_y);
 	static unsigned int translateX(const unsigned int& org_x);
 	static chessmen::position strtopos(std::string input);
 	static std::string postostr(chessmen::position pos);
+	static void render(chessfield& game);
 
 public:
 	virtual int gameLoop() override;

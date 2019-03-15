@@ -30,7 +30,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 			for (size_t i = 0; i < casteling(chessmen->player_color).size(); i++) {
 				int required_empty = 0;
 				int empty = 0;
-				chessmen::position position = std::get<0>(casteling(chessmen->player_color)[i]);
+				chessmen::position position = casteling(chessmen->player_color)[i].newkpos;
 				if (position.x > chessmen->board_position.x && chessmen->player_color == chessmen::white) {
 					chessmen::position secondpos = { position.x - 1, position.y };
 					chessmen::position thrdpos = { position.x - 2, position.y };
@@ -122,7 +122,6 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 			}
 		}
 	}
-
 	return returnpos;
 }
 
@@ -168,7 +167,7 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			selected_chessmen = nullptr;
 			forwardmovetrace.clear();
 			std::cout << "clear" << std::endl;
-			backwardmovetrace.push_back(std::unique_ptr<move>(new move(changes)));
+			backwardmovetrace.push_back(std::make_unique<move>(changes));
 			if (king_situation(chessmen::black) == stale) {
 				return bkstale;
 			}

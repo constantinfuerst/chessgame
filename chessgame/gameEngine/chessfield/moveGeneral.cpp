@@ -73,15 +73,15 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 	if (old_position.x == new_position.x && old_position.y == new_position.y) {
 		return;
 	}
-	for (size_t i = 0; i < field->size(); i++) {
-		if (field->at(i)->board_position.x == old_position.x && field->at(i)->board_position.y == old_position.y) {
+	for (auto& i : *field) {
+		if (i->board_position.x == old_position.x && i->board_position.y == old_position.y) {
 			if (movedata != nullptr) {
 				if (register_move == TRUE) {
-					movedata->makemove(field->at(i).get(), old_position, new_position, field->at(i)->hasMoved, move::toempty);
+					movedata->makemove(i.get(), old_position, new_position, i->hasMoved, move::toempty);
 				}
 			}
-			field->at(i)->board_position.x = new_position.x;
-			field->at(i)->board_position.y = new_position.y;
+			i->board_position.x = new_position.x;
+			i->board_position.y = new_position.y;
 			return;
 		}
 	}
@@ -107,13 +107,13 @@ void chessfield::movetoside(chessmen::position& position, chessboard* virtual_fi
 
 void chessfield::newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move) {
 	if (figure == chessmen::rook)
-		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new rook(color, position, TRUE)));
+		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(color, position, TRUE)));
 	else if (figure == chessmen::knight)
-		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new knight(color, position, TRUE)));
+		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<knight>(color, position, TRUE)));
 	else if (figure == chessmen::bishop)
-		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new bishop(color, position, TRUE)));
+		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<bishop>(color, position, TRUE)));
 	else
-		chessmen_onfield.push_back(std::unique_ptr<chessmen>(new queen(color, position, TRUE)));
+		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(color, position, TRUE)));
 	const chessmen::position undef = { 9, 9 };
 	if (register_move == TRUE) {
 		movedata->makemove(undef, position, color, figure, TRUE, move::newcm);

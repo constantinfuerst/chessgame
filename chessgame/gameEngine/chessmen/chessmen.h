@@ -43,14 +43,15 @@ public:
 	static position_status positiocheck(chessboard* chessmen, position pos, color player);
 	static bool validpos(chessmen::position position);
 
-protected:
 	chessmen(color color_input, position position_input, bool moved = false);
+	chessmen(color color_input, unsigned int posx, unsigned int posy, bool moved = false);
 };
 
 class pawn : public chessmen {
 public:
 	virtual ~pawn() override = default;
 	pawn(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move){}
+	pawn(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
@@ -60,6 +61,7 @@ class rook : public chessmen {
 public:
 	virtual ~rook() override = default;
 	rook(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move) {}
+	rook(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
@@ -69,6 +71,7 @@ class knight : public chessmen {
 public:
 	virtual ~knight() override = default;
 	knight(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move) {}
+	knight(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
@@ -78,6 +81,7 @@ class bishop : public chessmen {
 public:
 	virtual ~bishop() override = default;
 	bishop(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move) {}
+	bishop(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
@@ -87,6 +91,7 @@ class queen : public chessmen {
 public:
 	virtual ~queen() override = default;
 	queen(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move) {}
+	queen(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
@@ -96,6 +101,7 @@ class king : public chessmen {
 public:
 	virtual ~king() override = default;
 	king(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move) {}
+	king(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
 	virtual chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;

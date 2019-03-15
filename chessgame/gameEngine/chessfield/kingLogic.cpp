@@ -3,35 +3,34 @@
 
 chessfield::king_status chessfield::check_check(chessmen::color& player, chessboard* chessmen) {
 	//get the current position of the king
-	chessmen::position kingpos;
-	for (size_t i = 0; i < chessmen->size(); i++) {
-		if (chessmen->at(i)->figure() == chessmen::king && chessmen->at(i)->player_color == player) {
-			kingpos.x = chessmen->at(i)->board_position.x;
-			kingpos.y = chessmen->at(i)->board_position.y;
+	std::unique_ptr<chessmen::position> kingpos = nullptr;
+	for (auto& i : *chessmen) {
+		if (i->figure() == chessmen::king && i->player_color == player) {
+			kingpos = std::make_unique<chessmen::position>(i->board_position);
 			break;
 		}
 	}
-
-	for (size_t i = 0; i < chessmen->size(); i++) {
-		if (chessmen->at(i)->player_color != player) {
-			std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
-			for (size_t j = 0; j < possible_moves.size(); j++) {
-				if (possible_moves[j].x == kingpos.x && possible_moves[j].y == kingpos.y) {
-					return check;
+	if (kingpos != nullptr) {
+		for (size_t i = 0; i < chessmen->size(); i++) {
+			if (chessmen->at(i)->player_color != player) {
+				std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
+				for (auto& possible_move : possible_moves) {
+					if (possible_move.x == kingpos->x && possible_move.y == kingpos->y) {
+						return check;
+					}
 				}
 			}
 		}
 	}
-
 	return none;
 }
 
 chessfield::king_status chessfield::king_situation(chessmen::color player) {
 	//for every chessmen on the board
-	for (size_t i = 0; i < chessmen_onfield.size(); i++) {
+	for (auto& i : chessmen_onfield) {
 		//if it is a friendly
-		if (chessmen_onfield[i]->player_color == player) {
-			chessmen* current_chessmen = chessmen_onfield[i].get();
+		if (i->player_color == player) {
+			chessmen* current_chessmen = i.get();
 			//for every possible move of this chessmen
 			for (size_t j = 0; j < truePossibleMoves(current_chessmen, &chessmen_onfield).size(); j++) {
 				//use a virtual version of the current chessboard

@@ -18,9 +18,9 @@ std::vector<chessmen::position> chessmen::possibleMoves(chessboard* chessmen) {
 }
 
 chessmen::position_status chessmen::positiocheck(chessboard* chessmen, position pos, color player) {
-	for (size_t i = 0; i < chessmen->size(); i++) {
-		if (chessmen->at(i)->board_position.x == pos.x && chessmen->at(i)->board_position.y == pos.y) {
-			if (chessmen->at(i)->player_color == player) {
+	for (auto& i : *chessmen) {
+		if (i->board_position.x == pos.x && i->board_position.y == pos.y) {
+			if (i->player_color == player) {
 				return friendly;
 			}
 			else {
@@ -34,6 +34,13 @@ chessmen::position_status chessmen::positiocheck(chessboard* chessmen, position 
 chessmen::chessmen(color color_input, position position_input, bool moved) {
 	board_position.x = position_input.x;
 	board_position.y = position_input.y;
+	player_color = color_input;
+	hasMoved = moved;
+}
+
+chessmen::chessmen(color color_input, unsigned int posx, unsigned int posy, bool moved){
+	board_position.x = posx;
+	board_position.y = posy;
 	player_color = color_input;
 	hasMoved = moved;
 }

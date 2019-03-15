@@ -12,7 +12,6 @@ class chessfield {
 public:
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
 	typedef std::vector <std::unique_ptr<move>> moveregister;
-	typedef std::vector <chessmen*> ref_chessboard;
 
 	enum full_game_status {
 		error, enemy, selected, next, ownchessmen, emptyfield, checked, impmove, bkstale, wkstale, bkmate, wkmate
@@ -37,15 +36,19 @@ private:
 		nontheoretical = 0, oncetheoretical = 1, onlytheoretical = 2
 	};
 
-	typedef std::tuple<chessmen::position, chessmen::position> posswaptpl;
-	typedef std::tuple<chessmen::position, posswaptpl> castelingtpl;
-	typedef std::vector<castelingtpl> castelingvec;
+	struct casteling_str {
+		chessmen::position oldrpos;
+		chessmen::position newrpos;
+		chessmen::position newkpos;
+	};
+
+	typedef std::vector<casteling_str> castelingvec;
 
 	moveregister backwardmovetrace;
 	moveregister forwardmovetrace;
 
 	static chessboard copyChessboard(chessboard* chessboard_pntr);
-	static void createChessmen(chessboard* chessboard, chessmen::chessfigure type, unsigned int posx, unsigned int posy, chessmen::color colo, bool move);
+	static void createChessmen(chessboard* chessboard, chessmen::chessfigure type, chessmen::position pos, chessmen::color colo, bool move);
 	static void movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move);
 	static void movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata, bool register_move);
 	void newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move);

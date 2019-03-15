@@ -245,16 +245,15 @@ chessfield::game_status consoleRenderer::processOutput(chessfield::full_game_sta
 
 int consoleRenderer::gameLoop() {
 	chessfield game;
+	std::string selection;
 	while (TRUE) {
 		while (TRUE) {
 			bool loaded = FALSE;
-			std::cout << "Would you like to load a savegame? Enter \"yes\" or \"no\"" << std::endl;
-			std::string selection;
+			std::cout << R"(Would you like to load a savegame? Enter "yes" or "no")" << std::endl;
 			getline(std::cin, selection);
 			if (selection == "yes") {
 				while (TRUE) {
 					std::cout << "Please enter the name and directory of the savegame you want to load or enter \"return\" to return" << std::endl;
-					std::string selection;
 					getline(std::cin, selection);
 					if (selection == "return") {
 						break;
@@ -287,7 +286,6 @@ int consoleRenderer::gameLoop() {
 		while (TRUE) {
 			while (TRUE) {
 				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << ", please select a position" << std::endl;
-				std::string selection;
 				getline(std::cin, selection);
 				try {
 					auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
@@ -304,7 +302,6 @@ int consoleRenderer::gameLoop() {
 			}
 			while (TRUE) {
 				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->board_position) << ", enter \"back\" to return or a position to move" << std::endl;
-				std::string selection;
 				getline(std::cin, selection);
 				try {
 					if (selection == "back") {
@@ -342,18 +339,15 @@ int consoleRenderer::gameLoop() {
 		}
 
 		std::cout << "Would you like to play another match? Enter enter \"quit\" to quit, press enter to rematch" << std::endl;
-		std::string selection;
 		getline(std::cin, selection);
 		if (selection == "quit") {
 			while (TRUE) {
 				bool saved = FALSE;
-				std::cout << "Would you like to save this game? Enter \"yes\" or \"no\"" << std::endl;
-				std::string selection;
+				std::cout << R"(Would you like to save this game? Enter "yes" or "no")" << std::endl;
 				getline(std::cin, selection);
 				if (selection == "yes") {
 					while (TRUE) {
 						std::cout << "Please enter a directory and name for your savegame or \"return\" to return" << std::endl;
-						std::string selection;
 						getline(std::cin, selection);
 						if (selection == "return") {
 							break;
@@ -384,6 +378,5 @@ int consoleRenderer::gameLoop() {
 		}
 		break;
 	}
-	std::cin.get();
 	return TRUE;
 }
