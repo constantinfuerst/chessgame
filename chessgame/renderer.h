@@ -6,7 +6,7 @@
 
 class renderer {
 protected:
-	virtual int gameLoop() { return TRUE; };
+	virtual int gameLoop() = 0;
 	virtual ~renderer() = default;
 	renderer() = default;
 };
@@ -68,7 +68,10 @@ private:
 	int ui_element_width;
 	std::vector<sf::Sprite*> ui_elements;
 
-	static bool processUIInput(unsigned int ui_element, chessfield* game);
+	bool createSavegame(chessfield* game) const;
+	bool loadSavegame(chessfield* game) const;
+	void loadNewgame(chessfield* game) const;
+	bool processUIInput(unsigned int ui_element, chessfield* game) const;
 	static chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status);
 	void render(chessfield& game, sf::RenderWindow & window);
 

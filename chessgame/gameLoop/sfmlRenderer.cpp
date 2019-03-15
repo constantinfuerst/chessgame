@@ -120,8 +120,8 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 	for (size_t i = 0; i < ui_elements.size(); i++) {
 		float sizex = ui_elements[i]->getTextureRect().width;
 		float sizey = ui_elements[i]->getTextureRect().height;
-		float scalex = (float)ui_element_width / sizex;
-		float scaley = (float)ui_height / sizey;
+		float scalex = static_cast<float>(ui_element_width) / sizex;
+		float scaley = static_cast<float>(ui_height) / sizey;
 		float posx = i * ui_element_width + 32;
 		float posy = chessboard_size.y;
 		ui_elements[i]->setColor(sf::Color::White);
@@ -148,25 +148,25 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 		window.draw(selected);
 
 		auto possibleMoves = game.truePossibleMoves(game.selected_chessmen, &game.chessmen_onfield);
-		for (size_t i = 0; i < possibleMoves.size(); i++) {
+		for (auto& possibleMove : possibleMoves) {
 			sf::RectangleShape pmindicator(sf::Vector2f(field_width, field_height));
 			pmindicator.setFillColor(sf::Color(50, 100,0,225));
-			int posx = possibleMoves[i].x * field_width + 28;
-			int posy = possibleMoves[i].y * field_height + 28;
+			int posx = possibleMove.x * field_width + 28;
+			int posy = possibleMove.y * field_height + 28;
 			pmindicator.setPosition(posx, posy);
 			window.draw(pmindicator);
 		}
 	}
 
-	for (size_t i = 0; i < game.chessmen_onfield.size(); i++) {
+	for (auto& i : game.chessmen_onfield) {
 		sf::Sprite* current_sprite = nullptr;
-		int posx = game.chessmen_onfield[i]->board_position.x * field_width + 28;
-		int posy = game.chessmen_onfield[i]->board_position.y * field_height + 28;
+		int posx = i->board_position.x * field_width + 28;
+		int posy = i->board_position.y * field_height + 28;
 
-		auto figure = game.chessmen_onfield[i]->figure();
+		auto figure = i->figure();
 
 		if (figure == chessmen::queen) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_queen_black_spr;
 			}
 			else {
@@ -174,7 +174,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 			}
 		}
 		else if (figure == chessmen::rook) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_rook_black_spr;
 			}
 			else {
@@ -182,7 +182,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 			}
 		}
 		else if (figure == chessmen::knight) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_knight_black_spr;
 			}
 			else {
@@ -190,7 +190,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 			}
 		}
 		else if (figure == chessmen::bishop) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_bishop_black_spr;
 			}
 			else {
@@ -198,7 +198,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 			}
 		}
 		else if (figure == chessmen::pawn) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_pawn_black_spr;
 			}
 			else {
@@ -206,7 +206,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 			}
 		}
 		else if (figure == chessmen::king) {
-			if (game.chessmen_onfield[i]->player_color == chessmen::black) {
+			if (i->player_color == chessmen::black) {
 				current_sprite = &chessmen_king_black_spr;
 			}
 			else {
@@ -226,7 +226,53 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 	}
 }
 
-bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) {
+bool sfmlRenderer::createSavegame(chessfield* game) const {
+	while (TRUE) {
+		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
+		std::string input;
+		getline(std::cin, input);
+		if (game->createSaveGame(input) == TRUE) {
+			return TRUE;
+		}
+		else {
+			std::cout << "Something went wrong, please try that again" << std::endl;
+		}
+	}
+}
+
+bool sfmlRenderer::loadSavegame(chessfield* game) const {
+	while (TRUE) {
+		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
+		std::string input;
+		getline(std::cin, input);
+		if (game->initSaveGame(input) == TRUE) {
+			return TRUE;
+		}
+		else {
+			std::cout << "Something went wrong, please try that again" << std::endl;
+		}
+	}
+}
+
+void sfmlRenderer::loadNewgame(chessfield* game) const {
+	while (TRUE) {
+		std::cout << R"(Please confirm with entering "yes" that you would like to reload the game ("no" would do the opposite))" << std::endl;
+		std::string input;
+		getline(std::cin, input);
+		if (input == "yes") {
+			game->initGame();
+			break;
+		}
+		else if (input == "no") {
+			break;
+		}
+		else {
+			std::cout << input << " is not a valid option, please try that again" << std::endl;
+		}
+	}
+}
+
+bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) const {
 	switch (ui_element) {
 	case 0:
 		game->stepback();
@@ -236,6 +282,12 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) {
 		game->stepforward();
 		game->selected_chessmen = nullptr;
 		return TRUE;
+	case 2:
+		return createSavegame(game);
+	case 3:
+		return loadSavegame(game);
+	case 4:
+		loadNewgame(game);
 	default:
 		return FALSE;
 	}
@@ -283,7 +335,7 @@ int sfmlRenderer::gameLoop() {
 			}
 			else {
 				if (paused == TRUE) {
-					sleep(sf::seconds(1));
+					sleep(sf::milliseconds(250));
 					window.clear();
 					window.display();
 				}

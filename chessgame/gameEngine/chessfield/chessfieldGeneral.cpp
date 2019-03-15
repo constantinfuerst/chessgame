@@ -17,6 +17,7 @@ void chessfield::stepback() {
 	if (!backwardmovetrace.empty()) {
 		forwardmovetrace.push_back(std::make_unique<move>(*backwardmovetrace.back()));
 		move movetracebackward = *backwardmovetrace.back();
+		current_player = movetracebackward.current_player;
 		while (!movetracebackward.changes.empty()) {
 			move::chessmenMoved* move = &movetracebackward.changes.back();
 			if (move->move == move::newcm) {
@@ -66,6 +67,7 @@ void chessfield::stepforward() {
 				continue;
 			}
 		}
+		forwardmovetrace.pop_back();
 	}
 }
 
@@ -115,9 +117,11 @@ bool chessfield::initSaveGame(const std::string& filename) {
 		for (int i = 0; i < json["board"]["cmof"]["count"].get<int>(); i++) {
 			createChessmen(
 				&chessmen_onfield,
-				json["board"]["cmof"]["cm" + std::to_string(i)]["type"].get<chessmen::chessfigure>(), {
-				json["board"]["cmof"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
-				json["board"]["cmof"]["cm" + std::to_string(i)]["posy"].get<unsigned int>() },
+				json["board"]["cmof"]["cm" + std::to_string(i)]["type"].get<chessmen::chessfigure>(), 
+				{
+					json["board"]["cmof"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
+					json["board"]["cmof"]["cm" + std::to_string(i)]["posy"].get<unsigned int>() 
+				},
 				json["board"]["cmof"]["cm" + std::to_string(i)]["colo"].get<chessmen::color>(),
 				json["board"]["cmof"]["cm" + std::to_string(i)]["move"].get<bool>()
 			);
@@ -125,9 +129,11 @@ bool chessfield::initSaveGame(const std::string& filename) {
 		for (int i = 0; i < json["board"]["cmos"]["count"].get<int>(); i++) {
 			createChessmen(
 				&chessmen_onside,
-				json["board"]["cmos"]["cm" + std::to_string(i)]["type"].get<chessmen::chessfigure>(), {
-				json["board"]["cmos"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
-				json["board"]["cmos"]["cm" + std::to_string(i)]["posy"].get<unsigned int>() },
+				json["board"]["cmos"]["cm" + std::to_string(i)]["type"].get<chessmen::chessfigure>(), 
+				{
+					json["board"]["cmos"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
+					json["board"]["cmos"]["cm" + std::to_string(i)]["posy"].get<unsigned int>()
+				},
 				json["board"]["cmos"]["cm" + std::to_string(i)]["colo"].get<chessmen::color>(),
 				json["board"]["cmos"]["cm" + std::to_string(i)]["move"].get<bool>()
 			);

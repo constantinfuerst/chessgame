@@ -66,7 +66,6 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 	else {
 		return impossible;
 	}
-	return impossible;
 }
 
 void chessfield::movetoempty(chessmen::position& old_position, chessmen::position& new_position, chessboard* field, move* movedata, bool register_move) {
@@ -85,7 +84,6 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 			return;
 		}
 	}
-	return;
 }
 
 void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move) {
@@ -102,7 +100,6 @@ void chessfield::movetoside(chessmen::position& position, chessboard* virtual_fi
 			return;
 		}
 	}
-	return;
 }
 
 void chessfield::newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move) {
