@@ -10,23 +10,9 @@ void move::removeChessmen(chessboard& onfield, const chessmen::position pos) {
 	}
 }
 
-void move::placeBack(chessboard& onfield, chessboard& onside, const chessmen::position pos) {
+void move::removeChessmen(chessboard& onside, const chessmen::position pos, chessmen::chessfigure& figure) {
 	for (size_t i = 0; i < onside.size(); i++) {
-		const chessmen::position boardpos = { onside.at(i)->board_position.x, onside.at(i)->board_position.y };
-		if (boardpos.x == pos.x && boardpos.y == pos.y) {
-			const chessmen::chessfigure type = onside.at(i)->figure();
-			if (type == chessmen::rook)
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
-			else if (type == chessmen::knight)
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<knight>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
-			else if (type == chessmen::pawn)
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<pawn>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
-			else if (type == chessmen::bishop)
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<bishop>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
-			else if (type == chessmen::king)
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<king>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
-			else
-				onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(onside.at(i)->player_color, onside.at(i)->board_position, TRUE)));
+		if (onside.at(i)->board_position.x == pos.x && onside.at(i)->board_position.y == pos.y && onside.at(i)->figure() == figure) {
 			onside.erase(onside.begin() + i);
 			break;
 		}

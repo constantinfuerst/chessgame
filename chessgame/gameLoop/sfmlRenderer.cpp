@@ -234,6 +234,9 @@ bool sfmlRenderer::createSavegame(chessfield* game) const {
 		if (game->createSaveGame(input) == TRUE) {
 			return TRUE;
 		}
+		else if (input == "back") {
+			return FALSE;
+		}
 		else {
 			std::cout << "Something went wrong, please try that again" << std::endl;
 		}
@@ -247,6 +250,9 @@ bool sfmlRenderer::loadSavegame(chessfield* game) const {
 		getline(std::cin, input);
 		if (game->initSaveGame(input) == TRUE) {
 			return TRUE;
+		}
+		else if (input == "back") {
+			return FALSE;
 		}
 		else {
 			std::cout << "Something went wrong, please try that again" << std::endl;
@@ -304,7 +310,6 @@ int sfmlRenderer::gameLoop() {
 
 	bool redraw = TRUE;
 	bool lmb_press = FALSE;
-	int drawpause = 0;
 
 	while (window.isOpen()) {
 		//sleep to save CPU cycles
@@ -331,12 +336,12 @@ int sfmlRenderer::gameLoop() {
 			}
 			else if (event.type == sf::Event::GainedFocus) {
 				std::cout << "resumed" << std::endl;
+				redraw = TRUE;
 				paused = FALSE;
 			}
 			else {
 				if (paused == TRUE) {
 					sleep(sf::milliseconds(250));
-					window.clear();
 					window.display();
 				}
 				else {

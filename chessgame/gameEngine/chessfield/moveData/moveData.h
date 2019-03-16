@@ -25,7 +25,7 @@ public:
 	void makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move);
 	void makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move);
 	static void removeChessmen(chessboard& onfield, chessmen::position pos);
-	static void placeBack(chessboard& onfield, chessboard& onside, chessmen::position pos);
+	static void removeChessmen(chessboard& onside, chessmen::position pos, chessmen::chessfigure& figure);
 	static void moveBack(chessboard& onfield, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
 	move(const move& mve);
 	move() = default;

@@ -30,7 +30,8 @@ void chessfield::stepback() {
 				movetracebackward.changes.pop_back();
 			}
 			else if (move->move == move::toside) {
-				move::placeBack(chessmen_onfield, chessmen_onside, move->oldPosition);
+				move::removeChessmen(chessmen_onside, move->oldPosition, move->figure);
+				createChessmen(&chessmen_onfield, move->figure, move->oldPosition, move->player, move->hasmovedold);
 				movetracebackward.changes.pop_back();
 			}
 			else {
@@ -50,18 +51,20 @@ void chessfield::stepforward() {
 		else
 			current_player = chessmen::white;
 		while (!movetraceforward.changes.empty()) {
-			move::chessmenMoved* move = &movetraceforward.changes.back();
+			move::chessmenMoved* move = &movetraceforward.changes.front();
 			if (move->move == move::newcm) {
+				movetoside(move->newPosition, &chessmen_onfield, &chessmen_onside, nullptr, FALSE);
 				newchessmen(move->newPosition, nullptr, move->player, move->figure, FALSE);
-				movetraceforward.changes.pop_back(); movetraceforward.changes.pop_back();
+				movetraceforward.changes.erase(movetraceforward.changes.begin());
+				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			else if (move->move == move::toempty) {
 				movetoempty(move->oldPosition, move->newPosition, &chessmen_onfield, nullptr, FALSE);
-				movetraceforward.changes.pop_back();
+				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			else if (move->move == move::toside) {
 				movetoside(move->oldPosition, &chessmen_onfield, &chessmen_onside, nullptr, FALSE);
-				movetraceforward.changes.pop_back();
+				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			else {
 				continue;
