@@ -10,5 +10,3 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <nlohmann/json.hpp>
-#include <SFML/Graphics.hpp>

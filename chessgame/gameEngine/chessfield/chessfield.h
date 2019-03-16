@@ -17,7 +17,7 @@ public:
 		error, enemy, selected, next, ownchessmen, emptyfield, checked, impmove, bkstale, wkstale, bkmate, wkmate
 	};
 	enum game_status {
-		end, running, mistake
+		end, restart, running, mistake
 	};
 
 	chessboard chessmen_onfield;

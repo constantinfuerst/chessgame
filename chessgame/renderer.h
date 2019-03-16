@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "gameEngine/chessmen/chessmen.h"
 #include "gameEngine/chessfield/chessfield.h"
+#include <SFML/Graphics.hpp>
+#include "TGUI/TGUI.hpp"
 
 class renderer {
 protected:
@@ -67,11 +69,21 @@ private:
 	//UI elements
 	int ui_element_width;
 	std::vector<sf::Sprite*> ui_elements;
+	//efficiency bools
+	bool displayingUI;
+	bool redraw = TRUE;
+	//game status evaluator
+	chessfield::game_status game_status;
 
-	bool createSavegame(chessfield* game) const;
-	bool loadSavegame(chessfield* game) const;
+	enum mode {
+		create, vis_true, vis_false
+	};
+
+	void ui_newgame(chessfield* game, tgui::Gui* gui, mode mode);
+	bool createSavegame(chessfield* game, tgui::Gui* gui) const;
+	bool loadSavegame(chessfield* game, tgui::Gui* gui) const;
 	void loadNewgame(chessfield* game) const;
-	bool processUIInput(unsigned int ui_element, chessfield* game) const;
+	bool processUIInput(unsigned int ui_element, chessfield* game, tgui::Gui* gui);
 	static chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status);
 	void render(chessfield& game, sf::RenderWindow & window);
 

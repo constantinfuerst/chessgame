@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "chessfield.h"
+#include <nlohmann/json.hpp>
 
 chessfield::chessfield() {
 	current_player = chessmen::white;
@@ -287,6 +288,9 @@ void chessfield::initGame() {
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
 	backwardmovetrace.clear();
+	chessmen_onfield.reserve(32);
+	backwardmovetrace.reserve(32);
+	forwardmovetrace.reserve(16);
 
 	//ACTUAL CHESSBOARD
 	//placing white chessmen
@@ -331,6 +335,6 @@ void chessfield::initGame() {
 		//placing king
 		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<king>(chessmen::black, 3, chessmen::fieldsize_y_end)));
 		//placing queen
-		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(chessmen::black, 4, chessmen::fieldsize_y_end )));
+		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(chessmen::black, 4, chessmen::fieldsize_y_end)));
 	}
 }

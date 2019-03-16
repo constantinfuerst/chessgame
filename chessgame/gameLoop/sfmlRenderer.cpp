@@ -226,7 +226,7 @@ void sfmlRenderer::render(chessfield& game, sf::RenderWindow & window) {
 	}
 }
 
-bool sfmlRenderer::createSavegame(chessfield* game) const {
+bool sfmlRenderer::createSavegame(chessfield* game, tgui::Gui* gui) const {
 	while (TRUE) {
 		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
 		std::string input;
@@ -243,7 +243,7 @@ bool sfmlRenderer::createSavegame(chessfield* game) const {
 	}
 }
 
-bool sfmlRenderer::loadSavegame(chessfield* game) const {
+bool sfmlRenderer::loadSavegame(chessfield* game, tgui::Gui* gui) const {
 	while (TRUE) {
 		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
 		std::string input;
@@ -260,7 +260,12 @@ bool sfmlRenderer::loadSavegame(chessfield* game) const {
 	}
 }
 
+void test() {
+	std::cout << "tiggered" << std::endl;
+}
+
 void sfmlRenderer::loadNewgame(chessfield* game) const {
+	/*
 	while (TRUE) {
 		std::cout << R"(Please confirm with entering "yes" that you would like to reload the game ("no" would do the opposite))" << std::endl;
 		std::string input;
@@ -275,10 +280,10 @@ void sfmlRenderer::loadNewgame(chessfield* game) const {
 		else {
 			std::cout << input << " is not a valid option, please try that again" << std::endl;
 		}
-	}
+	}*/
 }
 
-bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) const {
+bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game, tgui::Gui* gui) {
 	switch (ui_element) {
 	case 0:
 		game->stepback();
@@ -289,13 +294,81 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game) con
 		game->selected_chessmen = nullptr;
 		return TRUE;
 	case 2:
-		return createSavegame(game);
+		return createSavegame(game, gui);
 	case 3:
-		return loadSavegame(game);
+		return loadSavegame(game, gui);
 	case 4:
-		loadNewgame(game);
+		ui_newgame(game, gui, vis_true);
+		displayingUI = TRUE;
+		return TRUE;
 	default:
 		return FALSE;
+	}
+}
+
+void sfmlRenderer::ui_newgame(chessfield* game, tgui::Gui* gui, mode mode) {
+	static tgui::Theme theme{ R"(C:\Users\Constantin\source\repos\chessgame\assets\guirenderer\TransparentGrey.txt)" };
+	static const unsigned int width = 200;
+	static const unsigned int height = 100;
+	static const unsigned int posx = (screenWidth / 2) - (width / 2);
+	static const unsigned int posy = ((screenHeight / 2) - 50) - (height / 2);
+	static const unsigned int buttonwidth = width / 2;
+	static const unsigned int buttonheight = height / 4;
+
+	static auto child = tgui::ChildWindow::create();
+	static auto label = tgui::Label::create();
+	static auto yesbutton = tgui::Button::create();
+	static auto nobutton = tgui::Button::create();
+
+	if (mode == vis_true) {
+		child->setVisible(TRUE);
+	}
+	else if (mode == vis_false) {
+		child->setVisible(FALSE);
+	}
+	else {
+		child->setVisible(FALSE);
+		child->setResizable(FALSE);
+		child->setPositionLocked(TRUE);
+		child->setRenderer(theme.getRenderer("ChildWindow"));
+		child->setSize(width, height);
+		child->setPosition(posx, posy);
+		child->setTitle("Confirm");
+		child->connect("closed", [&]() {
+			std::cout << "child closed" << std::endl;
+			displayingUI = FALSE;
+			redraw = TRUE;
+			child->setVisible(FALSE);
+		});
+		gui->add(child);
+		label->setRenderer(theme.getRenderer("Label"));
+		label->setText("Do you really want\nto start a new game?");
+		label->setPosition(30, 10);
+		label->setTextSize(15);
+		child->add(label);
+		yesbutton->setRenderer(theme.getRenderer("Button"));
+		yesbutton->setPosition(0, height - buttonheight);
+		yesbutton->setText("yes");
+		yesbutton->setSize(buttonwidth, buttonheight);
+		yesbutton->connect("pressed", [&]() {
+			std::cout << "yes" << std::endl;
+			game_status = chessfield::restart;
+			displayingUI = FALSE;
+			redraw = TRUE;
+			child->setVisible(FALSE);
+		});
+		child->add(yesbutton);
+		nobutton->setRenderer(theme.getRenderer("Button"));
+		nobutton->setPosition(buttonwidth, height - buttonheight);
+		nobutton->setText("no");
+		nobutton->setSize(buttonwidth, buttonheight);
+		nobutton->connect("pressed", [&]() {
+			std::cout << "no" << std::endl;
+			displayingUI = FALSE;
+			redraw = TRUE;
+			child->setVisible(FALSE);
+		});
+		child->add(nobutton);
 	}
 }
 
@@ -304,12 +377,16 @@ int sfmlRenderer::gameLoop() {
 	screenWidth = 500;
 	screenHeight = 550;
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), L"Chessgame (c) 2019 Constantin Fürst", sf::Style::Titlebar | sf::Style::Close);
-
+	window.setFramerateLimit(10); //only update every 100ms
+	tgui::Gui gui{window};
 	chessfield game;
+	game_status = chessfield::running;
+	ui_newgame(&game, &gui, create);
 	game.initGame();
 
-	bool redraw = TRUE;
 	bool lmb_press = FALSE;
+	displayingUI = FALSE;
+	redraw = TRUE;
 
 	while (window.isOpen()) {
 		//sleep to save CPU cycles
@@ -327,6 +404,7 @@ int sfmlRenderer::gameLoop() {
 		sf::Event event;
 
 		while (window.pollEvent(event)) {
+			gui.handleEvent(event);
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
@@ -341,7 +419,6 @@ int sfmlRenderer::gameLoop() {
 			}
 			else {
 				if (paused == TRUE) {
-					sleep(sf::milliseconds(250));
 					window.display();
 				}
 				else {
@@ -350,12 +427,22 @@ int sfmlRenderer::gameLoop() {
 			}
 		}
 
-		if (paused == FALSE) {
+		//check for game status and react
+		if (game_status == chessfield::restart) {
+			game_status = chessfield::running;
+			game.initGame();
+		}
+
+		if (displayingUI == TRUE) {
+			//draw
+			gui.draw();
+		}
+		else if (paused == FALSE) {
 			//get mouse input
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				lmb_press = TRUE;
 			}
-			else if (lmb_press == TRUE) {
+			else if (lmb_press == TRUE && displayingUI == FALSE) {
 				const sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 				const unsigned int clickedX = (mousePosition.x - 28) / field_width;
 				const unsigned int clickedY = (mousePosition.y - 28) / field_height;
@@ -373,7 +460,7 @@ int sfmlRenderer::gameLoop() {
 				else {
 					if (mousePosition.y < screenHeight && mousePosition.y > chessboard_height) {
 						const unsigned int clickedUI = mousePosition.x / ui_element_width;
-						if (processUIInput(clickedUI, &game) == TRUE)
+						if (processUIInput(clickedUI, &game, &gui) == TRUE)
 							redraw = TRUE;
 						std::cout << "UI element " << clickedUI << " clicked" << std::endl;
 					}
@@ -383,14 +470,20 @@ int sfmlRenderer::gameLoop() {
 			else {
 				lmb_press = FALSE;
 			}
-
 			if (redraw == TRUE) {
 				//draw
 				window.clear();
 				render(game, window);
+				gui.draw();
 				window.display();
 				redraw = FALSE;
 			}
+			else {
+				continue;
+			}
+		}
+		else {
+			continue;
 		}
 	}
 	return TRUE;
