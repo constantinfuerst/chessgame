@@ -4,6 +4,7 @@
 
 chessfield::chessfield() {
 	current_player = chessmen::white;
+	last_game_status = running;
 }
 
 chessfield::~chessfield() {

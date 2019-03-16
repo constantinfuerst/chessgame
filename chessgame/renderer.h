@@ -30,35 +30,6 @@ public:
 
 class sfmlRenderer final : public renderer {
 private:
-	//loading board texture
-	sf::Texture chessboard_txt;
-	sf::Sprite chessboard_spr;
-	//loading chessmen textures
-	sf::Texture chessmen_txt;
-	//asigning sprites
-	sf::Sprite chessmen_king_white_spr;
-	sf::Sprite chessmen_knight_white_spr;
-	sf::Sprite chessmen_bishop_white_spr;
-	sf::Sprite chessmen_pawn_white_spr;
-	sf::Sprite chessmen_rook_white_spr;
-	sf::Sprite chessmen_queen_white_spr;
-	sf::Sprite chessmen_king_black_spr;
-	sf::Sprite chessmen_knight_black_spr;
-	sf::Sprite chessmen_bishop_black_spr;
-	sf::Sprite chessmen_pawn_black_spr;
-	sf::Sprite chessmen_rook_black_spr;
-	sf::Sprite chessmen_queen_black_spr;
-	//loading UI assets
-	sf::Texture ui_back_txt;
-	sf::Sprite ui_back_spr;
-	sf::Texture ui_forward_txt;
-	sf::Sprite ui_forward_spr;
-	sf::Texture ui_save_txt;
-	sf::Texture ui_load_txt;
-	sf::Sprite ui_save_spr;
-	sf::Sprite ui_load_spr;
-	sf::Texture ui_retry_txt;
-	sf::Sprite ui_retry_spr;
 	//scaling the fields
 	int chessboard_width;
 	int chessboard_height;
@@ -75,17 +46,13 @@ private:
 	//game status evaluator
 	chessfield::game_status game_status;
 
-	enum mode {
-		create, vis_true, vis_false
-	};
+	void ui_newgame(tgui::Gui* gui, std::string message);
+	void render(chessfield* game, sf::RenderWindow* window);
 
-	void ui_newgame(chessfield* game, tgui::Gui* gui, mode mode);
 	bool createSavegame(chessfield* game, tgui::Gui* gui) const;
 	bool loadSavegame(chessfield* game, tgui::Gui* gui) const;
-	void loadNewgame(chessfield* game) const;
 	bool processUIInput(unsigned int ui_element, chessfield* game, tgui::Gui* gui);
-	static chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status);
-	void render(chessfield& game, sf::RenderWindow & window);
+	chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status, tgui::Gui* gui);
 
 public:
 	std::string assets_image;

@@ -26,6 +26,7 @@ public:
 	chessmen::color current_player;
 
 private:
+	full_game_status last_game_status;
 	enum king_status {
 		none = 0, check = 1, stale = 2, checkmate = 3
 	};

@@ -126,7 +126,10 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 }
 
 chessfield::full_game_status chessfield::clickfield(chessmen::position field, chessmen::color player) {
-	if (selected_chessmen == nullptr) {
+	if (last_game_status >= 8) { //when the game is allready over return the last state
+		return last_game_status;
+	}
+	else if (selected_chessmen == nullptr) {
 		try {
 			chessmen* clicked_chessmen = findChessmen(field);
 			if (clicked_chessmen->player_color != player) {
@@ -169,15 +172,19 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			std::cout << "clear" << std::endl;
 			backwardmovetrace.push_back(std::make_unique<move>(changes));
 			if (king_situation(chessmen::black) == stale) {
+				last_game_status = bkstale;
 				return bkstale;
 			}
 			else if (king_situation(chessmen::white) == stale) {
+				last_game_status = wkstale;
 				return wkstale;
 			}
 			else if (king_situation(chessmen::white) == checkmate) {
+				last_game_status = wkmate;
 				return wkmate;
 			}
 			else if (king_situation(chessmen::black) == checkmate) {
+				last_game_status = bkmate;
 				return bkmate;
 			}
 			else {
