@@ -29,6 +29,7 @@
     <ClCompile Include="gameEngine\chessfield\moveData\traceBack.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="gameLoop\sfmlRenderer.cpp" />
+    <ClCompile Include="gameLoop\sfmlRendererUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

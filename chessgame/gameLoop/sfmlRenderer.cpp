@@ -84,23 +84,38 @@ chessfield::game_status sfmlRenderer::processOutput(chessfield::full_game_status
 	}
 }
 
+std::vector <std::string> sfmlRenderer::getFiles() {
+	std::vector <std::string> returnval;
+	returnval.reserve(25);
+	for (const auto& file : std::experimental::filesystem::directory_iterator(SAVE_DIR)) {
+		std::wstring_convert < std::codecvt_utf8_utf16 <wchar_t> > converter;
+		std::string filename = converter.to_bytes(file.path());
+		if (filename.find(".csg") != std::wstring::npos) {
+			returnval.push_back(filename);
+		}
+	}
+	return returnval;
+}
+
 void sfmlRenderer::createSavegame(tgui::EditBox::Ptr filename_box) const {
-	if (game->createSaveGame(filename_box->getText().toAnsiString() + ".csg") == TRUE) {
+	if (game->createSaveGame(SAVE_DIR + filename_box->getText().toAnsiString() + ".csg") == TRUE) {
+		cout("created game state .csg file");
 		ui_message("Saving successfull!");
 	}
 	else {
-		cout("Something went wrong, please try that again");
+		cout("failed creating game state .csg file");
 		ui_message("Trying to save the game failed!");
 	}
 }
 
-bool sfmlRenderer::loadSavegame(tgui::EditBox::Ptr filename_box) const {
-	if (game->initSaveGame(filename_box->getText().toAnsiString() + ".csg") == TRUE) {
-		return TRUE;
+void sfmlRenderer::loadSavegame(std::string filename) const {
+	if (game->initSaveGame(filename) == TRUE) {
+		cout("loaded game state .csg file")
+		ui_message("Loading successfull!");
 	}
 	else {
-		cout("Something went wrong, please try that again");
-		return FALSE;
+		cout("failed loading game state .csg file");
+		ui_message("Trying to load the game failed!");
 	}
 }
 
@@ -119,7 +134,7 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element) {
 		return TRUE;
 	case 3:
 		//TODO: implement UI version
-		//loadSavegame(game, gui);
+		ui_loadgame();
 		return TRUE;
 	case 4:
 		ui_newgame("Do you really want\nto start a new game?");
@@ -251,230 +266,6 @@ int sfmlRenderer::gameLoop() {
 		}
 	}
 	return TRUE;
-}
-
-void sfmlRenderer::ui_message(std::string message) const {
-	static tgui::Theme theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" };
-	static const unsigned int width = 200;
-	static const unsigned int height = 75;
-	static const unsigned int posx = (screenWidth / 2) - (width / 2);
-	static const unsigned int posy = ((screenHeight / 2) - 50) - (height / 2);
-	static const unsigned int buttonwidth = width / 2;
-	static const unsigned int buttonheight = height / 4;
-	static const unsigned int padding = 30;
-
-	static bool constructed = FALSE;
-
-	static auto child = tgui::ChildWindow::create();
-	static auto label = tgui::Label::create();
-	static auto yesbutton = tgui::Button::create();
-
-	if (displayingUI != nodisplay) {
-		return;
-	}
-	else if (constructed == TRUE) {
-		if (child->isVisible()) {
-			cout("setting savegame visible FALSE");
-			child->setVisible(FALSE);
-			displayingUI = nodisplay;
-		}
-		else {
-			label->setText(message);
-			cout("setting savegame visible TRUE");
-			child->setVisible(TRUE);
-			displayingUI = display_noupdate;
-		}
-	}
-	else {
-		cout("constructing ui_savegame");
-		constructed = TRUE;
-		displayingUI = display_noupdate;
-
-		child->setResizable(FALSE);
-		child->setPositionLocked(TRUE);
-		child->setRenderer(theme.getRenderer("ChildWindow"));
-		child->setSize(width, height);
-		child->setPosition(posx, posy);
-		child->connect("closed", [&]() {
-			cout("message closed");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		gui->add(child);
-		label->setRenderer(theme.getRenderer("Label"));
-		label->setText(message);
-		label->setPosition(padding, 10);
-		label->setTextSize(padding / 2);
-		label->setAutoSize(TRUE);
-		child->add(label);
-		yesbutton->setRenderer(theme.getRenderer("Button"));
-		yesbutton->setPosition((width - buttonwidth) / 2, height - buttonheight);
-		yesbutton->setText("ok");
-		yesbutton->setSize(buttonwidth, buttonheight);
-		yesbutton->connect("pressed", [&]() {
-			cout("close message");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		child->add(yesbutton);
-	}
-}
-
-void sfmlRenderer::ui_savegame() {
-	static tgui::Theme theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" };
-	static const unsigned int width = 200;
-	static const unsigned int height = 150;
-	static const unsigned int posx = (screenWidth / 2) - (width / 2);
-	static const unsigned int posy = ((screenHeight / 2) - 50) - (height / 2);
-	static const unsigned int buttonwidth = width / 2;
-	static const unsigned int buttonheight = height / 4;
-	static const unsigned int padding = 30;
-
-	static bool constructed = FALSE;
-
-	static auto child = tgui::ChildWindow::create();
-	static auto label = tgui::Label::create();
-	static auto yesbutton = tgui::Button::create();
-	static auto filename = tgui::EditBox::create();
-
-	if (displayingUI != nodisplay) {
-		return;
-	}
-	else if (constructed == TRUE) {
-		if (child->isVisible()) {
-			cout("setting savegame visible FALSE");
-			child->setVisible(FALSE);
-			displayingUI = nodisplay;
-		}
-		else {
-			cout("setting savegame visible TRUE");
-			child->setVisible(TRUE);
-			displayingUI = display_update;
-		}
-	}
-	else {
-		cout("constructing ui_savegame");
-		constructed = TRUE;
-		displayingUI = display_update;
-
-		child->setResizable(FALSE);
-		child->setPositionLocked(TRUE);
-		child->setRenderer(theme.getRenderer("ChildWindow"));
-		child->setSize(width, height);
-		child->setPosition(posx, posy);
-		child->setTitle("Enter a filename");
-		child->connect("closed", [&]() {
-			cout("ui_savegame closed");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		gui->add(child);
-		label->setRenderer(theme.getRenderer("Label"));
-		label->setText("Please enter a name\nfor your savegame");
-		label->setPosition(padding, 10);
-		label->setTextSize(padding / 2);
-		child->add(label);
-		filename->setSize({ width - (padding * 2), padding });
-		filename->setPosition({ padding, padding * 2});
-		filename->setDefaultText("Filename");
-		child->add(filename);
-		yesbutton->setRenderer(theme.getRenderer("Button"));
-		yesbutton->setPosition((width - buttonwidth) / 2, height - buttonheight);
-		yesbutton->setText("save");
-		yesbutton->setSize(buttonwidth, buttonheight);
-		yesbutton->connect("pressed", [&]() {
-			cout("savegame");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-			this->createSavegame(filename);
-		});
-		child->add(yesbutton);
-	}
-}
-
-void sfmlRenderer::ui_newgame(std::string message) {
-	static tgui::Theme theme{ASSETS_DIR + "guirenderer\\TransparentGrey.txt"};
-	static const unsigned int width = 200;
-	static const unsigned int height = 100;
-	static const unsigned int posx = (screenWidth / 2) - (width / 2);
-	static const unsigned int posy = ((screenHeight / 2) - 50) - (height / 2);
-	static const unsigned int buttonwidth = width / 2;
-	static const unsigned int buttonheight = height / 4;
-
-	static bool constructed = FALSE;
-
-	static auto child = tgui::ChildWindow::create();
-	static auto label = tgui::Label::create();
-	static auto yesbutton = tgui::Button::create();
-	static auto nobutton = tgui::Button::create();
-
-	if (displayingUI != nodisplay) {
-		return;
-	}
-	else if (constructed == TRUE) {
-		label->setText(message);
-		if (child->isVisible()) {
-			cout("setting newgame_ui visible FALSE");
-			child->setVisible(FALSE);
-			displayingUI = nodisplay;
-		}
-		else {
-			cout("setting newgame_ui visible TRUE");
-			child->setVisible(TRUE);
-			displayingUI = display_update;
-		}
-	}
-	else {
-		cout("constructing ui_newgame");
-		constructed = TRUE;
-		displayingUI = display_noupdate;
-
-		child->setResizable(FALSE);
-		child->setPositionLocked(TRUE);
-		child->setRenderer(theme.getRenderer("ChildWindow"));
-		child->setSize(width, height);
-		child->setPosition(posx, posy);
-		child->setTitle("Confirm");
-		child->connect("closed", [&]() {
-			cout("child closed");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		gui->add(child);
-		label->setRenderer(theme.getRenderer("Label"));
-		label->setText(message);
-		label->setPosition(30, 10);
-		label->setTextSize(15);
-		child->add(label);
-		yesbutton->setRenderer(theme.getRenderer("Button"));
-		yesbutton->setPosition(0, height - buttonheight);
-		yesbutton->setText("yes");
-		yesbutton->setSize(buttonwidth, buttonheight);
-		yesbutton->connect("pressed", [&]() {
-			cout("yes newgame");
-			game_status = chessfield::restart;
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		child->add(yesbutton);
-		nobutton->setRenderer(theme.getRenderer("Button"));
-		nobutton->setPosition(buttonwidth, height - buttonheight);
-		nobutton->setText("no");
-		nobutton->setSize(buttonwidth, buttonheight);
-		nobutton->connect("pressed", [&]() {
-			cout("no newgame");
-			displayingUI = nodisplay;
-			redraw = TRUE;
-			child->setVisible(FALSE);
-		});
-		child->add(nobutton);
-	}
 }
 
 void sfmlRenderer::render() {

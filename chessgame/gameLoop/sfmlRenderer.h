@@ -31,10 +31,12 @@ private:
 	void ui_newgame(std::string message);
 	void ui_message(std::string message) const;
 	void ui_savegame();
+	void ui_loadgame(int index = 0);
 	void render();
 
+	static std::vector<std::string> getFiles();
 	void createSavegame(tgui::EditBox::Ptr filename) const;
-	bool loadSavegame(tgui::EditBox::Ptr filename) const;
+	void loadSavegame(std::string filename) const;
 	bool processUIInput(unsigned int ui_element);
 	chessfield::game_status processOutput(chessfield::full_game_status status);
 
