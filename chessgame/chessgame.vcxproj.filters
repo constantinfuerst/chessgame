@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="gameEngine\chessfield\chessfield.h" />
+    <ClInclude Include="gameEngine\chessmen\chessmen.h" />
+    <ClInclude Include="gameEngine\chessfield\moveData\moveData.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="gameLoop\consoleRenderer.cpp" />
+    <ClInclude Include="gameLoop\consoleRenderer.h" />
+    <ClInclude Include="gameLoop\gameInclude.h" />
+    <ClInclude Include="gameLoop\settings.h" />
+    <ClInclude Include="gameLoop\sfmlRenderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gameEngine\chessfield\chessfieldGeneral.cpp" />
+    <ClCompile Include="gameEngine\chessfield\chessfieldInteraction.cpp" />
+    <ClCompile Include="gameEngine\chessfield\kingLogic.cpp" />
+    <ClCompile Include="gameEngine\chessfield\moveCasteling.cpp" />
+    <ClCompile Include="gameEngine\chessfield\moveGeneral.cpp" />
+    <ClCompile Include="gameEngine\chessmen\bishop.cpp" />
+    <ClCompile Include="gameEngine\chessmen\chessmen.cpp" />
+    <ClCompile Include="gameEngine\chessmen\king.cpp" />
+    <ClCompile Include="gameEngine\chessmen\knight.cpp" />
+    <ClCompile Include="gameEngine\chessmen\pawn.cpp" />
+    <ClCompile Include="gameEngine\chessmen\queen.cpp" />
+    <ClCompile Include="gameEngine\chessmen\rook.cpp" />
+    <ClCompile Include="gameLoop\main.cpp" />
+    <ClCompile Include="gameEngine\chessfield\moveData\moveData.cpp" />
+    <ClCompile Include="gameEngine\chessfield\moveData\traceBack.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="gameLoop\sfmlRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
