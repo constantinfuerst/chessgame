@@ -44,3 +44,11 @@ assets/images/save.png
 assets/images/forward.png
 *.xml
 chessgame/back
+build/assets/images/save.png
+build/assets/images/retry.png
+build/assets/images/load.png
+build/assets/images/forward.png
+build/assets/images/figures.png
+build/assets/images/board.png
+build/assets/images/back.png
+build/assets/fonts/Saira-Regular.ttf

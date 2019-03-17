@@ -33,9 +33,6 @@ private:
 	chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status, tgui::Gui* gui);
 
 public:
-	std::string assets_image;
-	std::string assets_font;
-
 	int gameLoop();
 	~sfmlRenderer() = default;
 	sfmlRenderer();

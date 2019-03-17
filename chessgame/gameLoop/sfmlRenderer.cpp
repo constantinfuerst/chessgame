@@ -250,7 +250,7 @@ int sfmlRenderer::gameLoop() {
 }
 
 void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
-	static tgui::Theme theme{ R"(C:\Users\Constantin\source\repos\chessgame\assets\guirenderer\TransparentGrey.txt)" };
+	static tgui::Theme theme{ASSETS_DIR + "guirenderer\\TransparentGrey.txt"};
 	static const unsigned int width = 200;
 	static const unsigned int height = 100;
 	static const unsigned int posx = (screenWidth / 2) - (width / 2);
@@ -330,9 +330,6 @@ void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
 }
 
 void sfmlRenderer::render(chessfield* game, sf::RenderWindow* window) {
-	assets_image = R"(C:\Users\Constantin\source\repos\chessgame\assets\images\)";
-	assets_font = R"(C:\Users\Constantin\source\repos\chessgame\assets\fonts\)";
-
 	static bool constructed = FALSE;
 	//loading board texture
 	static sf::Texture chessboard_txt;
@@ -369,10 +366,10 @@ void sfmlRenderer::render(chessfield* game, sf::RenderWindow* window) {
 		cout("constructing renderer assets");
 
 		//loading board texture
-		chessboard_txt.loadFromFile(assets_image + "board.png");
+		chessboard_txt.loadFromFile(ASSETS_DIR + "images\\board.png");
 		chessboard_spr.setTexture(chessboard_txt);
 		//loading chessmen textures
-		chessmen_txt.loadFromFile(assets_image + "figures.png");
+		chessmen_txt.loadFromFile(ASSETS_DIR + "images\\figures.png");
 		//asigning sprites
 		chessmen_king_white_spr.setTexture(chessmen_txt);
 		chessmen_king_white_spr.setTextureRect(sf::IntRect(224, 56, 56, 56));
@@ -404,15 +401,15 @@ void sfmlRenderer::render(chessfield* game, sf::RenderWindow* window) {
 		chessboard_height = chessboard_size.y - (28 * 2);
 
 		//loading UI texture
-		ui_back_txt.loadFromFile(assets_image + "back.png");
+		ui_back_txt.loadFromFile(ASSETS_DIR + "images\\back.png");
 		ui_back_spr.setTexture(ui_back_txt);
-		ui_forward_txt.loadFromFile(assets_image + "forward.png");
+		ui_forward_txt.loadFromFile(ASSETS_DIR + "images\\forward.png");
 		ui_forward_spr.setTexture(ui_forward_txt);
-		ui_save_txt.loadFromFile(assets_image + "save.png");
+		ui_save_txt.loadFromFile(ASSETS_DIR + "images\\save.png");
 		ui_save_spr.setTexture(ui_save_txt);
-		ui_load_txt.loadFromFile(assets_image + "load.png");
+		ui_load_txt.loadFromFile(ASSETS_DIR + "images\\load.png");
 		ui_load_spr.setTexture(ui_load_txt);
-		ui_retry_txt.loadFromFile(assets_image + "retry.png");
+		ui_retry_txt.loadFromFile(ASSETS_DIR + "images\\retry.png");
 		ui_retry_spr.setTexture(ui_retry_txt);
 
 		ui_elements.push_back(&ui_back_spr); ui_elements.push_back(&ui_forward_spr); ui_elements.push_back(&ui_save_spr); ui_elements.push_back(&ui_load_spr); ui_elements.push_back(&ui_retry_spr);
