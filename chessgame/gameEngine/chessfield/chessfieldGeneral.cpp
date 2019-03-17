@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "chessfield.h"
-#include <nlohmann/json.hpp>
 
 chessfield::chessfield() {
 	current_player = chessmen::white;
@@ -115,7 +114,7 @@ bool chessfield::initSaveGame(const std::string& filename) {
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
 	nlohmann::json json;
-	std::fstream json_input;
+	boost::filesystem::fstream json_input;
 	json_input.open(filename);
 	if (json_input.is_open()) {
 		json_input >> json;
@@ -216,7 +215,7 @@ void chessfield::createChessmen(chessboard* chessboard, chessmen::chessfigure ty
 
 bool chessfield::createSaveGame(const std::string& filename) {
 	nlohmann::json json;
-	std::ofstream json_output;
+	boost::filesystem::ofstream json_output;
 	json_output.open(filename);
 	if (json_output.is_open()) {
 		json["player"] = current_player;

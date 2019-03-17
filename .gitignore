@@ -25,3 +25,4 @@
 *.xml
 *.png
 *.ttf
+packages/*

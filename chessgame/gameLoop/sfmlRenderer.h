@@ -5,6 +5,7 @@
 #include "gameEngine/chessfield/chessfield.h"
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include "settings.h"
 
 class sfmlRenderer final {
 private:
@@ -18,22 +19,31 @@ private:
 	//UI elements
 	int ui_element_width;
 	std::vector<sf::Sprite*> ui_elements;
-	//efficiency bools
-	bool displayingUI;
-	bool redraw = TRUE;
+	//efficiency
+	enum uidisplay {
+		nodisplay = 0, display_noupdate = 1, display_update = 2
+	};
+	mutable uidisplay displayingUI;
+	mutable bool redraw = TRUE;
 	//game status evaluator
 	chessfield::game_status game_status;
 
-	void ui_newgame(tgui::Gui* gui, std::string message);
-	void render(chessfield* game, sf::RenderWindow* window);
+	void ui_newgame(std::string message);
+	void ui_message(std::string message) const;
+	void ui_savegame();
+	void render();
 
-	bool createSavegame(chessfield* game, tgui::Gui* gui) const;
-	bool loadSavegame(chessfield* game, tgui::Gui* gui) const;
-	bool processUIInput(unsigned int ui_element, chessfield* game, tgui::Gui* gui);
-	chessfield::game_status processOutput(chessfield& game, chessfield::full_game_status status, tgui::Gui* gui);
+	void createSavegame(tgui::EditBox::Ptr filename) const;
+	bool loadSavegame(tgui::EditBox::Ptr filename) const;
+	bool processUIInput(unsigned int ui_element);
+	chessfield::game_status processOutput(chessfield::full_game_status status);
+
+	chessfield* game;
+	tgui::Gui* gui;
+	sf::RenderWindow* window;
 
 public:
 	int gameLoop();
-	~sfmlRenderer() = default;
+	~sfmlRenderer();
 	sfmlRenderer();
 };
