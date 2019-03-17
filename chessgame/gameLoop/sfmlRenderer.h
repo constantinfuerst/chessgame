@@ -1,34 +1,12 @@
 #pragma once
 
 #include "pch.h"
-#include "gameEngine/chessmen/chessmen.h"
+
 #include "gameEngine/chessfield/chessfield.h"
 #include <SFML/Graphics.hpp>
-#include "TGUI/TGUI.hpp"
+#include <TGUI/TGUI.hpp>
 
-class renderer {
-protected:
-	virtual int gameLoop() = 0;
-	virtual ~renderer() = default;
-	renderer() = default;
-};
-
-class consoleRenderer final : public renderer {
-protected:
-	static chessfield::game_status processOutput(chessfield::full_game_status status);
-	static unsigned int translateY(const unsigned int& org_y);
-	static unsigned int translateX(const unsigned int& org_x);
-	static chessmen::position strtopos(std::string input);
-	static std::string postostr(chessmen::position pos);
-	static void render(chessfield& game);
-
-public:
-	virtual int gameLoop() override;
-	virtual ~consoleRenderer() override = default;
-	consoleRenderer() = default;
-};
-
-class sfmlRenderer final : public renderer {
+class sfmlRenderer final {
 private:
 	//scaling the fields
 	int chessboard_width;
@@ -58,7 +36,7 @@ public:
 	std::string assets_image;
 	std::string assets_font;
 
-	virtual int gameLoop() override;
-	virtual ~sfmlRenderer() override = default;
+	int gameLoop();
+	~sfmlRenderer() = default;
 	sfmlRenderer();
 };

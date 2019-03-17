@@ -1,5 +1,13 @@
 #include "pch.h"
-#include "renderer.h"
+#include "sfmlRenderer.h"
+#include "settings.h"
+
+#ifdef WIN_DESKTOP_GUI
+	#define cout(str)
+#else
+	#include <iostream>
+	#define cout(str) std::cout << str << std::endl;
+#endif
 
 sfmlRenderer::sfmlRenderer() {
 	render(nullptr, nullptr);
@@ -14,60 +22,64 @@ chessfield::game_status sfmlRenderer::processOutput(chessfield& game, chessfield
 		return chessfield::running;
 	}
 	else if (status == chessfield::error) {
-		std::cout << "ERROR: clickfield() reached control path end without a valid state" << std::endl;
+		cout("error clickfield");
 		return chessfield::end;
 	}
 	else if (status == chessfield::selected) {
-		//std::cout << "A chessmen was successfully selected" << std::endl;
+		cout("selected");
 		return chessfield::running;
 	}
 	else if (status == chessfield::enemy) {
 		//TODO: implement UI version
-		std::cout << "Please select one of your chessmen" << std::endl;
+		cout("enemy clicked");
 		return chessfield::mistake;
 	}
 	else if (status == chessfield::emptyfield) {
 		//TODO: implement UI version
-		std::cout << "That field seems to be empty" << std::endl;
+		cout("emptyfield clicked");
 		return chessfield::mistake;
 	}
 	else if (status == chessfield::checked) {
 		//TODO: implement UI version
-		std::cout << "This move would result in you being checked" << std::endl;
+		cout("checked field clicked");
 		return chessfield::mistake;
 	}
 	else if (status == chessfield::impmove) {
 		//TODO: implement UI version
-		std::cout << "This move is not possible" << std::endl;
+		cout("impmove clicked");
 		return chessfield::mistake;
 	}
 	else if (status == chessfield::bkstale) {
-		ui_newgame(gui, "DRAW: the black king is stale");
+		cout("bkstale");
+		ui_newgame(gui, "DRAW:\nthe black king is stale");
 		return chessfield::end;
 	}
 	else if (status == chessfield::wkstale) {
-		ui_newgame(gui, "DRAW: the white king is stale");
+		cout("wkstale");
+		ui_newgame(gui, "DRAW:\nthe white king is stale");
 		return chessfield::end;
 	}
 	else if (status == chessfield::bkmate) {
-		ui_newgame(gui, "WHITE WINS: the black king is mate");
+		cout("bkmate");
+		ui_newgame(gui, "WHITE WINS:\nthe black king is mate");
 		return chessfield::end;
 	}
 	else if (status == chessfield::wkmate) {
-		ui_newgame(gui, "BLACK WINS: the white king is mate");
+		cout("wkmate");
+		ui_newgame(gui, "BLACK WINS:\nthe white king is mate");
 		return chessfield::end;
 	}
 	else {
-		//std::cout << "An internal error occured :(" << std::endl;
+		cout("interror processOutput");
 		return chessfield::end;
 	}
 }
 
 bool sfmlRenderer::createSavegame(chessfield* game, tgui::Gui* gui) const {
 	while (TRUE) {
-		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
+		cout("Please enter a name for your savegame, enter \"back\" to return");
 		std::string input;
-		getline(std::cin, input);
+		//getline(std::cin, input);
 		if (game->createSaveGame(input) == TRUE) {
 			return TRUE;
 		}
@@ -75,16 +87,16 @@ bool sfmlRenderer::createSavegame(chessfield* game, tgui::Gui* gui) const {
 			return FALSE;
 		}
 		else {
-			std::cout << "Something went wrong, please try that again" << std::endl;
+			cout("Something went wrong, please try that again");
 		}
 	}
 }
 
 bool sfmlRenderer::loadSavegame(chessfield* game, tgui::Gui* gui) const {
 	while (TRUE) {
-		std::cout << "Please enter a name for your savegame, enter \"back\" to return" << std::endl;
+		cout("Please enter a name for your savegame, enter \"back\" to return");
 		std::string input;
-		getline(std::cin, input);
+		//getline(std::cin, input);
 		if (game->initSaveGame(input) == TRUE) {
 			return TRUE;
 		}
@@ -92,7 +104,7 @@ bool sfmlRenderer::loadSavegame(chessfield* game, tgui::Gui* gui) const {
 			return FALSE;
 		}
 		else {
-			std::cout << "Something went wrong, please try that again" << std::endl;
+			cout("Something went wrong, please try that again");
 		}
 	}
 }
@@ -115,7 +127,6 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element, chessfield* game, tgu
 		return loadSavegame(game, gui);
 	case 4:
 		ui_newgame(gui, "Do you really want\nto start a new game?");
-		displayingUI = TRUE;
 		return TRUE;
 	default:
 		return FALSE;
@@ -155,11 +166,11 @@ int sfmlRenderer::gameLoop() {
 				window.close();
 			}
 			else if (event.type == sf::Event::LostFocus) {
-				std::cout << "paused" << std::endl;
+				cout("paused main game loop");
 				paused = TRUE;
 			}
 			else if (event.type == sf::Event::GainedFocus) {
-				std::cout << "resumed" << std::endl;
+				cout("resumed main game loop");
 				redraw = TRUE;
 				paused = FALSE;
 			}
@@ -194,11 +205,14 @@ int sfmlRenderer::gameLoop() {
 				const unsigned int clickedY = (mousePosition.y - 28) / field_height;
 				const chessmen::position clickedPOS = { clickedX, clickedY };
 				if (chessmen::validpos(clickedPOS)) {
+					cout("clicked field x:" << clickedX << " y: " << clickedY);
 					if (game.selected_chessmen != nullptr && clickedX == game.selected_chessmen->board_position.x && clickedY == game.selected_chessmen->board_position.y) {
+						cout("unselecting chessmen");
 						game.selected_chessmen = nullptr;
 					}
 					else {
 						chessfield::full_game_status returnval = game.clickfield(clickedPOS, game.current_player);
+						cout("executing clickfield and processOutput");
 						processOutput(game, returnval, &gui);
 					}
 					redraw = TRUE;
@@ -208,7 +222,7 @@ int sfmlRenderer::gameLoop() {
 						const unsigned int clickedUI = mousePosition.x / ui_element_width;
 						if (processUIInput(clickedUI, &game, &gui) == TRUE)
 							redraw = TRUE;
-						std::cout << "UI element " << clickedUI << " clicked" << std::endl;
+						cout("UI element " << clickedUI << " clicked");
 					}
 				}
 				lmb_press = FALSE;
@@ -251,16 +265,26 @@ void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
 	static auto yesbutton = tgui::Button::create();
 	static auto nobutton = tgui::Button::create();
 
-	if (constructed == TRUE) {
+	if (displayingUI == TRUE) {
+		return;
+	}
+	else if (constructed == TRUE) {
 		label->setText(message);
-		if (child->isVisible())
+		if (child->isVisible()) {
+			cout("setting newgame_ui visible FALSE");
 			child->setVisible(FALSE);
-		else
+			displayingUI = FALSE;
+		}
+		else {
+			cout("setting newgame_ui visible TRUE");
 			child->setVisible(TRUE);
+			displayingUI = TRUE;
+		}
 	}
 	else {
+		cout("constructing ui_newgame");
+
 		constructed = TRUE;
-		child->setVisible(FALSE);
 		child->setResizable(FALSE);
 		child->setPositionLocked(TRUE);
 		child->setRenderer(theme.getRenderer("ChildWindow"));
@@ -268,7 +292,7 @@ void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
 		child->setPosition(posx, posy);
 		child->setTitle("Confirm");
 		child->connect("closed", [&]() {
-			std::cout << "child closed" << std::endl;
+			cout("child closed");
 			displayingUI = FALSE;
 			redraw = TRUE;
 			child->setVisible(FALSE);
@@ -281,10 +305,10 @@ void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
 		child->add(label);
 		yesbutton->setRenderer(theme.getRenderer("Button"));
 		yesbutton->setPosition(0, height - buttonheight);
-		yesbutton->setText("yes");
+		yesbutton->setText("yes newgame");
 		yesbutton->setSize(buttonwidth, buttonheight);
 		yesbutton->connect("pressed", [&]() {
-			std::cout << "yes" << std::endl;
+			cout("yes");
 			game_status = chessfield::restart;
 			displayingUI = FALSE;
 			redraw = TRUE;
@@ -293,10 +317,10 @@ void sfmlRenderer::ui_newgame(tgui::Gui* gui, std::string message) {
 		child->add(yesbutton);
 		nobutton->setRenderer(theme.getRenderer("Button"));
 		nobutton->setPosition(buttonwidth, height - buttonheight);
-		nobutton->setText("no");
+		nobutton->setText("no newgame");
 		nobutton->setSize(buttonwidth, buttonheight);
 		nobutton->connect("pressed", [&]() {
-			std::cout << "no" << std::endl;
+			cout("no");
 			displayingUI = FALSE;
 			redraw = TRUE;
 			child->setVisible(FALSE);
@@ -342,6 +366,8 @@ void sfmlRenderer::render(chessfield* game, sf::RenderWindow* window) {
 
 	if (constructed == FALSE) {
 		constructed = TRUE;
+		cout("constructing renderer assets");
+
 		//loading board texture
 		chessboard_txt.loadFromFile(assets_image + "board.png");
 		chessboard_spr.setTexture(chessboard_txt);
@@ -507,7 +533,7 @@ void sfmlRenderer::render(chessfield* game, sf::RenderWindow* window) {
 				window->draw(*current_sprite);
 			}
 			else {
-				std::cout << std::endl;
+				cout("nullptr draw");
 			}
 		}
 	}

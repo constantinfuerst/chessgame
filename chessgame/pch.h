@@ -1,12 +1,13 @@
 #pragma once
 
 #define NOMINMAX
+#define FALSE 0
+#define TRUE 1
+
 #include <array>
 #include <vector>
-#include <Windows.h>
 #include <chrono>
 #include <string>
 #include <codecvt>
-#include <iostream>
 #include <fstream>
 #include <iomanip>

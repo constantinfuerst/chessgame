@@ -110,6 +110,7 @@ chessfield::chessboard chessfield::copyChessboard(chessboard* chessboard_pntr) {
 }
 
 bool chessfield::initSaveGame(const std::string& filename) {
+	last_game_status = next;
 	selected_chessmen = nullptr;
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
@@ -284,6 +285,7 @@ bool chessfield::createSaveGame(const std::string& filename) {
 }
 
 void chessfield::initGame() {
+	last_game_status = next;
 	current_player = chessmen::white;
 	selected_chessmen = nullptr;
 	chessmen_onfield.clear();

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "renderer.h"
+#include "consoleRenderer.h"
 
 chessmen::position consoleRenderer::strtopos (std::string input) {
 	if (input.size() != 2) {
@@ -106,27 +106,27 @@ void consoleRenderer::render(chessfield& board) {
 		{' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
 	};
 
-	for (size_t i = 0; i < board.chessmen_onfield.size(); i++) {
-		const unsigned int x = translateX(board.chessmen_onfield[i]->board_position.x);
-		const unsigned int y = translateY(board.chessmen_onfield[i]->board_position.y);
+	for (auto& i : board.chessmen_onfield) {
+		const unsigned int x = translateX(i->board_position.x);
+		const unsigned int y = translateY(i->board_position.y);
 
-		if (board.chessmen_onfield[i]->figure() == chessmen::queen)
+		if (i->figure() == chessmen::queen)
 			displayBoard[y][x] = 'Q';
-		else if (board.chessmen_onfield[i]->figure() == chessmen::rook)
+		else if (i->figure() == chessmen::rook)
 			displayBoard[y][x] = 'R';
-		else if (board.chessmen_onfield[i]->figure() == chessmen::knight)
+		else if (i->figure() == chessmen::knight)
 			displayBoard[y][x] = 'N';
-		else if (board.chessmen_onfield[i]->figure() == chessmen::bishop)
+		else if (i->figure() == chessmen::bishop)
 			displayBoard[y][x] = 'B';
-		else if (board.chessmen_onfield[i]->figure() == chessmen::pawn)
+		else if (i->figure() == chessmen::pawn)
 			displayBoard[y][x] = 'P';
-		else if (board.chessmen_onfield[i]->figure() == chessmen::king)
+		else if (i->figure() == chessmen::king)
 			displayBoard[y][x] = 'K';
 		else
 			displayBoard[y][x] = ' ';
-		if (board.chessmen_onfield[i]->player_color == chessmen::black)
+		if (i->player_color == chessmen::black)
 			displayBoard[y][x + 1] = 'B';
-		else if (board.chessmen_onfield[i]->player_color == chessmen::white)
+		else if (i->player_color == chessmen::white)
 			displayBoard[y][x + 1] = 'W';
 		else
 			displayBoard[y][x + 1] = ' ';
@@ -135,13 +135,13 @@ void consoleRenderer::render(chessfield& board) {
 	if (board.selected_chessmen != nullptr) {
 		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen, &board.chessmen_onfield);
 		if (!possibleMoves.empty()) {
-			for (size_t i = 0; i < possibleMoves.size(); i++) {
+			for (auto& possibleMove : possibleMoves) {
 
-				auto testx = possibleMoves[i].x;
-				auto testy = possibleMoves[i].y;
+				auto testx = possibleMove.x;
+				auto testy = possibleMove.y;
 
-				const unsigned int x = translateX(possibleMoves[i].x);
-				const unsigned int y = translateY(possibleMoves[i].y);
+				const unsigned int x = translateX(possibleMove.x);
+				const unsigned int y = translateY(possibleMove.y);
 
 				displayBoard[y + 1][x - 2] = char(177);
 				displayBoard[y    ][x - 2] = char(177);
@@ -242,8 +242,7 @@ chessfield::game_status consoleRenderer::processOutput(chessfield::full_game_sta
 	}
 }
 
-
-int consoleRenderer::gameLoop() {
+int consoleRenderer::gameLoop() const {
 	chessfield game;
 	std::string selection;
 	while (TRUE) {

@@ -1,7 +1,9 @@
 #include "pch.h"
-#include "renderer.h"
+//change settings for compilation result in "settings.h"
+#include "settings.h"
+#include "gameInclude.h"
 
-int main () {
-	sfmlRenderer engine;
-	return engine.gameLoop();
+int MAIN {
+	ENGINE gameEngine;
+	return gameEngine.gameLoop();
 }

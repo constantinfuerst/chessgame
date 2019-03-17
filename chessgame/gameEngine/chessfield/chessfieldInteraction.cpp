@@ -169,7 +169,6 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			}
 			selected_chessmen = nullptr;
 			forwardmovetrace.clear();
-			std::cout << "clear" << std::endl;
 			backwardmovetrace.push_back(std::make_unique<move>(changes));
 			if (king_situation(chessmen::black) == stale) {
 				last_game_status = bkstale;
