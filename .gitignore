@@ -23,7 +23,6 @@
 *.sqlite
 *.json
 *.xml
-*.png
 *.ttf
 packages/*
 *.csg
