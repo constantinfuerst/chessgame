@@ -20,10 +20,12 @@ public:
 		end, restart, running, mistake
 	};
 
-	chessboard chessmen_onfield;
-	chessboard chessmen_onside;
 	chessmen* selected_chessmen = nullptr;
 	chessmen::color current_player;
+
+protected:
+	chessboard chessmen_onfield;
+	chessboard chessmen_onside;
 
 private:
 	full_game_status last_game_status;
@@ -72,6 +74,8 @@ public:
 	void stepforward();
 	bool initSaveGame(const std::string& filename);
 	bool createSaveGame(const std::string& filename);
+	chessboard* getField();
+	chessboard* getSide();
 	//this is what the renderer uses to display legal moves
 	std::vector<chessmen::position> truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate = FALSE);
 };

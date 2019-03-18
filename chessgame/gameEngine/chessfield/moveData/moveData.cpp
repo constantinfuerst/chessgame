@@ -18,7 +18,7 @@ void move::makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen
 	change.move = move;
 	change.oldPosition = oldPosition;
 	change.newPosition = newPosition;
-	change.player = chessmen->player_color;
+	change.player = chessmen->getPlayer();
 	change.figure = chessmen->figure();
 	changes.push_back(change);
 }

@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "chessmen.h"
 
-//base class function declarations
-
 bool chessmen::validpos(chessmen::position position) {
 	if (position.x >= fieldsize_x_start && position.x <= fieldsize_x_end && position.y >= fieldsize_y_start && position.y <= fieldsize_y_end) {
 		return TRUE;
@@ -10,11 +8,6 @@ bool chessmen::validpos(chessmen::position position) {
 	else {
 		return FALSE;
 	}
-}
-
-std::vector<chessmen::position> chessmen::possibleMoves(chessboard* chessmen) {
-	std::vector<position> emptyreturn;
-	return emptyreturn;
 }
 
 chessmen::position_status chessmen::positiocheck(chessboard* chessmen, position pos, color player) {
@@ -43,4 +36,30 @@ chessmen::chessmen(color color_input, unsigned int posx, unsigned int posy, bool
 	board_position.y = posy;
 	player_color = color_input;
 	hasMoved = moved;
+}
+
+chessmen::position chessmen::getPos() const {
+	return this->board_position;
+}
+
+chessmen::color chessmen::getPlayer() const {
+	return this->player_color;
+}
+
+bool chessmen::getHasMoved() const {
+	return this->hasMoved;
+}
+
+void chessmen::setHasMoved(bool hasMoved) {
+	this->hasMoved = hasMoved;
+}
+
+void chessmen::setPos(const position pos) {
+	if (validpos(pos)) {
+		this->board_position = pos;
+	}
+}
+
+chessmen::position& chessmen::setPos() {
+	return this->board_position;
 }

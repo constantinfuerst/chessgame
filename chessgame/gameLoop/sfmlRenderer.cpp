@@ -133,7 +133,6 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element) {
 		ui_savegame();
 		return TRUE;
 	case 3:
-		//TODO: implement UI version
 		ui_loadgame();
 		return TRUE;
 	case 4:
@@ -145,6 +144,8 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element) {
 }
 
 int sfmlRenderer::gameLoop() {
+	//TODO: compact this function, move functionality into differen functions
+
 	game_status = chessfield::running;
 	game->initGame();
 
@@ -225,7 +226,7 @@ int sfmlRenderer::gameLoop() {
 				const chessmen::position clickedPOS = { clickedX, clickedY };
 				if (chessmen::validpos(clickedPOS)) {
 					cout("clicked field x:" << clickedX << " y: " << clickedY);
-					if (game->selected_chessmen != nullptr && clickedX == game->selected_chessmen->board_position.x && clickedY == game->selected_chessmen->board_position.y) {
+					if (game->selected_chessmen != nullptr && clickedX == game->selected_chessmen->getPos().x && clickedY == game->selected_chessmen->getPos().y) {
 						cout("unselecting chessmen");
 						game->selected_chessmen = nullptr;
 					}
@@ -269,6 +270,8 @@ int sfmlRenderer::gameLoop() {
 }
 
 void sfmlRenderer::render() {
+	//TODO: compact this function, move functionality into differen functions, create a singleton assets class
+
 	static bool constructed = FALSE;
 	//loading board texture
 	static sf::Texture chessboard_txt;
@@ -398,12 +401,12 @@ void sfmlRenderer::render() {
 	if (game->selected_chessmen != nullptr) {
 		sf::RectangleShape selected(sf::Vector2f(field_width, field_height));
 		selected.setFillColor(sf::Color(25, 225, 0, 225));
-		int posx = game->selected_chessmen->board_position.x * field_width + 28;
-		int posy = game->selected_chessmen->board_position.y * field_height + 28;
+		int posx = game->selected_chessmen->getPos().x * field_width + 28;
+		int posy = game->selected_chessmen->getPos().y * field_height + 28;
 		selected.setPosition(posx, posy);
 		window->draw(selected);
 
-		auto possibleMoves = game->truePossibleMoves(game->selected_chessmen, &game->chessmen_onfield);
+		auto possibleMoves = game->truePossibleMoves(game->selected_chessmen, game->getField());
 		for (auto& possibleMove : possibleMoves) {
 			sf::RectangleShape pmindicator(sf::Vector2f(field_width, field_height));
 			pmindicator.setFillColor(sf::Color(50, 100, 0, 225));
@@ -414,15 +417,15 @@ void sfmlRenderer::render() {
 		}
 	}
 
-	for (auto& i : game->chessmen_onfield) {
+	for (auto& i : *game->getField()) {
 		sf::Sprite* current_sprite = nullptr;
-		int posx = i->board_position.x * field_width + 28;
-		int posy = i->board_position.y * field_height + 28;
+		int posx = i->getPos().x * field_width + 28;
+		int posy = i->getPos().y * field_height + 28;
 
 		auto figure = i->figure();
 
 		if (figure == chessmen::queen) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_queen_black_spr;
 			}
 			else {
@@ -430,7 +433,7 @@ void sfmlRenderer::render() {
 			}
 		}
 		else if (figure == chessmen::rook) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_rook_black_spr;
 			}
 			else {
@@ -438,7 +441,7 @@ void sfmlRenderer::render() {
 			}
 		}
 		else if (figure == chessmen::knight) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_knight_black_spr;
 			}
 			else {
@@ -446,7 +449,7 @@ void sfmlRenderer::render() {
 			}
 		}
 		else if (figure == chessmen::bishop) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_bishop_black_spr;
 			}
 			else {
@@ -454,7 +457,7 @@ void sfmlRenderer::render() {
 			}
 		}
 		else if (figure == chessmen::pawn) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_pawn_black_spr;
 			}
 			else {
@@ -462,7 +465,7 @@ void sfmlRenderer::render() {
 			}
 		}
 		else if (figure == chessmen::king) {
-			if (i->player_color == chessmen::black) {
+			if (i->getPlayer() == chessmen::black) {
 				current_sprite = &chessmen_king_black_spr;
 			}
 			else {

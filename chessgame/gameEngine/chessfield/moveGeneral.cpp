@@ -36,7 +36,7 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 		}
 		//test the move
 		try {
-			if (findChessmen(selectedMove)->player_color != selected_chessmen->player_color) {
+			if (findChessmen(selectedMove)->getPlayer() != selected_chessmen->getPlayer()) {
 				if (theoretical != nontheoretical) {
 					movetoside(selectedMove, theoretical_field, theoretical_side, nullptr, TRUE);
 				}
@@ -46,13 +46,15 @@ chessfield::move_sucess chessfield::moveCharacter(chessmen::position& selectedMo
 			}
 		}
 		catch (const std::exception& exception) {}
+		auto pos = selected_chessmen->getPos();
+		auto col = selected_chessmen->getPlayer();
 		if (theoretical != nontheoretical) {
-			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, nullptr, TRUE);
+			movetoempty(pos, selectedMove, theoretical_field, nullptr, TRUE);
 		}
 		else {
-			movetoempty(selected_chessmen->board_position, selectedMove, theoretical_field, movecounter, TRUE);
+			movetoempty(pos, selectedMove, theoretical_field, movecounter, TRUE);
 		}
-		if (check_check(selected_chessmen->player_color, theoretical_field) == check) {
+		if (check_check(col, theoretical_field) == check) {
 			return wouldbecheck;
 		}
 		else if (theoretical == oncetheoretical) {
@@ -73,14 +75,13 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 		return;
 	}
 	for (auto& i : *field) {
-		if (i->board_position.x == old_position.x && i->board_position.y == old_position.y) {
+		if (i->getPos().x == old_position.x && i->getPos().y == old_position.y) {
 			if (movedata != nullptr) {
 				if (register_move == TRUE) {
-					movedata->makemove(i.get(), old_position, new_position, i->hasMoved, move::toempty);
+					movedata->makemove(i.get(), old_position, new_position, i->getHasMoved(), move::toempty);
 				}
 			}
-			i->board_position.x = new_position.x;
-			i->board_position.y = new_position.y;
+			i->setPos(new_position);
 			return;
 		}
 	}
@@ -88,11 +89,11 @@ void chessfield::movetoempty(chessmen::position& old_position, chessmen::positio
 
 void chessfield::movetoside(chessmen::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
-		if (virtual_field->at(i)->board_position.x == position.x && virtual_field->at(i)->board_position.y == position.y) {
+		if (virtual_field->at(i)->getPos().x == position.x && virtual_field->at(i)->getPos().y == position.y) {
 			if (movedata != nullptr) {
 				const chessmen::position undef = { 9, 9 };
 				if (register_move == TRUE) {
-					movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->hasMoved, move::toside);
+					movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->getHasMoved(), move::toside);
 				}
 			}
 			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
@@ -102,6 +103,7 @@ void chessfield::movetoside(chessmen::position& position, chessboard* virtual_fi
 	}
 }
 
+//TODO: why are there two of these? merge
 void chessfield::newchessmen(chessmen::position& position, move* movedata, chessmen::color color, chessmen::chessfigure figure, bool register_move) {
 	if (figure == chessmen::rook)
 		chessmen_onfield.push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(color, position, TRUE)));
@@ -116,4 +118,21 @@ void chessfield::newchessmen(chessmen::position& position, move* movedata, chess
 		movedata->makemove(undef, position, color, figure, TRUE, move::newcm);
 		forwardmovetrace.clear();
 	}
+}
+
+void chessfield::createChessmen(chessboard* chessboard, chessmen::chessfigure type, chessmen::position pos, chessmen::color colo, bool move) {
+	if (type == chessmen::pawn)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<pawn>(colo, pos, move)));
+	else if (type == chessmen::rook)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(colo, pos, move)));
+	else if (type == chessmen::knight)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<knight>(colo, pos, move)));
+	else if (type == chessmen::bishop)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<bishop>(colo, pos, move)));
+	else if (type == chessmen::king)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<king>(colo, pos, move)));
+	else if (type == chessmen::queen)
+		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(colo, pos, move)));
+	else
+		return;
 }

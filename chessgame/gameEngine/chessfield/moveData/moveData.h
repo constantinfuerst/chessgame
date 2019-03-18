@@ -5,8 +5,7 @@
 
 class chessfield;
 
-class move {
-public:
+struct move {
 	chessmen::color current_player;
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
 	enum moveType {

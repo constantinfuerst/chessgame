@@ -3,21 +3,19 @@
 
 class chessmen {
 public:
+	//PUBLIC DEFINITIONS
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
 	static const int fieldsize_x_end = 7;
 	static const int fieldsize_x_start = 0;
 	static const int fieldsize_y_end = 7;
 	static const int fieldsize_y_start = 0;
-
 	struct position {
 		unsigned int x;
 		unsigned int y;
 	};
-
 	typedef int x_pos;
 	typedef int y_pos;
 	typedef unsigned int chessmen_id;
-
 	enum color {
 		white = 0, black = 1
 	};
@@ -28,16 +26,15 @@ public:
 		empty = 0, friendly = 1, enemy = 2
 	};
 
-	virtual chessfigure figure() {
-		return none;
-	};
-
+protected:
 	position board_position = { 0, 0 };
 	color player_color;
 	bool hasMoved = FALSE;
 
-	virtual std::vector<position> possibleMoves(chessboard* chessmen);
+public:
+	//truly public methods
 	virtual chessmen* clone() const = 0;
+	virtual chessfigure figure() = 0;
 	virtual ~chessmen() = default;
 
 	static position_status positiocheck(chessboard* chessmen, position pos, color player);
@@ -45,6 +42,16 @@ public:
 
 	chessmen(color color_input, position position_input, bool moved = false);
 	chessmen(color color_input, unsigned int posx, unsigned int posy, bool moved = false);
+
+	virtual std::vector<position> possibleMoves(chessboard* chessmen) = 0;
+
+	position getPos() const;
+	color getPlayer() const;
+	bool getHasMoved() const;
+
+	void setHasMoved(bool hasMoved);
+	void setPos(const position pos);
+	position& setPos();
 };
 
 class pawn : public chessmen {
@@ -53,7 +60,7 @@ public:
 	pawn(color color_input, position position_input, bool move = FALSE) : chessmen(color_input, position_input, move){}
 	pawn(color color_input, unsigned int posx, unsigned int posy, bool move = FALSE) : chessmen(color_input, posx, posy, move) {}
 	chessmen* clone() const override;
-	virtual chessfigure figure() override;
+	chessfigure figure() override;
 	virtual std::vector<position> possibleMoves(chessboard* chessmen) override;
 };
 

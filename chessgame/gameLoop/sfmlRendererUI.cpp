@@ -8,6 +8,8 @@
 #define cout(str) std::cout << str << std::endl;
 #endif
 
+//TODO: compact these functions, maybe create an asset singleton or manage shared or very different code in some other way, maybe create a UI class
+
 void sfmlRenderer::ui_message(std::string message) const {
 	static tgui::Theme theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" };
 	static const unsigned int width = 200;
@@ -78,6 +80,8 @@ void sfmlRenderer::ui_message(std::string message) const {
 }
 
 void sfmlRenderer::ui_loadgame(int index) {
+	//TODO: display a "game name" stored in the .csg file
+
 	static tgui::Theme theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" };
 	static const unsigned int width = window->getSize().x - 20;
 	static const unsigned int height = 200;
@@ -179,6 +183,8 @@ void sfmlRenderer::ui_loadgame(int index) {
 }
 
 void sfmlRenderer::ui_savegame() {
+	//TODO: use the "game name" and store in the .csg file
+
 	static tgui::Theme theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" };
 	static const unsigned int width = 200;
 	static const unsigned int height = 150;

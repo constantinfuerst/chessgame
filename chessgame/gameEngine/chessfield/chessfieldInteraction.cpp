@@ -26,12 +26,14 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 			selected_chessmen = nullptr;
 		}
 
+		//TODO: Implement a more sophisticated way of checking for a valid casteling move
 		if (chessmen->figure() == chessmen::king) {
-			for (size_t i = 0; i < casteling(chessmen->player_color).size(); i++) {
+			auto player = chessmen->getPlayer();
+			for (size_t i = 0; i < casteling(player).size(); i++) {
 				int required_empty = 0;
 				int empty = 0;
-				chessmen::position position = casteling(chessmen->player_color)[i].newkpos;
-				if (position.x > chessmen->board_position.x && chessmen->player_color == chessmen::white) {
+				chessmen::position position = casteling(player)[i].newkpos;
+				if (position.x > chessmen->getPos().x && chessmen->getPlayer() == chessmen::white) {
 					chessmen::position secondpos = { position.x - 1, position.y };
 					chessmen::position thrdpos = { position.x - 2, position.y };
 					required_empty = 3;
@@ -54,7 +56,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x < chessmen->board_position.x && chessmen->player_color == chessmen::black) {
+				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == chessmen::black) {
 					chessmen::position secondpos = { position.x + 1, position.y };
 					chessmen::position thrdpos = { position.x + 2, position.y };
 					required_empty = 3;
@@ -77,7 +79,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x > chessmen->board_position.x && chessmen->player_color == chessmen::black) {
+				else if (position.x > chessmen->getPos().x && chessmen->getPlayer() == chessmen::black) {
 					chessmen::position secondpos = { position.x - 1, position.y };
 					required_empty = 2;
 					try {
@@ -93,7 +95,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x < chessmen->board_position.x && chessmen->player_color == chessmen::white) {
+				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == chessmen::white) {
 					chessmen::position secondpos = { position.x + 1, position.y };
 					required_empty = 2;
 					try {
@@ -132,7 +134,7 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 	else if (selected_chessmen == nullptr) {
 		try {
 			chessmen* clicked_chessmen = findChessmen(field);
-			if (clicked_chessmen->player_color != player) {
+			if (clicked_chessmen->getPlayer() != player) {
 				return enemy;
 			}
 			else {
@@ -157,13 +159,13 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 			}
 		}
 		else {
-			selected_chessmen->hasMoved = TRUE;
+			selected_chessmen->setHasMoved(TRUE);
 			//replacing pawn at the end of field with queen
 			if (selected_chessmen->figure() == chessmen::pawn) {
-				if (selected_chessmen->board_position.y == chessmen::fieldsize_y_start && selected_chessmen->player_color == chessmen::black || selected_chessmen->board_position.y == chessmen::fieldsize_y_end && selected_chessmen->player_color == chessmen::white) {
-					chessmen::position pos = selected_chessmen->board_position;
-					const chessmen::color col = selected_chessmen->player_color;
-					movetoside(selected_chessmen->board_position, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
+				if (selected_chessmen->getPos().y == chessmen::fieldsize_y_start && selected_chessmen->getPlayer() == chessmen::black || selected_chessmen->getPos().y == chessmen::fieldsize_y_end && selected_chessmen->getPlayer() == chessmen::white) {
+					chessmen::position pos = selected_chessmen->getPos();
+					const chessmen::color col = selected_chessmen->getPlayer();
+					movetoside(pos, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
 					newchessmen(pos, &changes, col, chessmen::queen, TRUE);
 				}
 			}

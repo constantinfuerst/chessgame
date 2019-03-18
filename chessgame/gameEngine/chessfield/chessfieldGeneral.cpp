@@ -14,6 +14,14 @@ chessfield::~chessfield() {
 	forwardmovetrace.clear();
 }
 
+chessfield::chessboard* chessfield::getField() {
+	return &chessmen_onfield;
+}
+
+chessfield::chessboard* chessfield::getSide() {
+	return &chessmen_onside;
+}
+
 void chessfield::stepback() {
 	if (!backwardmovetrace.empty()) {
 		forwardmovetrace.push_back(std::make_unique<move>(*backwardmovetrace.back()));
@@ -84,7 +92,7 @@ void chessfield::quit() {
 
 chessmen* chessfield::findChessmen(chessmen::position& position) {
 	for (auto& i : chessmen_onfield) {
-		if (i->board_position.x == position.x && i->board_position.y == position.y) {
+		if (i->getPos().x == position.x && i->getPos().y == position.y) {
 			return i.get();
 		}
 	}
@@ -93,7 +101,7 @@ chessmen* chessfield::findChessmen(chessmen::position& position) {
 
 chessmen* chessfield::findChessmen(chessmen::position position, chessboard* chessboard) {
 	for (auto& i : *chessboard) {
-		if (i->board_position.x == position.x && i->board_position.y == position.y) {
+		if (i->getPos().x == position.x && i->getPos().y == position.y) {
 			return i.get();
 		}
 	}
@@ -196,24 +204,9 @@ bool chessfield::initSaveGame(const std::string& filename) {
 	return TRUE;
 }
 
-void chessfield::createChessmen(chessboard* chessboard, chessmen::chessfigure type, chessmen::position pos, chessmen::color colo, bool move) {
-	if (type == chessmen::pawn)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<pawn>(colo, pos, move)));
-	else if (type == chessmen::rook)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<rook>(colo, pos, move)));
-	else if (type == chessmen::knight)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<knight>(colo, pos, move)));
-	else if (type == chessmen::bishop)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<bishop>(colo, pos, move)));
-	else if (type == chessmen::king)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<king>(colo, pos, move)));
-	else if (type == chessmen::queen)
-		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<queen>(colo, pos, move)));
-	else
-		return;
-}
-
 bool chessfield::createSaveGame(const std::string& filename) {
+	//TODO: use the "game name" and store in the .csg file
+
 	nlohmann::json json;
 	boost::filesystem::ofstream json_output;
 	json_output.open(filename);
@@ -222,26 +215,26 @@ bool chessfield::createSaveGame(const std::string& filename) {
 		json["board"]["cmof"]["count"] = chessmen_onfield.size();
 		for (size_t i = 0; i < chessmen_onfield.size(); i++) {
 			json["board"]["cmof"]["cm" + std::to_string(i)]["type"] = chessmen_onfield[i]->figure();
-			json["board"]["cmof"]["cm" + std::to_string(i)]["posx"] = chessmen_onfield[i]->board_position.x;
-			json["board"]["cmof"]["cm" + std::to_string(i)]["posy"] = chessmen_onfield[i]->board_position.y;
-			json["board"]["cmof"]["cm" + std::to_string(i)]["colo"] = chessmen_onfield[i]->player_color;
-			json["board"]["cmof"]["cm" + std::to_string(i)]["move"] = chessmen_onfield[i]->hasMoved;
+			json["board"]["cmof"]["cm" + std::to_string(i)]["posx"] = chessmen_onfield[i]->getPos().x;
+			json["board"]["cmof"]["cm" + std::to_string(i)]["posy"] = chessmen_onfield[i]->getPos().y;
+			json["board"]["cmof"]["cm" + std::to_string(i)]["colo"] = chessmen_onfield[i]->getPlayer();
+			json["board"]["cmof"]["cm" + std::to_string(i)]["move"] = chessmen_onfield[i]->getHasMoved();
 		}
 		json["board"]["cmos"]["count"] = chessmen_onside.size();
 		for (size_t i = 0; i < chessmen_onside.size(); i++) {
 			json["board"]["cmos"]["cm" + std::to_string(i)]["type"] = chessmen_onside[i]->figure();
-			json["board"]["cmos"]["cm" + std::to_string(i)]["posx"] = chessmen_onside[i]->board_position.x;
-			json["board"]["cmos"]["cm" + std::to_string(i)]["posy"] = chessmen_onside[i]->board_position.y;
-			json["board"]["cmos"]["cm" + std::to_string(i)]["colo"] = chessmen_onside[i]->player_color;
-			json["board"]["cmos"]["cm" + std::to_string(i)]["move"] = chessmen_onside[i]->hasMoved;
+			json["board"]["cmos"]["cm" + std::to_string(i)]["posx"] = chessmen_onside[i]->getPos().x;
+			json["board"]["cmos"]["cm" + std::to_string(i)]["posy"] = chessmen_onside[i]->getPos().y;
+			json["board"]["cmos"]["cm" + std::to_string(i)]["colo"] = chessmen_onside[i]->getPlayer();
+			json["board"]["cmos"]["cm" + std::to_string(i)]["move"] = chessmen_onside[i]->getHasMoved();
 		}
 		if (selected_chessmen != nullptr) {
 			json["board"]["cmsl"]["count"] = 1;
 			json["board"]["cmsl"]["cm0"]["type"] = selected_chessmen->figure();
-			json["board"]["cmsl"]["cm0"]["posx"] = selected_chessmen->board_position.x;
-			json["board"]["cmsl"]["cm0"]["posy"] = selected_chessmen->board_position.y;
-			json["board"]["cmsl"]["cm0"]["colo"] = selected_chessmen->player_color;
-			json["board"]["cmsl"]["cm0"]["move"] = selected_chessmen->hasMoved;
+			json["board"]["cmsl"]["cm0"]["posx"] = selected_chessmen->getPos().x;
+			json["board"]["cmsl"]["cm0"]["posy"] = selected_chessmen->getPos().y;
+			json["board"]["cmsl"]["cm0"]["colo"] = selected_chessmen->getPlayer();
+			json["board"]["cmsl"]["cm0"]["move"] = selected_chessmen->getHasMoved();
 		}
 		else {
 			json["board"]["cmsl"]["count"] = 0;

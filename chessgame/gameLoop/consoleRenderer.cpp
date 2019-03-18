@@ -106,9 +106,9 @@ void consoleRenderer::render(chessfield& board) {
 		{' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
 	};
 
-	for (auto& i : board.chessmen_onfield) {
-		const unsigned int x = translateX(i->board_position.x);
-		const unsigned int y = translateY(i->board_position.y);
+	for (auto& i : *board.getField()) {
+		const unsigned int x = translateX(i->getPos().x);
+		const unsigned int y = translateY(i->getPos().y);
 
 		if (i->figure() == chessmen::queen)
 			displayBoard[y][x] = 'Q';
@@ -124,16 +124,16 @@ void consoleRenderer::render(chessfield& board) {
 			displayBoard[y][x] = 'K';
 		else
 			displayBoard[y][x] = ' ';
-		if (i->player_color == chessmen::black)
+		if (i->getPlayer() == chessmen::black)
 			displayBoard[y][x + 1] = 'B';
-		else if (i->player_color == chessmen::white)
+		else if (i->getPlayer() == chessmen::white)
 			displayBoard[y][x + 1] = 'W';
 		else
 			displayBoard[y][x + 1] = ' ';
 	}
 
 	if (board.selected_chessmen != nullptr) {
-		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen, &board.chessmen_onfield);
+		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen, board.getField());
 		if (!possibleMoves.empty()) {
 			for (auto& possibleMove : possibleMoves) {
 
@@ -160,8 +160,8 @@ void consoleRenderer::render(chessfield& board) {
 			}
 		}
 
-		const unsigned int x = translateX(board.selected_chessmen->board_position.x);
-		const unsigned int y = translateY(board.selected_chessmen->board_position.y);
+		const unsigned int x = translateX(board.selected_chessmen->getPos().x);
+		const unsigned int y = translateY(board.selected_chessmen->getPos().y);
 
 		displayBoard[y + 1][x - 2] = char(192);
 		displayBoard[y    ][x - 2] = char(179);
@@ -300,7 +300,7 @@ int consoleRenderer::gameLoop() const {
 				}
 			}
 			while (TRUE) {
-				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->board_position) << ", enter \"back\" to return or a position to move" << std::endl;
+				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->getPos()) << ", enter \"back\" to return or a position to move" << std::endl;
 				getline(std::cin, selection);
 				try {
 					if (selection == "back") {
