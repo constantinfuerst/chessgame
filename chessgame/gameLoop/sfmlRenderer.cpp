@@ -8,6 +8,7 @@
 	#define cout(str) std::cout << str << std::endl;
 #endif
 
+#pragma warning(suppress: 26495)
 sfmlRenderer::sfmlRenderer() {
 	//creating window
 	screenWidth = 500;
@@ -238,7 +239,7 @@ int sfmlRenderer::gameLoop() {
 					redraw = TRUE;
 				}
 				else {
-					if (mousePosition.y < screenHeight && mousePosition.y > chessboard_height) {
+					if (static_cast<unsigned>(mousePosition.y) < screenHeight && mousePosition.y > chessboard_height) {
 						const unsigned int clickedUI = mousePosition.x / ui_element_width;
 						if (processUIInput(clickedUI) == TRUE)
 							redraw = TRUE;
@@ -376,13 +377,13 @@ void sfmlRenderer::render() {
 	int ui_width = screenWidth;
 	ui_element_width = (ui_width / ui_elements.size()) - 16;
 
-	for (size_t i = 0; i < ui_elements.size(); i++) {
-		float sizex = ui_elements[i]->getTextureRect().width;
-		float sizey = ui_elements[i]->getTextureRect().height;
+	for (unsigned int i = 0; i < ui_elements.size(); i++) {
+		float sizex = static_cast<float>(ui_elements[i]->getTextureRect().width);
+		float sizey = static_cast<float>(ui_elements[i]->getTextureRect().height);
 		float scalex = static_cast<float>(ui_element_width) / sizex;
 		float scaley = static_cast<float>(ui_height) / sizey;
-		float posx = i * ui_element_width + 32;
-		float posy = chessboard_size.y;
+		float posx = static_cast<float>(i * ui_element_width + 32);
+		float posy = static_cast<float>(chessboard_size.y);
 		ui_elements[i]->setColor(sf::Color::White);
 		if (scalex < scaley)
 			ui_elements[i]->setScale({ scalex, scalex });
@@ -399,28 +400,29 @@ void sfmlRenderer::render() {
 	window->draw(chessboard_spr);
 
 	if (game->selected_chessmen != nullptr) {
+		#pragma  warning(disable:4244)
 		sf::RectangleShape selected(sf::Vector2f(field_width, field_height));
 		selected.setFillColor(sf::Color(25, 225, 0, 225));
-		int posx = game->selected_chessmen->getPos().x * field_width + 28;
-		int posy = game->selected_chessmen->getPos().y * field_height + 28;
-		selected.setPosition(posx, posy);
+		selected.setPosition(
+			static_cast<float>(game->selected_chessmen->getPos().x * field_width + 28),
+			static_cast<float>(game->selected_chessmen->getPos().y * field_height + 28)
+		);
 		window->draw(selected);
 
 		auto possibleMoves = game->truePossibleMoves(game->selected_chessmen, game->getField());
 		for (auto& possibleMove : possibleMoves) {
 			sf::RectangleShape pmindicator(sf::Vector2f(field_width, field_height));
 			pmindicator.setFillColor(sf::Color(50, 100, 0, 225));
-			int posx = possibleMove.x * field_width + 28;
-			int posy = possibleMove.y * field_height + 28;
-			pmindicator.setPosition(posx, posy);
+			pmindicator.setPosition(
+				static_cast<float>(possibleMove.x * field_width + 28),
+				static_cast<float>(possibleMove.y * field_height + 28)
+			);
 			window->draw(pmindicator);
 		}
 	}
 
 	for (auto& i : *game->getField()) {
 		sf::Sprite* current_sprite = nullptr;
-		int posx = i->getPos().x * field_width + 28;
-		int posy = i->getPos().y * field_height + 28;
 
 		auto figure = i->figure();
 
@@ -476,7 +478,10 @@ void sfmlRenderer::render() {
 			current_sprite = nullptr;
 		}
 		if (current_sprite != nullptr) {
-			current_sprite->setPosition(posx, posy);
+			current_sprite->setPosition(
+				static_cast<float>(i->getPos().x * field_width + 28),
+				static_cast<float>(i->getPos().y * field_height + 28)
+			);
 			window->draw(*current_sprite);
 		}
 		else {

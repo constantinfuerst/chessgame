@@ -15,7 +15,7 @@ std::vector<chessmen::position> bishop::possibleMoves(chessboard* chessmen) {
 	std::vector<position> returnpos;
 	{
 		{
-			int x = board_position.x + 1; int y = board_position.y + 1;
+			unsigned int x = board_position.x + 1; unsigned int y = board_position.y + 1;
 			while (x <= fieldsize_x_end && y <= fieldsize_y_end) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -32,7 +32,7 @@ std::vector<chessmen::position> bishop::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = board_position.x - 1; int y = board_position.y + 1;
+			unsigned int x = board_position.x - 1; unsigned int y = board_position.y + 1;
 			while (x >= fieldsize_x_start && y <= fieldsize_y_end) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -49,7 +49,7 @@ std::vector<chessmen::position> bishop::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = board_position.x + 1; int y = board_position.y - 1;
+			unsigned int x = board_position.x + 1; unsigned int y = board_position.y - 1;
 			while (x <= fieldsize_x_end && y >= fieldsize_y_start) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {
@@ -66,7 +66,7 @@ std::vector<chessmen::position> bishop::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
-			int x = board_position.x - 1; int y = board_position.y - 1;
+			unsigned int x = board_position.x - 1; unsigned int y = board_position.y - 1;
 			while (x >= fieldsize_x_start && y >= fieldsize_y_start) {
 				const position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == empty && validpos(pos)) {

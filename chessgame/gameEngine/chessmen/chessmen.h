@@ -52,6 +52,7 @@ public:
 	void setHasMoved(bool hasMoved);
 	void setPos(const position pos);
 	position& setPos();
+#pragma warning(suppress: 26495)
 };
 
 class pawn : public chessmen {

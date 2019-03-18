@@ -157,6 +157,7 @@ void sfmlRenderer::ui_loadgame(int index) {
 				cout("5 down")
 					this->ui_loadgame(index + 5);
 			}
+#pragma warning(suppress: 26495)
 		});
 		child->add(nobutton);
 
@@ -174,6 +175,7 @@ void sfmlRenderer::ui_loadgame(int index) {
 				redraw = TRUE;
 				child->setVisible(FALSE);
 				this->loadSavegame(filename);
+#pragma warning(suppress: 26495)
 			});
 			child->add(button);
 			if (i - index == 4)

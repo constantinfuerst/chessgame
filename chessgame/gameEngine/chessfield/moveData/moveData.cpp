@@ -27,6 +27,7 @@ void move::pushmove(const chessmenMoved& movedata) {
 	changes.push_back(movedata);
 }
 
+#pragma warning(suppress: 26495)
 move::move(const move& mve) {
 	for (size_t i = 0; i < mve.changes.size(); i++) {
 		chessmenMoved changepush;

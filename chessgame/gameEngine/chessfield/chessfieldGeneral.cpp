@@ -152,7 +152,7 @@ bool chessfield::initSaveGame(const std::string& filename) {
 			);
 		}
 		if (json["board"]["cmsl"]["count"].get<int>() == 1) {
-			chessmen::position pos = { json["board"]["cmsl"]["cm0"]["posx"].get<int>(), json["board"]["cmsl"]["cm0"]["posy"].get<int>() };
+			chessmen::position pos = { json["board"]["cmsl"]["cm0"]["posx"].get<unsigned int>(), json["board"]["cmsl"]["cm0"]["posy"].get<unsigned int>() };
 			selected_chessmen = findChessmen(pos);
 		}
 		for (int i = 0; i < json["movetracebackward"]["moves"].get<int>(); i++) {

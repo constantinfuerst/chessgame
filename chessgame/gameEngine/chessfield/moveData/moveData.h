@@ -6,7 +6,7 @@
 class chessfield;
 
 struct move {
-	chessmen::color current_player;
+	chessmen::color current_player = chessmen::white;
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
 	enum moveType {
 		toempty = 0, toside = 1, newcm = 2
@@ -27,5 +27,6 @@ struct move {
 	static void removeChessmen(chessboard& onside, chessmen::position pos, chessmen::chessfigure& figure);
 	static void moveBack(chessboard& onfield, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
 	move(const move& mve);
+#pragma warning(suppress: 26495)
 	move() = default;
 };
