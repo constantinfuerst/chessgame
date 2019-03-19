@@ -9,8 +9,8 @@
 ///////////////////////////////
 
 int MAIN {
-	//TODO: more redable include structure (settings.h and cg_defs.h)
-	//TODO: fix crash when exiting the application
+	//TODO: fix crash when exiting the application (hard to replicate, no idea what causes it)
+	//TODO: fix check system of the king (enables to enter a check without detection)
 	ENGINE gameEngine;
 	return gameEngine.gameLoop();
 }
