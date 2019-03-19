@@ -3,14 +3,15 @@
 #include "pch.h"
 
 #include "gameEngine/chessfield/chessfield.h"
+#include "gameEngine/cg_defs.h"
+
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-#include "settings.h"
 
 class sfmlRenderAsstes final {
 private:
 	cg::spr_ptr_vec ui_elements;
-	cg::idim board_dims = { 0,0 };
+	cg::idim board_dims = { 0, 0 };
 	std::vector<cg::chessmen_sprite> sprites;
 
 public:
@@ -18,7 +19,7 @@ public:
 	void loadAssets();
 	sf::Sprite* chessboard = nullptr;
 	const cg::idim& getBoarddims() const;
-	const cg::spr_ptr_vec& getUiElems() const;
+	cg::spr_ptr_vec& getUiElems();
 	sf::Sprite* getSprite(cg::color player, cg::chessfigure figure) const;
 };
 

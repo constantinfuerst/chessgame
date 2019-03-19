@@ -7,6 +7,7 @@
 		#pragma comment(linker, "/subsystem:windows")
 		#define MAIN APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 		#define ENGINE sfmlRenderer
+		#pragma comment(linker, "/HEAP:33554432") //reserve 32MB heap space for maximum performance
 	#elif defined WIN_CONSOLE_GUI
 		#include "sfmlRenderer.h"
 		#pragma comment(linker, "/subsystem:console")

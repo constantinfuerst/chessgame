@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pch.h"
+#include "gameEngine/cg_defs.h"
 #include "gameEngine/chessmen/chessmen.h"
 #include "moveData/moveData.h"
 

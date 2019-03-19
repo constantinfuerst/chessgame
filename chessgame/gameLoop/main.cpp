@@ -1,7 +1,12 @@
 #include "pch.h"
-//change settings for compilation result in "settings.h"
+
 #include "settings.h"
 #include "gameInclude.h"
+
+///////////////////////////////
+// please check "settings.h" //
+// for compiler settings	 //
+///////////////////////////////
 
 int MAIN {
 	//TODO: more redable include structure (settings.h and cg_defs.h)

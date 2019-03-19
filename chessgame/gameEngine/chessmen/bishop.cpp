@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "chessmen.h"
-#include "../cg_defs.h"
 
 //function definitions for the bishop
 

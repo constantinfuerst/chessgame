@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "sfmlRenderer.h"
+#include "settings.h"
 
 #ifdef WIN_DESKTOP_GUI
 #define cout(str)

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "sfmlRenderer.h"
+#include "settings.h"
 
 #ifdef WIN_DESKTOP_GUI
 	#define cout(str)
@@ -17,7 +18,7 @@ const cg::idim& sfmlRenderAsstes::getBoarddims() const {
 	return board_dims;
 }
 
-const cg::spr_ptr_vec& sfmlRenderAsstes::getUiElems() const {
+cg::spr_ptr_vec& sfmlRenderAsstes::getUiElems() {
 	return ui_elements;
 }
 
@@ -34,9 +35,9 @@ void sfmlRenderer::render() {
 	if (game == nullptr)
 		return;
 
-	///////////////
-	// DRAW ROUTINE
-	///////////////
+	//////////////////
+	// DRAW ROUTINE //
+	//////////////////
 
 	auto ui_elements = sfmlRenderAsstes::get()->getUiElems();
 	board_dims = sfmlRenderAsstes::get()->getBoarddims();
@@ -64,7 +65,7 @@ void sfmlRenderer::render() {
 		};
 		ui_elements[i]->setColor(sf::Color::White);
 		ui_elements[i]->setScale({ scale.width, scale.width });
-		ui_elements[i]->setPosition( {
+		ui_elements[i]->setPosition({
 			static_cast<float>(pos.x),
 			static_cast<float>(pos.y)
 		});
