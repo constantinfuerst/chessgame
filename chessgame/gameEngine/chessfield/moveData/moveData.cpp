@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "moveData.h"
 
-void move::makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move) {
+void move::makemove(cg::position oldPosition, cg::position newPosition, cg::color player, cg::chessfigure figure, bool hasmovedold, cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
 	change.move = move;
@@ -12,7 +12,7 @@ void move::makemove(chessmen::position oldPosition, chessmen::position newPositi
 	changes.push_back(change);
 }
 
-void move::makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move) {
+void move::makemove(chessmen* chessmen, cg::position oldPosition, cg::position newPosition, bool hasmovedold, cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
 	change.move = move;
@@ -27,7 +27,6 @@ void move::pushmove(const chessmenMoved& movedata) {
 	changes.push_back(movedata);
 }
 
-#pragma warning(suppress: 26495)
 move::move(const move& mve) {
 	for (size_t i = 0; i < mve.changes.size(); i++) {
 		chessmenMoved changepush;

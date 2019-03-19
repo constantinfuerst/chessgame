@@ -10,6 +10,7 @@
     <ClInclude Include="gameLoop\gameInclude.h" />
     <ClInclude Include="gameLoop\settings.h" />
     <ClInclude Include="gameLoop\sfmlRenderer.h" />
+    <ClInclude Include="gameEngine\cg_defs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gameEngine\chessfield\chessfieldGeneral.cpp" />

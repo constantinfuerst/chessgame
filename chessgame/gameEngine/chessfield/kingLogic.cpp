@@ -1,31 +1,31 @@
 #include "pch.h"
 #include "chessfield.h"
 
-chessfield::king_status chessfield::check_check(chessmen::color& player, chessboard* chessmen) {
+cg::king_status chessfield::check_check(cg::color& player, chessboard* chessmen) {
 	//get the current position of the king
-	std::unique_ptr<chessmen::position> kingpos = nullptr;
+	std::unique_ptr<cg::position> kingpos = nullptr;
 	for (auto& i : *chessmen) {
-		if (i->figure() == chessmen::king && i->getPlayer() == player) {
-			kingpos = std::make_unique<chessmen::position>(i->getPos());
+		if (i->figure() == cg::king && i->getPlayer() == player) {
+			kingpos = std::make_unique<cg::position>(i->getPos());
 			break;
 		}
 	}
 	if (kingpos != nullptr) {
 		for (size_t i = 0; i < chessmen->size(); i++) {
 			if (chessmen->at(i)->getPlayer() != player) {
-				std::vector <chessmen::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
+				std::vector <cg::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
 				for (auto& possible_move : possible_moves) {
 					if (possible_move.x == kingpos->x && possible_move.y == kingpos->y) {
-						return check;
+						return cg::check;
 					}
 				}
 			}
 		}
 	}
-	return none;
+	return cg::not_check;
 }
 
-chessfield::king_status chessfield::king_situation(chessmen::color player) {
+cg::king_status chessfield::king_situation(cg::color player) {
 	//for every chessmen on the board
 	for (auto& i : chessmen_onfield) {
 		//if it is a friendly
@@ -37,7 +37,7 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 				chessboard theoretical_field = copyChessboard(&chessmen_onfield);
 				chessboard theoretical_side;
 				//execute the currently selected move on the virtual field
-				chessmen::position selectedMove = truePossibleMoves(current_chessmen, &chessmen_onfield)[j];
+				cg::position selectedMove = truePossibleMoves(current_chessmen, &chessmen_onfield)[j];
 				try {
 					if (findChessmen(selectedMove)->getPlayer() != player) {
 						movetoside(selectedMove, &theoretical_field, &theoretical_side, nullptr, FALSE);
@@ -50,14 +50,14 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 				auto pos = current_chessmen->getPos();
 				movetoempty(pos, selectedMove, &theoretical_field, nullptr, FALSE);
 				//if the king is not in check with this theoretical board position, it is not checkmate
-				if (check_check(player, &theoretical_field) == none) {
+				if (check_check(player, &theoretical_field) == cg::not_check) {
 					//return check if the king is check in the actual board position, duh
-					if (check_check(player, &chessmen_onfield) == check) {
-						return check;
+					if (check_check(player, &chessmen_onfield) == cg::check) {
+						return cg::check;
 					}
 					//if not return none
 					else {
-						return none;
+						return cg::not_check;
 					}
 				}
 			}
@@ -65,11 +65,11 @@ chessfield::king_status chessfield::king_situation(chessmen::color player) {
 	}
 	//if no check-free found the king is mate
 	//if the king is currently not in check then its a stale
-	if (check_check(player, &chessmen_onfield) == none) {
-		return stale;
+	if (check_check(player, &chessmen_onfield) == cg::not_check) {
+		return cg::stale;
 	}
 	//else its a checkmate
 	else {
-		return checkmate;
+		return cg::checkmate;
 	}
 }

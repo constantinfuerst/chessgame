@@ -3,8 +3,8 @@
 #include "settings.h"
 #include "gameInclude.h"
 
-#pragma warning(suppress: 28251)
 int MAIN {
+	//TODO: fix crash when exiting the application
 	ENGINE gameEngine;
 	return gameEngine.gameLoop();
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "consoleRenderer.h"
 
-chessmen::position consoleRenderer::strtopos (std::string input) {
+cg::position consoleRenderer::strtopos (std::string input) {
 	if (input.size() != 2) {
 		throw notfound();
 	}
@@ -19,7 +19,7 @@ chessmen::position consoleRenderer::strtopos (std::string input) {
 	}
 }
 
-std::string consoleRenderer::postostr(chessmen::position pos) {
+std::string consoleRenderer::postostr(cg::position pos) {
 	return char(pos.x + 65) + std::to_string(pos.y + 1);
 }
 
@@ -110,23 +110,23 @@ void consoleRenderer::render(chessfield& board) {
 		const unsigned int x = translateX(i->getPos().x);
 		const unsigned int y = translateY(i->getPos().y);
 
-		if (i->figure() == chessmen::queen)
+		if (i->figure() == cg::queen)
 			displayBoard[y][x] = 'Q';
-		else if (i->figure() == chessmen::rook)
+		else if (i->figure() == cg::rook)
 			displayBoard[y][x] = 'R';
-		else if (i->figure() == chessmen::knight)
+		else if (i->figure() == cg::knight)
 			displayBoard[y][x] = 'N';
-		else if (i->figure() == chessmen::bishop)
+		else if (i->figure() == cg::bishop)
 			displayBoard[y][x] = 'B';
-		else if (i->figure() == chessmen::pawn)
+		else if (i->figure() == cg::pawn)
 			displayBoard[y][x] = 'P';
-		else if (i->figure() == chessmen::king)
+		else if (i->figure() == cg::king)
 			displayBoard[y][x] = 'K';
 		else
 			displayBoard[y][x] = ' ';
-		if (i->getPlayer() == chessmen::black)
+		if (i->getPlayer() == cg::black)
 			displayBoard[y][x + 1] = 'B';
-		else if (i->getPlayer() == chessmen::white)
+		else if (i->getPlayer() == cg::white)
 			displayBoard[y][x + 1] = 'W';
 		else
 			displayBoard[y][x + 1] = ' ';
@@ -191,54 +191,54 @@ void consoleRenderer::render(chessfield& board) {
 	std::cout << std::endl << std::endl;
 }
 
-chessfield::game_status consoleRenderer::processOutput(chessfield::full_game_status status) {
-	if (status == chessfield::next) {
+cg::game_status consoleRenderer::processOutput(cg::full_game_status status) {
+	if (status == cg::next) {
 		//std::cout << "Next player" << std::endl;
-		return chessfield::running;
+		return cg::running;
 	}
-	else if (status == chessfield::error) {
+	else if (status == cg::error) {
 		std::cout << "ERROR: clickfield() reached control path end without a valid state" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
-	else if (status == chessfield::selected) {
+	else if (status == cg::selected) {
 		//std::cout << "A chessmen was successfully selected" << std::endl;
-		return chessfield::running;
+		return cg::running;
 	}
-	else if (status == chessfield::enemy) {
+	else if (status == cg::enemy) {
 		std::cout << "Please select one of your chessmen" << std::endl;
-		return chessfield::mistake;
+		return cg::mistake;
 	}
-	else if (status == chessfield::emptyfield) {
+	else if (status == cg::emptyfield) {
 		std::cout << "That field seems to be empty" << std::endl;
-		return chessfield::mistake;
+		return cg::mistake;
 	}
-	else if (status == chessfield::checked) {
+	else if (status == cg::checked) {
 		std::cout << "This move would result in you being checked" << std::endl;
-		return chessfield::mistake;
+		return cg::mistake;
 	}
-	else if (status == chessfield::impmove) {
+	else if (status == cg::impmove) {
 		std::cout << "This move is not possible" << std::endl;
-		return chessfield::mistake;
+		return cg::mistake;
 	}
-	else if (status == chessfield::bkstale) {
+	else if (status == cg::bkstale) {
 		std::cout << "DRAW: the black king is stale" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
-	else if (status == chessfield::wkstale) {
+	else if (status == cg::wkstale) {
 		std::cout << "DRAW: the white king is stale" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
-	else if (status == chessfield::bkmate) {
+	else if (status == cg::bkmate) {
 		std::cout << "WHITE WINS: the black king is mate" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
-	else if (status == chessfield::wkmate) {
+	else if (status == cg::wkmate) {
 		std::cout << "BLACK WINS: the white king is mate" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
 	else {
 		//std::cout << "An internal error occured :(" << std::endl;
-		return chessfield::end;
+		return cg::end;
 	}
 }
 
@@ -279,17 +279,17 @@ int consoleRenderer::gameLoop() const {
 			}
 		}
 
-		chessfield::game_status game_status = chessfield::running;
+		cg::game_status game_status = cg::running;
 		render(game);
 
 		while (TRUE) {
 			while (TRUE) {
-				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << ", please select a position" << std::endl;
+				std::cout << (game.current_player == cg::white ? "White" : "Black") << ", please select a position" << std::endl;
 				getline(std::cin, selection);
 				try {
 					auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
 					auto const move = processOutput(moveFull);
-					if (move == chessfield::running) {
+					if (move == cg::running) {
 						render(game);
 						break;
 					}
@@ -300,7 +300,7 @@ int consoleRenderer::gameLoop() const {
 				}
 			}
 			while (TRUE) {
-				std::cout << (game.current_player == chessmen::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->getPos()) << ", enter \"back\" to return or a position to move" << std::endl;
+				std::cout << (game.current_player == cg::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->getPos()) << ", enter \"back\" to return or a position to move" << std::endl;
 				getline(std::cin, selection);
 				try {
 					if (selection == "back") {
@@ -311,18 +311,18 @@ int consoleRenderer::gameLoop() const {
 					else {
 						auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
 						auto const move = processOutput(moveFull);
-						if (move == chessfield::running) {
+						if (move == cg::running) {
 							render(game);
-							if (game.current_player == chessmen::white)
-								game.current_player = chessmen::black;
+							if (game.current_player == cg::white)
+								game.current_player = cg::black;
 							else
-								game.current_player = chessmen::white;
+								game.current_player = cg::white;
 							break;
 						}
-						else if (move == chessfield::end) {
+						else if (move == cg::end) {
 							render(game);
 							processOutput(moveFull);
-							game_status = chessfield::end;
+							game_status = cg::end;
 							break;
 						}
 					}
@@ -332,7 +332,7 @@ int consoleRenderer::gameLoop() const {
 					std::cout << "The entered position does not seem to be valid" << std::endl;
 				}
 			}
-			if (game_status == chessfield::end) {
+			if (game_status == cg::end) {
 				break;
 			}
 		}
@@ -351,7 +351,7 @@ int consoleRenderer::gameLoop() const {
 						if (selection == "return") {
 							break;
 						}
-						else if (game.createSaveGame(selection) == FALSE) {
+						else if (game.createSaveGame(selection, "consolesavegame") == FALSE) {
 							std::cout << "Something went wrong while writing your savegame, please try that again" << std::endl;
 						}
 						else {

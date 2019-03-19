@@ -2,31 +2,28 @@
 
 #include "pch.h"
 #include "gameEngine/chessmen/chessmen.h"
+#include "gameEngine/cg_defs.h"
 
 class chessfield;
 
 struct move {
-	chessmen::color current_player = chessmen::white;
+	cg::color current_player = cg::white;
 	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
-	enum moveType {
-		toempty = 0, toside = 1, newcm = 2
-	};
 	struct chessmenMoved {
 		bool hasmovedold;
-		chessmen::chessfigure figure;
-		chessmen::color player;
-		chessmen::position oldPosition;
-		moveType move;
-		chessmen::position newPosition;
+		cg::chessfigure figure;
+		cg::color player;
+		cg::position oldPosition;
+		cg::moveType move;
+		cg::position newPosition;
 	};
 	std::vector<chessmenMoved> changes;
 	void pushmove(const chessmenMoved& movedata);
-	void makemove(chessmen::position oldPosition, chessmen::position newPosition, chessmen::color player, chessmen::chessfigure figure, bool hasmovedold, moveType move);
-	void makemove(chessmen* chessmen, chessmen::position oldPosition, chessmen::position newPosition, bool hasmovedold, moveType move);
-	static void removeChessmen(chessboard& onfield, chessmen::position pos);
-	static void removeChessmen(chessboard& onside, chessmen::position pos, chessmen::chessfigure& figure);
-	static void moveBack(chessboard& onfield, chessmen::position oldpos, chessmen::position currentpos, bool hasmovedold);
+	void makemove(cg::position oldPosition, cg::position newPosition, cg::color player, cg::chessfigure figure, bool hasmovedold, cg::moveType move);
+	void makemove(chessmen* chessmen, cg::position oldPosition, cg::position newPosition, bool hasmovedold, cg::moveType move);
+	static void removeChessmen(chessboard& onfield, cg::position pos);
+	static void removeChessmen(chessboard& onside, cg::position pos, cg::chessfigure& figure);
+	static void moveBack(chessboard& onfield, cg::position oldpos, cg::position currentpos, bool hasmovedold);
 	move(const move& mve);
-#pragma warning(suppress: 26495)
 	move() = default;
 };

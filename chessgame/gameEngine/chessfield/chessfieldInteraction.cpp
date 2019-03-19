@@ -1,8 +1,9 @@
 #include "pch.h"
+#include "../cg_defs.h"
 #include "chessfield.h"
 
-std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate) {
-	std::vector<chessmen::position> returnpos = chessmen->possibleMoves(chessboard);
+std::vector<cg::position> chessfield::truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate) {
+	std::vector<cg::position> returnpos = chessmen->possibleMoves(chessboard);
 	bool clear = FALSE;
 	if (dontCheckMate != TRUE) {
 		if (selected_chessmen == nullptr) {
@@ -13,7 +14,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 		size_t size = returnpos.size();
 		size_t count = 0;
 		while (count < size) {
-			if (moveCharacter(returnpos[count], nullptr, onlytheoretical) == wouldbecheck) {
+			if (moveCharacter(returnpos[count], nullptr, cg::onlytheoretical) == cg::wouldbecheck) {
 				returnpos.erase(returnpos.begin() + count);
 				size = returnpos.size();
 			}
@@ -27,15 +28,16 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 		}
 
 		//TODO: Implement a more sophisticated way of checking for a valid casteling move
-		if (chessmen->figure() == chessmen::king) {
+		#pragma warning(disable:4101)
+		if (chessmen->figure() == cg::king) {
 			auto player = chessmen->getPlayer();
 			for (size_t i = 0; i < casteling(player).size(); i++) {
 				int required_empty = 0;
 				int empty = 0;
-				chessmen::position position = casteling(player)[i].newkpos;
-				if (position.x > chessmen->getPos().x && chessmen->getPlayer() == chessmen::white) {
-					chessmen::position secondpos = { position.x - 1, position.y };
-					chessmen::position thrdpos = { position.x - 2, position.y };
+				cg::position position = casteling(player)[i].newkpos;
+				if (position.x > chessmen->getPos().x && chessmen->getPlayer() == cg::white) {
+					cg::position secondpos = { position.x - 1, position.y };
+					cg::position thrdpos = { position.x - 2, position.y };
 					required_empty = 3;
 					try {
 						findChessmen(position);
@@ -56,9 +58,9 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == chessmen::black) {
-					chessmen::position secondpos = { position.x + 1, position.y };
-					chessmen::position thrdpos = { position.x + 2, position.y };
+				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == cg::black) {
+					cg::position secondpos = { position.x + 1, position.y };
+					cg::position thrdpos = { position.x + 2, position.y };
 					required_empty = 3;
 					try {
 						findChessmen(position);
@@ -79,8 +81,8 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x > chessmen->getPos().x && chessmen->getPlayer() == chessmen::black) {
-					chessmen::position secondpos = { position.x - 1, position.y };
+				else if (position.x > chessmen->getPos().x && chessmen->getPlayer() == cg::black) {
+					cg::position secondpos = { position.x - 1, position.y };
 					required_empty = 2;
 					try {
 						findChessmen(position);
@@ -95,8 +97,8 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 						empty++;
 					}
 				}
-				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == chessmen::white) {
-					chessmen::position secondpos = { position.x + 1, position.y };
+				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == cg::white) {
+					cg::position secondpos = { position.x + 1, position.y };
 					required_empty = 2;
 					try {
 						findChessmen(position);
@@ -127,7 +129,7 @@ std::vector<chessmen::position> chessfield::truePossibleMoves(chessmen* chessmen
 	return returnpos;
 }
 
-chessfield::full_game_status chessfield::clickfield(chessmen::position field, chessmen::color player) {
+cg::full_game_status chessfield::clickfield(cg::position field, cg::color player) {
 	if (last_game_status >= 8) { //when the game is allready over return the last state
 		return last_game_status;
 	}
@@ -135,63 +137,63 @@ chessfield::full_game_status chessfield::clickfield(chessmen::position field, ch
 		try {
 			chessmen* clicked_chessmen = findChessmen(field);
 			if (clicked_chessmen->getPlayer() != player) {
-				return enemy;
+				return cg::enemy;
 			}
 			else {
 				selected_chessmen = clicked_chessmen;
-				return selected;
+				return cg::selected;
 			}
 		}
 		catch (const std::exception& exception) {
-			return emptyfield;
+			return cg::emptyfield;
 		}
 	}
 	else {
 		move changes;
 		changes.current_player = current_player;
-		const auto result = moveCharacter(field, &changes, oncetheoretical);
-		if (result != sucess) {
-			if (result == wouldbecheck) {
-				return checked;
+		const auto result = moveCharacter(field, &changes, cg::oncetheoretical);
+		if (result != cg::sucess) {
+			if (result == cg::wouldbecheck) {
+				return cg::checked;
 			}
-			else if (result == impossible) {
-				return impmove;
+			else if (result == cg::impossible) {
+				return cg::impmove;
 			}
 		}
 		else {
 			selected_chessmen->setHasMoved(TRUE);
 			//replacing pawn at the end of field with queen
-			if (selected_chessmen->figure() == chessmen::pawn) {
-				if (selected_chessmen->getPos().y == chessmen::fieldsize_y_start && selected_chessmen->getPlayer() == chessmen::black || selected_chessmen->getPos().y == chessmen::fieldsize_y_end && selected_chessmen->getPlayer() == chessmen::white) {
-					chessmen::position pos = selected_chessmen->getPos();
-					const chessmen::color col = selected_chessmen->getPlayer();
+			if (selected_chessmen->figure() == cg::pawn) {
+				if (selected_chessmen->getPos().y == chessmen::fieldsize_y_start && selected_chessmen->getPlayer() == cg::black || selected_chessmen->getPos().y == chessmen::fieldsize_y_end && selected_chessmen->getPlayer() == cg::white) {
+					cg::position pos = selected_chessmen->getPos();
+					const cg::color col = selected_chessmen->getPlayer();
 					movetoside(pos, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
-					newchessmen(pos, &changes, col, chessmen::queen, TRUE);
+					createChessmen(getField(), cg::queen, pos, col, TRUE);
 				}
 			}
 			selected_chessmen = nullptr;
 			forwardmovetrace.clear();
 			backwardmovetrace.push_back(std::make_unique<move>(changes));
-			if (king_situation(chessmen::black) == stale) {
-				last_game_status = bkstale;
-				return bkstale;
+			if (king_situation(cg::black) == cg::stale) {
+				last_game_status = cg::bkstale;
+				return cg::bkstale;
 			}
-			else if (king_situation(chessmen::white) == stale) {
-				last_game_status = wkstale;
-				return wkstale;
+			else if (king_situation(cg::white) == cg::stale) {
+				last_game_status = cg::wkstale;
+				return cg::wkstale;
 			}
-			else if (king_situation(chessmen::white) == checkmate) {
-				last_game_status = wkmate;
-				return wkmate;
+			else if (king_situation(cg::white) == cg::checkmate) {
+				last_game_status = cg::wkmate;
+				return cg::wkmate;
 			}
-			else if (king_situation(chessmen::black) == checkmate) {
-				last_game_status = bkmate;
-				return bkmate;
+			else if (king_situation(cg::black) == cg::checkmate) {
+				last_game_status = cg::bkmate;
+				return cg::bkmate;
 			}
 			else {
-				return next;
+				return cg::next;
 			}
 		}
 	}
-	return error;
+	return cg::error;
 }

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gameEngine\cg_defs.h" />
     <ClInclude Include="gameEngine\chessfield\chessfield.h" />
     <ClInclude Include="gameEngine\chessfield\moveData\moveData.h" />
     <ClInclude Include="gameEngine\chessmen\chessmen.h" />
