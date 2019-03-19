@@ -48,6 +48,7 @@
     <ClCompile Include="gameLoop\main.cpp" />
     <ClCompile Include="gameLoop\sfmlRenderer.cpp" />
     <ClCompile Include="gameLoop\sfmlRendererUI.cpp" />
+    <ClCompile Include="gameLoop\smflRenderFunc.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

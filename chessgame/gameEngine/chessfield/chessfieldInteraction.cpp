@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "../cg_defs.h"
 #include "chessfield.h"
 
 std::vector<cg::position> chessfield::truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate) {

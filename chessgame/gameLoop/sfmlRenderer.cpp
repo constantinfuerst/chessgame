@@ -9,10 +9,12 @@
 #endif
 
 sfmlRenderer::sfmlRenderer() {
+	//loading assets
+	sfmlRenderAsstes::get()->loadAssets();
 	//creating window
-	screenWidth = 500;
-	screenHeight = 550;
-	window = new sf::RenderWindow (sf::VideoMode(screenWidth, screenHeight), L"Chessgame (c) 2019 Constantin Fürst", sf::Style::Titlebar | sf::Style::Close);
+	screen_dims.width = 500;
+	screen_dims.height = 550;
+	window = new sf::RenderWindow (sf::VideoMode(screen_dims.width, screen_dims.height), L"Chessgame (c) 2019 Constantin Fürst", sf::Style::Titlebar | sf::Style::Close);
 	window->setFramerateLimit(10); //only update every 100ms
 	gui = new tgui::Gui {*window};
 	game = new chessfield;
@@ -23,10 +25,9 @@ sfmlRenderer::~sfmlRenderer() {
 	delete gui;
 	delete window;
 	delete game;
-	ui_elements.clear();
 }
 
-cg::game_status sfmlRenderer::processOutput(cg::full_game_status status) {
+cg::game_status sfmlRenderer::processOutput(cg::full_game_status status) const {
 	if (status == cg::next) {
 		if (game->current_player == cg::white)
 			game->current_player = cg::black;
@@ -120,7 +121,7 @@ void sfmlRenderer::loadSavegame(std::string filename) const {
 	}
 }
 
-bool sfmlRenderer::processUIInput(unsigned int ui_element) {
+bool sfmlRenderer::processUIInput(unsigned int ui_element) const {
 	switch (ui_element) {
 	case 0:
 		game->stepback();
@@ -145,12 +146,9 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element) {
 }
 
 int sfmlRenderer::gameLoop() {
-	//TODO: compact this function, move functionality into differen functions
-
 	game_status = cg::running;
 	game->initGame();
 
-	bool lmb_press = FALSE;
 	displayingUI = cg::nodisplay;
 	redraw = TRUE;
 
@@ -159,10 +157,8 @@ int sfmlRenderer::gameLoop() {
 		sleep(sf::milliseconds(1));
 
 		//scale chessboard fields
-		field_height = chessboard_height / 8;
-		field_width = chessboard_width / 8;
-
-		bool paused = FALSE;
+		field_dims.height = sfmlRenderAsstes::get()->getBoarddims().height / 8;
+		field_dims.width = sfmlRenderAsstes::get()->getBoarddims().width / 8;
 
 		sf::Event event;
 
@@ -190,302 +186,84 @@ int sfmlRenderer::gameLoop() {
 			}
 		}
 
-		//check for game status and react
-		if (game_status == cg::restart) {
-			game_status = cg::running;
-			game->initGame();
-		}
+		///////////////////////
+		// actual Game Logic //
+		///////////////////////
 
-		if (redraw == TRUE && displayingUI != cg::nodisplay) {
-			window->clear();
-			render();
-			gui->draw();
-			window->display();
-		}
-		if (displayingUI == cg::display_noupdate) {
-			window->setFramerateLimit(15); //update every 32ms to make the fading button effect smooth
-			//draw
-			gui->draw();
-		}
-		else if (displayingUI == cg::display_update) {
-			window->setFramerateLimit(60); //update every 16ms to make the text input smooth
-			window->clear();
-			render();
-			gui->draw();
-			window->display();
-		}
-		else if (paused == FALSE) {
-			window->setFramerateLimit(10); //only update every 100ms
-			//get mouse input
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-				lmb_press = TRUE;
-			}
-			else if (lmb_press == TRUE && displayingUI == cg::nodisplay) {
-				const sf::Vector2i mousePosition = sf::Mouse::getPosition(*window);
-				const unsigned int clickedX = (mousePosition.x - 28) / field_width;
-				const unsigned int clickedY = (mousePosition.y - 28) / field_height;
-				const cg::position clickedPOS = { clickedX, clickedY };
-				if (chessmen::validpos(clickedPOS)) {
-					cout("clicked field x:" << clickedX << " y: " << clickedY);
-					if (game->selected_chessmen != nullptr && clickedX == game->selected_chessmen->getPos().x && clickedY == game->selected_chessmen->getPos().y) {
-						cout("unselecting chessmen");
-						game->selected_chessmen = nullptr;
-					}
-					else {
-						const cg::full_game_status returnval = game->clickfield(clickedPOS, game->current_player);
-						cout("executing clickfield and processOutput");
-						processOutput(returnval);
-					}
-					redraw = TRUE;
-				}
-				else {
-					if (static_cast<unsigned>(mousePosition.y) < screenHeight && mousePosition.y > chessboard_height) {
-						const unsigned int clickedUI = mousePosition.x / ui_element_width;
-						if (processUIInput(clickedUI) == TRUE)
-							redraw = TRUE;
-						cout("UI element " << clickedUI << " clicked");
-					}
-				}
-				lmb_press = FALSE;
-			}
-			else {
-				lmb_press = FALSE;
-			}
-			if (redraw == TRUE) {
-				//draw
-				window->clear();
-				render();
-				gui->draw();
-				window->display();
-				redraw = FALSE;
-			}
-			else {
-				continue;
-			}
-		}
-		else {
-			continue;
-		}
+		gameLogic();
 	}
 	return TRUE;
 }
 
-void sfmlRenderer::render() {
-	//TODO: compact this function, move functionality into differen functions, create a singleton assets class
-
-	static bool constructed = FALSE;
-	//loading board texture
-	static sf::Texture chessboard_txt;
-	static sf::Sprite chessboard_spr;
-	//loading chessmen textures
-	static sf::Texture chessmen_txt;
-	//asigning sprites
-	static sf::Sprite chessmen_king_white_spr;
-	static sf::Sprite chessmen_knight_white_spr;
-	static sf::Sprite chessmen_bishop_white_spr;
-	static sf::Sprite chessmen_pawn_white_spr;
-	static sf::Sprite chessmen_rook_white_spr;
-	static sf::Sprite chessmen_queen_white_spr;
-	static sf::Sprite chessmen_king_black_spr;
-	static sf::Sprite chessmen_knight_black_spr;
-	static sf::Sprite chessmen_bishop_black_spr;
-	static sf::Sprite chessmen_pawn_black_spr;
-	static sf::Sprite chessmen_rook_black_spr;
-	static sf::Sprite chessmen_queen_black_spr;
-	//loading UI assets
-	static sf::Texture ui_back_txt;
-	static sf::Sprite ui_back_spr;
-	static sf::Texture ui_forward_txt;
-	static sf::Sprite ui_forward_spr;
-	static sf::Texture ui_save_txt;
-	static sf::Texture ui_load_txt;
-	static sf::Sprite ui_save_spr;
-	static sf::Sprite ui_load_spr;
-	static sf::Texture ui_retry_txt;
-	static sf::Sprite ui_retry_spr;
-
-	if (constructed == FALSE) {
-		constructed = TRUE;
-		cout("constructing renderer assets");
-
-		//loading board texture
-		chessboard_txt.loadFromFile(ASSETS_DIR + "images\\board.png");
-		chessboard_spr.setTexture(chessboard_txt);
-		//loading chessmen textures
-		chessmen_txt.loadFromFile(ASSETS_DIR + "images\\figures.png");
-		//asigning sprites
-		chessmen_king_white_spr.setTexture(chessmen_txt);
-		chessmen_king_white_spr.setTextureRect(sf::IntRect(224, 56, 56, 56));
-		chessmen_knight_white_spr.setTexture(chessmen_txt);
-		chessmen_knight_white_spr.setTextureRect(sf::IntRect(56, 56, 56, 56));
-		chessmen_bishop_white_spr.setTexture(chessmen_txt);
-		chessmen_bishop_white_spr.setTextureRect(sf::IntRect(112, 56, 56, 56));
-		chessmen_pawn_white_spr.setTexture(chessmen_txt);
-		chessmen_pawn_white_spr.setTextureRect(sf::IntRect(280, 56, 56, 56));
-		chessmen_rook_white_spr.setTexture(chessmen_txt);
-		chessmen_rook_white_spr.setTextureRect(sf::IntRect(0, 56, 56, 56));
-		chessmen_queen_white_spr.setTexture(chessmen_txt);
-		chessmen_queen_white_spr.setTextureRect(sf::IntRect(168, 56, 56, 56));
-		chessmen_king_black_spr.setTexture(chessmen_txt);
-		chessmen_king_black_spr.setTextureRect(sf::IntRect(224, 0, 56, 56));
-		chessmen_knight_black_spr.setTexture(chessmen_txt);
-		chessmen_knight_black_spr.setTextureRect(sf::IntRect(56, 0, 56, 56));
-		chessmen_bishop_black_spr.setTexture(chessmen_txt);
-		chessmen_bishop_black_spr.setTextureRect(sf::IntRect(112, 0, 56, 56));
-		chessmen_pawn_black_spr.setTexture(chessmen_txt);
-		chessmen_pawn_black_spr.setTextureRect(sf::IntRect(280, 0, 56, 56));
-		chessmen_rook_black_spr.setTexture(chessmen_txt);
-		chessmen_rook_black_spr.setTextureRect(sf::IntRect(0, 0, 56, 56));
-		chessmen_queen_black_spr.setTexture(chessmen_txt);
-		chessmen_queen_black_spr.setTextureRect(sf::IntRect(168, 0, 56, 56));
-
-		sf::Vector2u chessboard_size = chessboard_txt.getSize();
-		chessboard_width = chessboard_size.x - (28 * 2);
-		chessboard_height = chessboard_size.y - (28 * 2);
-
-		//loading UI texture
-		ui_back_txt.loadFromFile(ASSETS_DIR + "images\\back.png");
-		ui_back_spr.setTexture(ui_back_txt);
-		ui_forward_txt.loadFromFile(ASSETS_DIR + "images\\forward.png");
-		ui_forward_spr.setTexture(ui_forward_txt);
-		ui_save_txt.loadFromFile(ASSETS_DIR + "images\\save.png");
-		ui_save_spr.setTexture(ui_save_txt);
-		ui_load_txt.loadFromFile(ASSETS_DIR + "images\\load.png");
-		ui_load_spr.setTexture(ui_load_txt);
-		ui_retry_txt.loadFromFile(ASSETS_DIR + "images\\retry.png");
-		ui_retry_spr.setTexture(ui_retry_txt);
-		
-		ui_elements.reserve(6);
-		ui_elements.push_back(&ui_back_spr); ui_elements.push_back(&ui_forward_spr); ui_elements.push_back(&ui_save_spr); ui_elements.push_back(&ui_load_spr); ui_elements.push_back(&ui_retry_spr);
+void sfmlRenderer::gameLogic() {
+	//check for game status and react
+	if (game_status == cg::restart) {
+		game_status = cg::running;
+		game->initGame();
 	}
-
-	if (game == nullptr)
-		return;
-
-	///////////////
-	// DRAW ROUTINE
-	///////////////
-
-	//draw UI
-	if (game->current_player == cg::white)
-		ui_elements.push_back(new sf::Sprite(chessmen_king_white_spr));
-	else
-		ui_elements.push_back(new sf::Sprite(chessmen_king_black_spr));
-
-	sf::Vector2u chessboard_size = chessboard_txt.getSize();
-	int ui_height = screenHeight - chessboard_size.y;
-	int ui_width = screenWidth;
-	ui_element_width = (ui_width / ui_elements.size()) - 16;
-
-	for (unsigned int i = 0; i < ui_elements.size(); i++) {
-		float sizex = ui_elements[i]->getTextureRect().width;
-		float sizey = ui_elements[i]->getTextureRect().height;
-		float scalex = ui_element_width / sizex;
-		float scaley = ui_height / sizey;
-		float posx = i * ui_element_width + 32;
-		float posy = chessboard_size.y;
-		ui_elements[i]->setColor(sf::Color::White);
-		if (scalex < scaley)
-			ui_elements[i]->setScale({ scalex, scalex });
-		else
-			ui_elements[i]->setScale({ scaley, scaley });
-		ui_elements[i]->setPosition({ posx, posy });
-		window->draw(*ui_elements[i]);
+	if (redraw == TRUE && displayingUI != cg::nodisplay) {
+		window->clear();
+		render();
+		gui->draw();
+		window->display();
 	}
-
-	delete ui_elements.back();
-	ui_elements.pop_back();
-
-	//draw game
-	window->draw(chessboard_spr);
-
-	if (game->selected_chessmen != nullptr) {
-		#pragma  warning(disable:4244)
-		sf::RectangleShape selected(sf::Vector2f(field_width, field_height));
-		selected.setFillColor(sf::Color(25, 225, 0, 225));
-		selected.setPosition(
-			static_cast<float>(game->selected_chessmen->getPos().x * field_width + 28),
-			static_cast<float>(game->selected_chessmen->getPos().y * field_height + 28)
-		);
-		window->draw(selected);
-
-		auto possibleMoves = game->truePossibleMoves(game->selected_chessmen, game->getField());
-		for (auto& possibleMove : possibleMoves) {
-			sf::RectangleShape pmindicator(sf::Vector2f(field_width, field_height));
-			pmindicator.setFillColor(sf::Color(50, 100, 0, 225));
-			pmindicator.setPosition(
-				static_cast<float>(possibleMove.x * field_width + 28),
-				static_cast<float>(possibleMove.y * field_height + 28)
-			);
-			window->draw(pmindicator);
-		}
+	if (displayingUI == cg::display_noupdate) {
+		window->setFramerateLimit(15); //update every 32ms to make the fading button effect smooth
+		//draw
+		gui->draw();
 	}
-
-	for (auto& i : *game->getField()) {
-		sf::Sprite* current_sprite = nullptr;
-
-		auto figure = i->figure();
-
-		if (figure == cg::queen) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_queen_black_spr;
-			}
-			else {
-				current_sprite = &chessmen_queen_white_spr;
-			}
+	else if (displayingUI == cg::display_update) {
+		window->setFramerateLimit(60); //update every 16ms to make the text input smooth
+		window->clear();
+		render();
+		gui->draw();
+		window->display();
+	}
+	else if (paused == FALSE) {
+		window->setFramerateLimit(10); //only update every 100ms
+		//get mouse input
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			lmb_press = TRUE;
 		}
-		else if (figure == cg::rook) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_rook_black_spr;
+		else if (lmb_press == TRUE && displayingUI == cg::nodisplay) {
+			const sf::Vector2i mousePosition = sf::Mouse::getPosition(*window);
+			const unsigned int clickedX = (mousePosition.x - 28) / field_dims.width;
+			const unsigned int clickedY = (mousePosition.y - 28) / field_dims.height;
+			const cg::position clickedPOS = { clickedX, clickedY };
+			if (chessmen::validpos(clickedPOS)) {
+				cout("clicked field x:" << clickedX << " y: " << clickedY);
+				if (game->selected_chessmen != nullptr && clickedX == game->selected_chessmen->getPos().x && clickedY == game->selected_chessmen->getPos().y) {
+					cout("unselecting chessmen");
+					game->selected_chessmen = nullptr;
+				}
+				else {
+					const cg::full_game_status returnval = game->clickfield(clickedPOS, game->current_player);
+					cout("executing clickfield and processOutput");
+					//TODO: maybe do something with the output here?
+					processOutput(returnval);
+				}
+				redraw = TRUE;
 			}
 			else {
-				current_sprite = &chessmen_rook_white_spr;
+				if (static_cast<unsigned>(mousePosition.y) < screen_dims.height && mousePosition.y > sfmlRenderAsstes::get()->getBoarddims().height) {
+					const unsigned int clickedUI = mousePosition.x / ui_element_width;
+					if (processUIInput(clickedUI) == TRUE)
+						redraw = TRUE;
+					cout("UI element " << clickedUI << " clicked");
+				}
 			}
-		}
-		else if (figure == cg::knight) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_knight_black_spr;
-			}
-			else {
-				current_sprite = &chessmen_knight_white_spr;
-			}
-		}
-		else if (figure == cg::bishop) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_bishop_black_spr;
-			}
-			else {
-				current_sprite = &chessmen_bishop_white_spr;
-			}
-		}
-		else if (figure == cg::pawn) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_pawn_black_spr;
-			}
-			else {
-				current_sprite = &chessmen_pawn_white_spr;
-			}
-		}
-		else if (figure == cg::king) {
-			if (i->getPlayer() == cg::black) {
-				current_sprite = &chessmen_king_black_spr;
-			}
-			else {
-				current_sprite = &chessmen_king_white_spr;
-			}
+			lmb_press = FALSE;
 		}
 		else {
-			current_sprite = nullptr;
+			lmb_press = FALSE;
 		}
-		if (current_sprite != nullptr) {
-			current_sprite->setPosition(
-				static_cast<float>(i->getPos().x * field_width + 28),
-				static_cast<float>(i->getPos().y * field_height + 28)
-			);
-			window->draw(*current_sprite);
-		}
-		else {
-			cout("nullptr draw");
+		if (redraw == TRUE) {
+			//draw
+			window->clear();
+			render();
+			gui->draw();
+			window->display();
+			redraw = FALSE;
 		}
 	}
 }

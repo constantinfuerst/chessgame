@@ -5,6 +5,10 @@
 #include "gameLoop/settings.h"
 
 namespace cg {
+	//TYPEDEFS
+	typedef std::vector<sf::Sprite*> spr_ptr_vec;
+
+	//ENUMS
 	enum full_game_status {
 		error, enemy, selected, next, ownchessmen, emptyfield, checked, impmove, bkstale, wkstale, bkmate, wkmate
 	};
@@ -38,9 +42,19 @@ namespace cg {
 	enum ui_type {
 		ui_message = 0, ui_savegame = 1, ui_loadgame = 2, ui_newgame = 3
 	};
+
+	//STRUCTS
 	struct position {
 		unsigned int x;
 		unsigned int y;
+	};
+	struct idim {
+		unsigned int width;
+		unsigned int height;
+	};
+	struct fdim {
+		float width;
+		float height;
 	};
 	struct gui_window {
 		tgui::Theme theme;
@@ -48,5 +62,10 @@ namespace cg {
 		unsigned int width;
 		unsigned int height;
 		unsigned int padding;
+	};
+	struct chessmen_sprite {
+		color player;
+		chessfigure figure;
+		sf::Sprite* sprite;
 	};
 }

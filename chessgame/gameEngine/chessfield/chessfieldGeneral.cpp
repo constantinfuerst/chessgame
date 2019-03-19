@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "chessfield.h"
-#include "../cg_defs.h"
-#include <iomanip>
 
 chessfield::chessfield() {
 	current_player = cg::white;
@@ -264,7 +262,7 @@ bool chessfield::createSaveGame(const std::string& filename, const std::string& 
 				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] = forwardmovetrace[i]->changes[j].newPosition.y;
 			}
 		}
-		json_output << std::setw(4) << json;
+		json_output << json;
 		json_output.close();
 	}
 	else {

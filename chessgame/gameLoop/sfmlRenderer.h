@@ -7,23 +7,42 @@
 #include <TGUI/TGUI.hpp>
 #include "settings.h"
 
+class sfmlRenderAsstes final {
+private:
+	cg::spr_ptr_vec ui_elements;
+	cg::idim board_dims = { 0,0 };
+	std::vector<cg::chessmen_sprite> sprites;
+
+public:
+	static sfmlRenderAsstes* get();
+	void loadAssets();
+	sf::Sprite* chessboard = nullptr;
+	const cg::idim& getBoarddims() const;
+	const cg::spr_ptr_vec& getUiElems() const;
+	sf::Sprite* getSprite(cg::color player, cg::chessfigure figure) const;
+};
+
 class sfmlRenderer final {
 private:
 	//scaling the fields
-	int chessboard_width;
-	int chessboard_height;
-	int field_height;
-	int field_width;
-	unsigned int screenWidth;
-	unsigned int screenHeight;
+	cg::idim field_dims;
+	cg::idim screen_dims;
+	cg::idim board_dims;
 	//UI elements
 	int ui_element_width;
-	std::vector<sf::Sprite*> ui_elements;
 	//efficiency
 	mutable cg::uidisplay displayingUI;
 	mutable bool redraw = TRUE;
+	mutable bool paused = FALSE;
 	//game status evaluator
 	mutable cg::game_status game_status;
+	//mousebutton
+	bool lmb_press = FALSE;
+
+	static std::vector<std::string> getFiles();
+
+	void createSavegame(tgui::EditBox::Ptr filename) const;
+	void loadSavegame(std::string filename) const;
 
 	void closeChild() const;
 	void ui_child_create(cg::ui_type type, std::string message = "") const;
@@ -31,17 +50,16 @@ private:
 	void ui_child_addloadsavegame(cg::gui_window child_window, int index) const;
 	void ui_child_addcreatesavegame(cg::gui_window child_window) const;
 	void ui_child_addnewgame(cg::gui_window child_window, std::string message) const;
-	void render();
 
-	static std::vector<std::string> getFiles();
-	void createSavegame(tgui::EditBox::Ptr filename) const;
-	void loadSavegame(std::string filename) const;
-	bool processUIInput(unsigned int ui_element);
-	cg::game_status processOutput(cg::full_game_status status);
+	bool processUIInput(unsigned int ui_element) const;
+	cg::game_status processOutput(cg::full_game_status status) const;
 
 	chessfield* game;
 	tgui::Gui* gui;
 	sf::RenderWindow* window;
+
+	void render();
+	void gameLogic();
 
 public:
 	int gameLoop();

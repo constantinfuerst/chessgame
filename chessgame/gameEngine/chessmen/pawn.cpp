@@ -48,10 +48,10 @@ std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 		if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && validpos(onestep)) {
 			returnpos.push_back(onestep);
 		}
-		if (positiocheck(chessmen, hitleft, player_color) == cg::empty_pos && validpos(hitleft)) {
+		if (positiocheck(chessmen, hitleft, player_color) == cg::enemy_pos && validpos(hitleft)) {
 			returnpos.push_back(hitleft);
 		}
-		if (positiocheck(chessmen, hitright, player_color) == cg::empty_pos && validpos(hitright)) {
+		if (positiocheck(chessmen, hitright, player_color) == cg::enemy_pos && validpos(hitright)) {
 			returnpos.push_back(hitright);
 		}
 	}

@@ -9,7 +9,6 @@
 #endif
 
 void sfmlRenderer::closeChild() const {
-
 	auto child = gui->get("child_window");
 	if (child != nullptr) {
 		cout("child window closed");
@@ -54,8 +53,8 @@ void sfmlRenderer::ui_child_create(cg::ui_type type, std::string message) const 
 		30
 	};
 
-	static const unsigned int posx = (screenWidth / 2) - (ui_window.width / 2);
-	static const unsigned int posy = ((screenHeight / 2) - 50) - (ui_window.width / 2);
+	static const unsigned int posx = (screen_dims.width / 2) - (ui_window.width / 2);
+	static const unsigned int posy = ((screen_dims.height / 2) - 50) - (ui_window.width / 2);
 
 	if (displayingUI != cg::nodisplay) {
 		return;
