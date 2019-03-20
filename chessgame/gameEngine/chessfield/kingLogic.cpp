@@ -1,30 +1,41 @@
 #include "pch.h"
 #include "chessfield.h"
 
+//check fot the king being check in a specific chessboard from a specific player
 cg::king_status chessfield::check_check(cg::color& player, chessboard* chessmen) {
 	//get the current position of the king
-	std::unique_ptr<cg::position> kingpos = nullptr;
+	cg::position* kingpos = nullptr;
 	for (auto& i : *chessmen) {
-		if (i->figure() == cg::king && i->getPlayer() == player) {
-			kingpos = std::make_unique<cg::position>(i->getPos());
-			break;
+		if (i->getPlayer() == player) {
+			if (i->figure() == cg::king) {
+				kingpos = new cg::position(i->getPos());
+				break;
+			}
 		}
 	}
+	//if the king was found
 	if (kingpos != nullptr) {
+		//for every chessmen on the field
 		for (size_t i = 0; i < chessmen->size(); i++) {
 			if (chessmen->at(i)->getPlayer() != player) {
 				std::vector <cg::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
+				//for every possible move of that chessmen
 				for (auto& possible_move : possible_moves) {
+					//if the chessmen could move to the kings position return check
 					if (possible_move.x == kingpos->x && possible_move.y == kingpos->y) {
+						delete kingpos;
 						return cg::check;
 					}
 				}
 			}
 		}
 	}
+	//if no move to the kings position was found return not check
+	delete kingpos;
 	return cg::not_check;
 }
 
+//get the current status of the king depending on whih player was entered
 cg::king_status chessfield::king_situation(cg::color player) {
 	//for every chessmen on the board
 	for (auto& i : chessmen_onfield) {

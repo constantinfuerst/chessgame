@@ -10,7 +10,8 @@
 
 int MAIN {
 	//TODO: fix crash when exiting the application (hard to replicate, no idea what causes it)
-	//TODO: fix check system of the king (enables to enter a check without detection)
+	//TODO: merge two functions of "moveCasteling" into one function
+	//TODO: debug "sfmlRenderFunc" -> why dont the UI elements get the correct size
 	ENGINE gameEngine;
 	return gameEngine.gameLoop();
 }

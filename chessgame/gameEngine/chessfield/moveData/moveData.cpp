@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "moveData.h"
 
+//create a move and add it to the current changes counter
 void move::makemove(cg::position oldPosition, cg::position newPosition, cg::color player, cg::chessfigure figure, bool hasmovedold, cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
@@ -12,6 +13,7 @@ void move::makemove(cg::position oldPosition, cg::position newPosition, cg::colo
 	changes.push_back(change);
 }
 
+//create a move and add it to the current changes counter
 void move::makemove(chessmen* chessmen, cg::position oldPosition, cg::position newPosition, bool hasmovedold, cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
@@ -23,6 +25,7 @@ void move::makemove(chessmen* chessmen, cg::position oldPosition, cg::position n
 	changes.push_back(change);
 }
 
+//push a move to the current changes counter
 void move::pushmove(const chessmenMoved& movedata) {
 	changes.push_back(movedata);
 }

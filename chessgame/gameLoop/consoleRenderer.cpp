@@ -1,28 +1,47 @@
 #include "pch.h"
 #include "consoleRenderer.h"
 
+/////////////////////////////////
+// not that well documented    //
+// because why would you even? //
+/////////////////////////////////
+
+
+//converts a string containing a position to a chessgameposition
 cg::position consoleRenderer::strtopos (std::string input) {
+	//if the size doesnt match the required two characters throw an error
 	if (input.size() != 2) {
 		throw notfound();
 	}
+	//subtract 65 from the first letter to get its numerical value (from a uppercase letter)
 	unsigned int x = int(input[0]) - 65;
+	//convert from string to integer and subtract one (A1 -> 00, B2 -> 11, ...)
 	const unsigned int y = std::stoi(input.substr(1, 1)) - 1;
+	//check for this being a valid position
 	if (chessmen::validpos({ x, y })) {
+		//return if it is valid
 		return { x, y };
 	}
+	//if it was not valid
 	else {
+		//subtract 97 from the first letter to get its numerical value (from a lowercase letter)
 		x = int(input[0]) - 97;
+		//check for this being a valid position
 		if (chessmen::validpos({ x, y })) {
+			//return if it is valid
 			return { x, y };
 		}
+		//if it was not valid return an error
 		throw notfound();
 	}
 }
 
+//convert a chessmen::position to a string
 std::string consoleRenderer::postostr(cg::position pos) {
 	return char(pos.x + 65) + std::to_string(pos.y + 1);
 }
 
+//translate a chessmen::x position to the ASCII position in the output
 unsigned int consoleRenderer::translateX (const unsigned int& org_x) {
 	unsigned int x = 0;
 	if (org_x == 0)
@@ -46,6 +65,7 @@ unsigned int consoleRenderer::translateX (const unsigned int& org_x) {
 	return x;
 }
 
+//translate a chessmen::y position to the ASCII position in the output
 unsigned int consoleRenderer::translateY(const unsigned int& org_y) {
 	unsigned int y = 0;
 	if (org_y == 0)
@@ -67,8 +87,11 @@ unsigned int consoleRenderer::translateY(const unsigned int& org_y) {
 	return y;
 }
 
+//the main "renderer" (better ASCII output)
 void consoleRenderer::render(chessfield& board) {
+	//clear the console
 	system("cls");
+	//empty ASCII chessboard
 	char displayBoard[34][61] = {
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', ' ', ' ', ' ', ' ', 'B', ' ', ' ', ' ', ' ', ' ', ' ', 'C', ' ', ' ', ' ', ' ', ' ', ' ', 'D', ' ', ' ', ' ', ' ', ' ', ' ', 'E', ' ', ' ', ' ', ' ', ' ', ' ', 'F', ' ', ' ', ' ', ' ', ' ', ' ', 'G', ' ', ' ', ' ', ' ', ' ', ' ', 'H', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
@@ -106,10 +129,12 @@ void consoleRenderer::render(chessfield& board) {
 		{' ', ' ', ' ', ' ', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
 	};
 
+	//for every chessmen on the field
 	for (auto& i : *board.getField()) {
 		const unsigned int x = translateX(i->getPos().x);
 		const unsigned int y = translateY(i->getPos().y);
 
+		//display letters representing the chessmen
 		if (i->figure() == cg::queen)
 			displayBoard[y][x] = 'Q';
 		else if (i->figure() == cg::rook)
@@ -124,6 +149,7 @@ void consoleRenderer::render(chessfield& board) {
 			displayBoard[y][x] = 'K';
 		else
 			displayBoard[y][x] = ' ';
+		//display letters representing the color
 		if (i->getPlayer() == cg::black)
 			displayBoard[y][x + 1] = 'B';
 		else if (i->getPlayer() == cg::white)
@@ -132,7 +158,9 @@ void consoleRenderer::render(chessfield& board) {
 			displayBoard[y][x + 1] = ' ';
 	}
 
+	//if a chessmen was selected
 	if (board.selected_chessmen != nullptr) {
+		//get the possible moves of the selected chessmen
 		auto possibleMoves = board.truePossibleMoves(board.selected_chessmen, board.getField());
 		if (!possibleMoves.empty()) {
 			for (auto& possibleMove : possibleMoves) {
@@ -143,6 +171,7 @@ void consoleRenderer::render(chessfield& board) {
 				const unsigned int x = translateX(possibleMove.x);
 				const unsigned int y = translateY(possibleMove.y);
 
+				//display an outline sourrounding the possible move fields
 				displayBoard[y + 1][x - 2] = char(177);
 				displayBoard[y    ][x - 2] = char(177);
 				displayBoard[y - 1][x - 2] = char(177);
@@ -163,6 +192,7 @@ void consoleRenderer::render(chessfield& board) {
 		const unsigned int x = translateX(board.selected_chessmen->getPos().x);
 		const unsigned int y = translateY(board.selected_chessmen->getPos().y);
 
+		//sourround the selected chessmen with a border as well
 		displayBoard[y + 1][x - 2] = char(192);
 		displayBoard[y    ][x - 2] = char(179);
 		displayBoard[y - 1][x - 2] = char(218);
@@ -182,6 +212,7 @@ void consoleRenderer::render(chessfield& board) {
 		displayBoard[y - 1][x + 3] = char(191);
 	}
 
+	//draw the board character by character
 	for (auto i = 0; i < 34; i++) {
 		std::cout << std::endl;
 		for (int j = 0; j < 61; j++) {
@@ -191,6 +222,7 @@ void consoleRenderer::render(chessfield& board) {
 	std::cout << std::endl << std::endl;
 }
 
+//function that handles output by the clickfield() member of chessfield
 cg::game_status consoleRenderer::processOutput(cg::full_game_status status) {
 	if (status == cg::next) {
 		//std::cout << "Next player" << std::endl;
@@ -242,18 +274,24 @@ cg::game_status consoleRenderer::processOutput(cg::full_game_status status) {
 	}
 }
 
+//the main ASCII implementation game loop
 int consoleRenderer::gameLoop() const {
 	chessfield game;
 	std::string selection;
+	//main loop
 	while (TRUE) {
+		//input loop for loading a gamestate file
 		while (TRUE) {
 			bool loaded = FALSE;
 			std::cout << R"(Would you like to load a savegame? Enter "yes" or "no")" << std::endl;
 			getline(std::cin, selection);
 			if (selection == "yes") {
+				//if user wants to load a game
 				while (TRUE) {
+					//while the user inputs directories
 					std::cout << "Please enter the name and directory of the savegame you want to load or enter \"return\" to return" << std::endl;
 					getline(std::cin, selection);
+					//check if the game loaded from the entered file and react accordingly
 					if (selection == "return") {
 						break;
 					}
@@ -266,6 +304,7 @@ int consoleRenderer::gameLoop() const {
 					}
 				}
 			}
+			//if the user doesnt want to load a gamestate just init a clean game
 			else if (selection == "no") {
 				game.initGame();
 				loaded = TRUE;
@@ -282,11 +321,15 @@ int consoleRenderer::gameLoop() const {
 		cg::game_status game_status = cg::running;
 		render(game);
 
+		//now we step into the gameloop
 		while (TRUE) {
+			//loop for selecting a position
 			while (TRUE) {
+				//get a "clickfield"
 				std::cout << (game.current_player == cg::white ? "White" : "Black") << ", please select a position" << std::endl;
 				getline(std::cin, selection);
 				try {
+					//try that select
 					auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
 					auto const move = processOutput(moveFull);
 					if (move == cg::running) {
@@ -299,9 +342,12 @@ int consoleRenderer::gameLoop() const {
 					std::cout << "The entered position does not seem to be valid" << std::endl;
 				}
 			}
+			//loop for making a move
 			while (TRUE) {
+				//get a clickfield
 				std::cout << (game.current_player == cg::white ? "White" : "Black") << " selected " << postostr(game.selected_chessmen->getPos()) << ", enter \"back\" to return or a position to move" << std::endl;
 				getline(std::cin, selection);
+				//try that move
 				try {
 					if (selection == "back") {
 						render(game);
@@ -309,6 +355,7 @@ int consoleRenderer::gameLoop() const {
 						break;
 					}
 					else {
+						//react to the move
 						auto const moveFull = game.clickfield(strtopos(selection), game.current_player);
 						auto const move = processOutput(moveFull);
 						if (move == cg::running) {
@@ -337,11 +384,13 @@ int consoleRenderer::gameLoop() const {
 			}
 		}
 
+		//when the game ends
 		std::cout << "Would you like to play another match? Enter enter \"quit\" to quit, press enter to rematch" << std::endl;
 		getline(std::cin, selection);
 		if (selection == "quit") {
 			while (TRUE) {
 				bool saved = FALSE;
+				//ask whether to save the game or not
 				std::cout << R"(Would you like to save this game? Enter "yes" or "no")" << std::endl;
 				getline(std::cin, selection);
 				if (selection == "yes") {
@@ -361,6 +410,7 @@ int consoleRenderer::gameLoop() const {
 						}
 					}
 				}
+				//if not saving the game just quit
 				else if (selection == "no") {
 					game.quit();
 					saved = TRUE;

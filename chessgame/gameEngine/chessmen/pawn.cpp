@@ -39,7 +39,7 @@ std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 		twostep.y = board_position.y + 2;
 	}
 
-	if (board_position.y <= fieldsize_y_end && board_position.y >= fieldsize_y_start) {
+	if (board_position.y <= cg::fieldsize_y_end && board_position.y >= cg::fieldsize_y_start) {
 		if (hasMoved == FALSE) {
 			if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && positiocheck(chessmen, twostep, player_color) == cg::empty_pos && validpos(twostep)) {
 				returnpos.push_back(twostep);

@@ -16,12 +16,12 @@ std::vector<cg::position> bishop::possibleMoves(chessboard* chessmen) {
 	{
 		{
 			unsigned int x = board_position.x + 1; unsigned int y = board_position.y + 1;
-			while (x <= fieldsize_x_end && y <= fieldsize_y_end) {
+			while (x <= cg::fieldsize_x_end && y <= cg::fieldsize_y_end) {
 				const cg::position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
-				else if (positiocheck(chessmen, pos, player_color) == cg::enemy && validpos(pos)) {
+				else if (positiocheck(chessmen, pos, player_color) == cg::enemy_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 					break;
 				}
@@ -33,12 +33,12 @@ std::vector<cg::position> bishop::possibleMoves(chessboard* chessmen) {
 		}
 		{
 			unsigned int x = board_position.x - 1; unsigned int y = board_position.y + 1;
-			while (x >= fieldsize_x_start && y <= fieldsize_y_end) {
+			while (x >= cg::fieldsize_x_start && y <= cg::fieldsize_y_end) {
 				const cg::position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
-				else if (positiocheck(chessmen, pos, player_color) == cg::enemy && validpos(pos)) {
+				else if (positiocheck(chessmen, pos, player_color) == cg::enemy_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 					break;
 				}
@@ -50,12 +50,12 @@ std::vector<cg::position> bishop::possibleMoves(chessboard* chessmen) {
 		}
 		{
 			unsigned int x = board_position.x + 1; unsigned int y = board_position.y - 1;
-			while (x <= fieldsize_x_end && y >= fieldsize_y_start) {
+			while (x <= cg::fieldsize_x_end && y >= cg::fieldsize_y_start) {
 				const cg::position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
-				else if (positiocheck(chessmen, pos, player_color) == cg::enemy && validpos(pos)) {
+				else if (positiocheck(chessmen, pos, player_color) == cg::enemy_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 					break;
 				}
@@ -67,12 +67,12 @@ std::vector<cg::position> bishop::possibleMoves(chessboard* chessmen) {
 		}
 		{
 			unsigned int x = board_position.x - 1; unsigned int y = board_position.y - 1;
-			while (x >= fieldsize_x_start && y >= fieldsize_y_start) {
+			while (x >= cg::fieldsize_x_start && y >= cg::fieldsize_y_start) {
 				const cg::position pos = { x, y };
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
-				else if (positiocheck(chessmen, pos, player_color) == cg::enemy && validpos(pos)) {
+				else if (positiocheck(chessmen, pos, player_color) == cg::enemy_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 					break;
 				}

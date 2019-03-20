@@ -27,61 +27,49 @@ sfmlRenderer::~sfmlRenderer() {
 	delete game;
 }
 
-cg::game_status sfmlRenderer::processOutput(cg::full_game_status status) const {
+void sfmlRenderer::processOutput(cg::full_game_status status) const {
 	if (status == cg::next) {
 		if (game->current_player == cg::white)
 			game->current_player = cg::black;
 		else
 			game->current_player = cg::white;
-		return cg::running;
 	}
 	else if (status == cg::error) {
 		cout("error clickfield");
-		return cg::end;
 	}
 	else if (status == cg::selected) {
 		cout("selected");
-		return cg::running;
 	}
 	else if (status == cg::enemy) {
 		cout("enemy clicked");
-		return cg::mistake;
 	}
 	else if (status == cg::emptyfield) {
 		cout("emptyfield clicked");
-		return cg::mistake;
 	}
 	else if (status == cg::checked) {
 		cout("checked field clicked");
-		return cg::mistake;
 	}
 	else if (status == cg::impmove) {
 		cout("impmove clicked");
-		return cg::mistake;
 	}
 	else if (status == cg::bkstale) {
 		cout("bkstale");
 		ui_child_create(cg::ui_newgame, "DRAW:\nthe black king is stale");
-		return cg::end;
 	}
 	else if (status == cg::wkstale) {
 		cout("wkstale");
 		ui_child_create(cg::ui_newgame, "DRAW:\nthe white king is stale");
-		return cg::end;
 	}
 	else if (status == cg::bkmate) {
 		cout("bkmate");
 		ui_child_create(cg::ui_newgame, "WHITE WINS:\nthe black king is mate");
-		return cg::end;
 	}
 	else if (status == cg::wkmate) {
 		cout("wkmate");
 		ui_child_create(cg::ui_newgame, "BLACK WINS:\nthe white king is mate");
-		return cg::end;
 	}
 	else {
 		cout("interror processOutput");
-		return cg::end;
 	}
 }
 
@@ -239,7 +227,6 @@ void sfmlRenderer::gameLogic() {
 				else {
 					const cg::full_game_status returnval = game->clickfield(clickedPOS, game->current_player);
 					cout("executing clickfield and processOutput");
-					//TODO: maybe do something with the output here?
 					processOutput(returnval);
 				}
 				redraw = TRUE;

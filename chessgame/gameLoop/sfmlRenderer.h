@@ -53,7 +53,7 @@ private:
 	void ui_child_addnewgame(cg::gui_window child_window, std::string message) const;
 
 	bool processUIInput(unsigned int ui_element) const;
-	cg::game_status processOutput(cg::full_game_status status) const;
+	void processOutput(cg::full_game_status status) const;
 
 	chessfield* game;
 	tgui::Gui* gui;

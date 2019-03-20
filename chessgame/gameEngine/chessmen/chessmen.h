@@ -3,21 +3,14 @@
 #include "gameEngine/cg_defs.h"
 
 class chessmen {
-public:
-	//PUBLIC DEFINITIONS
-	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
-	static const int fieldsize_x_end = 7;
-	static const int fieldsize_x_start = 0;
-	static const int fieldsize_y_end = 7;
-	static const int fieldsize_y_start = 0;
-
 protected:
 	cg::position board_position = { 0, 0 };
 	cg::color player_color;
 	bool hasMoved = FALSE;
 
 public:
-	//truly public methods
+	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
+
 	virtual chessmen* clone() const = 0;
 	virtual cg::chessfigure figure() = 0;
 	virtual ~chessmen() = default;

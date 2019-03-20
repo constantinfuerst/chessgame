@@ -1,15 +1,19 @@
 #include "pch.h"
 #include "chessfield.h"
 
+//used to combine any "special moves" (displays casteling if possible)
 std::vector<cg::position> chessfield::truePossibleMoves(chessmen* chessmen, chessboard* chessboard, bool dontCheckMate) {
+	//create the returnvector and fill with all possible moves for the chessmen
 	std::vector<cg::position> returnpos = chessmen->possibleMoves(chessboard);
 	bool clear = FALSE;
 	if (dontCheckMate != TRUE) {
+		//if no selected chessmen, select the entered one
 		if (selected_chessmen == nullptr) {
 			clear = TRUE;
 			selected_chessmen = chessmen;
 		}
 
+		//erase the impossible moves from the vector
 		size_t size = returnpos.size();
 		size_t count = 0;
 		while (count < size) {
@@ -22,177 +26,105 @@ std::vector<cg::position> chessfield::truePossibleMoves(chessmen* chessmen, ches
 			}
 		}
 
+		//if we previously added a new chessmen to selected unselect
 		if (clear == TRUE) {
 			selected_chessmen = nullptr;
 		}
 
-		//TODO: Implement a more sophisticated way of checking for a valid casteling move
-		#pragma warning(disable:4101)
-		if (chessmen->figure() == cg::king) {
-			auto player = chessmen->getPlayer();
-			for (size_t i = 0; i < casteling(player).size(); i++) {
-				int required_empty = 0;
-				int empty = 0;
-				cg::position position = casteling(player)[i].newkpos;
-				if (position.x > chessmen->getPos().x && chessmen->getPlayer() == cg::white) {
-					cg::position secondpos = { position.x - 1, position.y };
-					cg::position thrdpos = { position.x - 2, position.y };
-					required_empty = 3;
-					try {
-						findChessmen(position);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(secondpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(thrdpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-				}
-				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == cg::black) {
-					cg::position secondpos = { position.x + 1, position.y };
-					cg::position thrdpos = { position.x + 2, position.y };
-					required_empty = 3;
-					try {
-						findChessmen(position);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(secondpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(thrdpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-				}
-				else if (position.x > chessmen->getPos().x && chessmen->getPlayer() == cg::black) {
-					cg::position secondpos = { position.x - 1, position.y };
-					required_empty = 2;
-					try {
-						findChessmen(position);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(secondpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-				}
-				else if (position.x < chessmen->getPos().x && chessmen->getPlayer() == cg::white) {
-					cg::position secondpos = { position.x + 1, position.y };
-					required_empty = 2;
-					try {
-						findChessmen(position);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-					try {
-						findChessmen(secondpos);
-					}
-					catch (const std::exception& exception) {
-						empty++;
-					}
-				}
-				else {
-					required_empty = 0;
-					continue;
-				}
-				if (empty == required_empty) {
-					returnpos.push_back(position);
-				}
-				else {
-					continue;
-				}
-			}
-		}
+		//TODO: Implement a way of checking for a valid casteling move
 	}
 	return returnpos;
 }
 
+//the main function that handles click input by the user with the GUI being a proxy
 cg::full_game_status chessfield::clickfield(cg::position field, cg::color player) {
 	if (last_game_status >= 8) { //when the game is allready over return the last state
 		return last_game_status;
 	}
+	//if no chessmen is selected try to select one on the clicked position
 	else if (selected_chessmen == nullptr) {
+		//try to find a chessmen on the clicked position and if found select it
 		try {
 			chessmen* clicked_chessmen = findChessmen(field);
 			if (clicked_chessmen->getPlayer() != player) {
+				//an enemy was clicked
 				return cg::enemy;
 			}
 			else {
 				selected_chessmen = clicked_chessmen;
+				//a valid chessmen was selected
 				return cg::selected;
 			}
 		}
 		catch (const std::exception& exception) {
+			//an empty field was clicked
 			return cg::emptyfield;
 		}
 	}
+	//if a chessmen is allready selected
 	else {
+		//prepare the move to be put on traceback
 		move changes;
 		changes.current_player = current_player;
+		//make the move with the selected position and handle output with "result"
 		const auto result = moveCharacter(field, &changes, cg::oncetheoretical);
+		//if the move didnt successfully complete check what happened
 		if (result != cg::sucess) {
+			//if the move would result in check return "check"
 			if (result == cg::wouldbecheck) {
 				return cg::checked;
 			}
+			//if the move is impossible return "impmove"
 			else if (result == cg::impossible) {
 				return cg::impmove;
 			}
 		}
+		//if the move completed successfully
 		else {
+			//set the "hasmoved" state of the selected chessmen to TRUE
 			selected_chessmen->setHasMoved(TRUE);
 			//replacing pawn at the end of field with queen
 			if (selected_chessmen->figure() == cg::pawn) {
-				if (selected_chessmen->getPos().y == chessmen::fieldsize_y_start && selected_chessmen->getPlayer() == cg::black || selected_chessmen->getPos().y == chessmen::fieldsize_y_end && selected_chessmen->getPlayer() == cg::white) {
+				//if the pawn is at the end of the field respectively
+				if (selected_chessmen->getPos().y == cg::fieldsize_y_start && selected_chessmen->getPlayer() == cg::black || selected_chessmen->getPos().y == cg::fieldsize_y_end && selected_chessmen->getPlayer() == cg::white) {
+					//do all the replacing
 					cg::position pos = selected_chessmen->getPos();
 					const cg::color col = selected_chessmen->getPlayer();
 					movetoside(pos, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
 					createChessmen(getField(), cg::queen, pos, col, TRUE);
 				}
 			}
+			//unselect the chessmen now and clear the forwardmovetrace (as it is inaccessible now)
 			selected_chessmen = nullptr;
 			forwardmovetrace.clear();
 			backwardmovetrace.push_back(std::make_unique<move>(changes));
+			//check the state of the king now
 			if (king_situation(cg::black) == cg::stale) {
+				//if the black king is stale return so
 				last_game_status = cg::bkstale;
 				return cg::bkstale;
 			}
 			else if (king_situation(cg::white) == cg::stale) {
+				//if the white king is stale return so
 				last_game_status = cg::wkstale;
 				return cg::wkstale;
 			}
 			else if (king_situation(cg::white) == cg::checkmate) {
+				//if the white king is mate return so
 				last_game_status = cg::wkmate;
 				return cg::wkmate;
 			}
 			else if (king_situation(cg::black) == cg::checkmate) {
+				//if the black king is mate return so
 				last_game_status = cg::bkmate;
 				return cg::bkmate;
 			}
 			else {
+				//if no game-end is reached return next
 				return cg::next;
 			}
 		}
 	}
+	//if control flow end was reached without returning a valid state return an error
 	return cg::error;
 }

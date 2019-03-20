@@ -5,6 +5,12 @@
 #include "gameLoop/settings.h"
 
 namespace cg {
+	//"GLOBALS"
+	const int fieldsize_x_end = FIELDSIZE;
+	const int fieldsize_x_start = 0;
+	const int fieldsize_y_end = FIELDSIZE;
+	const int fieldsize_y_start = 0;
+
 	//TYPEDEFS
 	typedef std::vector<sf::Sprite*> spr_ptr_vec;
 

@@ -18,6 +18,8 @@
 
 #define WIN_DESKTOP_GUI
 
+#define FIELDSIZE 7
+
 #define GAME_DIR std::string("C:\\Users\\Constantin\\source\\repos\\chessgame\\build")
 #define ASSETS_DIR GAME_DIR + std::string("\\assets\\")
 #define SAVE_DIR GAME_DIR + std::string("\\saves\\")
