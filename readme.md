@@ -27,3 +27,12 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
+
+IMAGE SOURCES:
+
+I do not claim ownership of any of the assets in this library.
+If you have a legitimate claim and would like me to remove them from here please message "constantin@fuersten.info" and I will remove them as quickly as possible.
+The images were downloaded on the 21.3.2019 from the following Link:
+https://doc-0s-0g-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/ccq7oldr1i4pa8jinjrimban5ngn4boh/1553198400000/16989609535124341763/*/1naW_v6WAWYPgCIWNDskxtBsM84FoaOLh?e=download
+Which was discovered in the following youtube video:
+https://www.youtube.com/watch?v=_4EuZI8Q8cs

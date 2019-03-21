@@ -14,7 +14,6 @@
 *.ipdb
 *.opendb
 *.ilk
-*.txt
 *.nupkg
 *.targets
 *.p7s
