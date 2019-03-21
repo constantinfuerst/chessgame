@@ -26,3 +26,4 @@
 packages/*
 *.csg
 *.zip
+*.exe
