@@ -183,6 +183,10 @@ int sfmlRenderer::gameLoop() {
 
 		sf::Event event;
 
+		#ifndef WIN_DESKTOP_GUI
+		window->setTitle("mouse x: " + std::to_string(sf::Mouse::getPosition(*window).x) + " y: " + std::to_string(sf::Mouse::getPosition(*window).y));
+		#endif
+
 		//handle the events of the window
 		while (window->pollEvent(event)) {
 			gui->handleEvent(event);

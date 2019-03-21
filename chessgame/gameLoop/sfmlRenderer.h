@@ -12,6 +12,7 @@ class sfmlRenderAsstes final {
 private:
 	cg::spr_ptr_vec ui_elements;
 	cg::idim board_dims = { 0, 0 };
+	cg::idim true_board_dims = { 0,0 };
 	std::vector<cg::chessmen_sprite> sprites;
 
 public:
@@ -19,6 +20,7 @@ public:
 	void loadAssets();
 	sf::Sprite* chessboard = nullptr;
 	const cg::idim& getBoarddims() const;
+	const cg::idim& getTrueBoarddims() const;
 	cg::spr_ptr_vec& getUiElems();
 	sf::Sprite* getSprite(cg::color player, cg::chessfigure figure) const;
 };
@@ -28,7 +30,6 @@ private:
 	//scaling the fields
 	cg::idim field_dims;
 	cg::idim screen_dims;
-	cg::idim board_dims;
 	//UI elements
 	int ui_element_width;
 	//efficiency
