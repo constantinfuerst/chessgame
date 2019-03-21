@@ -54,6 +54,7 @@ public:
 	cg::full_game_status clickfield(cg::position field, cg::color player);
 	void initGame();
 	void quit();
+	void clean();
 	void stepback();
 	void stepforward();
 	bool initSaveGame(const std::string& filename);

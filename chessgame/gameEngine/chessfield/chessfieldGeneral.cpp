@@ -100,6 +100,12 @@ void chessfield::quit() {
 	chessmen_onfield.clear();
 	chessmen_onside.clear();
 	backwardmovetrace.clear();
+}
+
+void chessfield::clean() {
+	chessmen_onfield.clear();
+	chessmen_onside.clear();
+	backwardmovetrace.clear();
 	chessmen_onfield.reserve(32);
 	backwardmovetrace.reserve(32);
 	forwardmovetrace.reserve(16);
@@ -152,7 +158,7 @@ chessfield::chessboard chessfield::copyChessboard(chessboard* chessboard_pntr) {
 //loads a ".csg" file (any json file is accepted)
 bool chessfield::initSaveGame(const std::string& filename) {
 	//clean the gamestate
-	quit();
+	clean();
 	//load the json data from file
 	nlohmann::json json;
 	boost::filesystem::fstream json_input;
@@ -327,7 +333,7 @@ bool chessfield::createSaveGame(const std::string& filename, const std::string& 
 //initialize a standard chessgame
 void chessfield::initGame() {
 	//clean the gamestate
-	quit();
+	clean();
 
 	//ACTUAL CHESSBOARD
 	//placing white chessmen

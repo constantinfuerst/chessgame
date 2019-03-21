@@ -9,19 +9,23 @@
 	#define cout(str) std::cout << str << std::endl;
 #endif
 
+//returns singleton instance
 sfmlRenderAsstes* sfmlRenderAsstes::get(){
 	static sfmlRenderAsstes instance;
 	return &instance;
 }
 
+//returns dimensions of the loaded chessboard texture
 const cg::idim& sfmlRenderAsstes::getBoarddims() const {
 	return board_dims;
 }
 
+//returns pointer to the UI elements sprite
 cg::spr_ptr_vec& sfmlRenderAsstes::getUiElems() {
 	return ui_elements;
 }
 
+//returns a sprite with matching color and piece
 sf::Sprite* sfmlRenderAsstes::getSprite(cg::color player, cg::chessfigure figure) const {
 	for (size_t i = 0; i < sprites.size(); i++) {
 		if (sprites.at(i).figure == figure && sprites.at(i).player == player) {
@@ -32,6 +36,7 @@ sf::Sprite* sfmlRenderAsstes::getSprite(cg::color player, cg::chessfigure figure
 }
 
 void sfmlRenderer::render() {
+	//if the game hasnt been instanciated we cant render it
 	if (game == nullptr)
 		return;
 
@@ -39,6 +44,7 @@ void sfmlRenderer::render() {
 	// DRAW ROUTINE //
 	//////////////////
 
+	//grab the ui elements
 	auto ui_elements = sfmlRenderAsstes::get()->getUiElems();
 	board_dims = sfmlRenderAsstes::get()->getBoarddims();
 
@@ -79,7 +85,9 @@ void sfmlRenderer::render() {
 
 	window->draw(*sfmlRenderAsstes::get()->chessboard);
 
+	//if a chessmen is selected
 	if (game->selected_chessmen != nullptr) {
+		//draw the field of the selected chessmen in limegreen
 		sf::RectangleShape selected(sf::Vector2f(field_dims.width, field_dims.height));
 		selected.setFillColor(sf::Color(25, 225, 0, 225));
 		selected.setPosition(
@@ -87,6 +95,7 @@ void sfmlRenderer::render() {
 			static_cast<float>(game->selected_chessmen->getPos().y * field_dims.height + 28)
 		);
 		window->draw(selected);
+		//draw every possible move of the selected chessmen in a darker green
 		auto possibleMoves = game->truePossibleMoves(game->selected_chessmen, game->getField());
 		for (auto& possibleMove : possibleMoves) {
 			sf::RectangleShape pmindicator(sf::Vector2f(field_dims.width, field_dims.height));
@@ -99,9 +108,10 @@ void sfmlRenderer::render() {
 		}
 	}
 
+	//for every chessmen on the field
 	for (auto& i : *game->getField()) {
 		sf::Sprite* current_sprite = sfmlRenderAsstes::get()->getSprite(i->getPlayer(), i->figure());
-		
+		//if the sprite we got exists draw it at the position of the chessmen we are drawing
 		if (current_sprite != nullptr) {
 			current_sprite->setPosition(
 				static_cast<float>(i->getPos().x * field_dims.width + 28),
