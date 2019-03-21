@@ -11,6 +11,7 @@ cg::chessfigure knight::figure() {
 	return cg::knight;
 }
 
+//returns the legal moves of a knight on a specific board
 std::vector<cg::position> knight::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
 	if (board_position.x + 2 <= cg::fieldsize_x_end) {

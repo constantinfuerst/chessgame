@@ -11,10 +11,12 @@ cg::chessfigure rook::figure() {
 	return cg::rook;
 }
 
+//returns the legal moves of a rook on a specific board
 std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
 	{
 		{
+			//walk to the right
 			unsigned int x = board_position.x + 1;
 			while (x <= cg::fieldsize_x_end) {
 				const cg::position pos = { x, board_position.y };
@@ -32,6 +34,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the left
 			unsigned int x = board_position.x - 1;
 			while (x >= cg::fieldsize_x_start) {
 				const cg::position pos = { x, board_position.y };
@@ -49,6 +52,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the bottom
 			unsigned int y = board_position.y + 1;
 			while (y <= cg::fieldsize_y_end) {
 				const cg::position pos = { board_position.x, y };
@@ -66,6 +70,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the top
 			unsigned int y = board_position.y - 1;
 			while (y >= cg::fieldsize_y_start) {
 				const cg::position pos = { board_position.x, y };

@@ -53,10 +53,10 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 		try {
 			if (findChessmen(selectedMove)->getPlayer() != selected_chessmen->getPlayer()) {
 				if (theoretical != cg::nontheoretical) {
-					movetoside(selectedMove, theoretical_field, theoretical_side, nullptr, TRUE);
+					movetoside(selectedMove, theoretical_field, theoretical_side, nullptr);
 				}
 				else {
-					movetoside(selectedMove, theoretical_field, theoretical_side, movecounter, TRUE);
+					movetoside(selectedMove, theoretical_field, theoretical_side, movecounter);
 				}
 			}
 		}
@@ -65,11 +65,11 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 		auto col = selected_chessmen->getPlayer();
 		//if we are theoretical execute the move theoretically
 		if (theoretical != cg::nontheoretical) {
-			movetoempty(pos, selectedMove, theoretical_field, nullptr, TRUE);
+			movetoempty(pos, selectedMove, theoretical_field, nullptr);
 		}
 		//if not the execute it actually
 		else {
-			movetoempty(pos, selectedMove, theoretical_field, movecounter, TRUE);
+			movetoempty(pos, selectedMove, theoretical_field, movecounter);
 		}
 		//now check whether we would be check with that move
 		if (check_check(col, theoretical_field) == cg::check) {

@@ -11,6 +11,7 @@ cg::chessfigure king::figure() {
 	return cg::king;
 }
 
+//returns the legal moves of a king on a specific board
 std::vector<cg::position> king::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
 	{

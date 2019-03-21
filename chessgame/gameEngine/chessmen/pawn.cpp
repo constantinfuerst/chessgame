@@ -11,6 +11,7 @@ cg::chessfigure pawn::figure() {
 	return cg::pawn;
 }
 
+//returns the legal moves of a pawn on a specific board
 std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
 	cg::position hitleft = { 0,0 };
@@ -18,6 +19,7 @@ std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 	cg::position onestep = { 0,0 };
 	cg::position twostep = { 0,0 };
 
+	//set the moves of a pawn depending on which color it is
 	if (player_color == cg::black) {
 		hitleft.x = board_position.x - 1;
 		hitleft.y = board_position.y - 1;
@@ -40,17 +42,21 @@ std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 	}
 
 	if (board_position.y <= cg::fieldsize_y_end && board_position.y >= cg::fieldsize_y_start) {
+		//if the pawn hasnt moved yet and the fields are emopty it can move to fields forward
 		if (hasMoved == FALSE) {
 			if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && positiocheck(chessmen, twostep, player_color) == cg::empty_pos && validpos(twostep)) {
 				returnpos.push_back(twostep);
 			}
 		}
+		//the pawn can move one field forward if that is empty
 		if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && validpos(onestep)) {
 			returnpos.push_back(onestep);
 		}
+		//if the pawn has an enemy to its left (diagonally) it can hit there
 		if (positiocheck(chessmen, hitleft, player_color) == cg::enemy_pos && validpos(hitleft)) {
 			returnpos.push_back(hitleft);
 		}
+		//if the pawn has an enemy to its right (diagonally) it can hit there
 		if (positiocheck(chessmen, hitright, player_color) == cg::enemy_pos && validpos(hitright)) {
 			returnpos.push_back(hitright);
 		}

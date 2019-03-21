@@ -51,7 +51,7 @@ cg::king_status chessfield::king_situation(cg::color player) {
 				cg::position selectedMove = truePossibleMoves(current_chessmen, &chessmen_onfield)[j];
 				try {
 					if (findChessmen(selectedMove)->getPlayer() != player) {
-						movetoside(selectedMove, &theoretical_field, &theoretical_side, nullptr, FALSE);
+						movetoside(selectedMove, &theoretical_field, &theoretical_side, nullptr);
 					}
 					else {
 						continue;
@@ -59,7 +59,7 @@ cg::king_status chessfield::king_situation(cg::color player) {
 				}
 				catch (const std::exception& exception) {}
 				auto pos = current_chessmen->getPos();
-				movetoempty(pos, selectedMove, &theoretical_field, nullptr, FALSE);
+				movetoempty(pos, selectedMove, &theoretical_field, nullptr);
 				//if the king is not in check with this theoretical board position, it is not checkmate
 				if (check_check(player, &theoretical_field) == cg::not_check) {
 					//return check if the king is check in the actual board position, duh

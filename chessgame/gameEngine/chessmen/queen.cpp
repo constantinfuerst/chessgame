@@ -11,10 +11,12 @@ cg::chessfigure queen::figure() {
 	return cg::queen;
 }
 
+//returns the legal moves of a queen on a specific board
 std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
 	{
 		{
+			//walk to the bottom right corner
 			unsigned int x = board_position.x + 1; unsigned int y = board_position.y + 1;
 			while (x <= cg::fieldsize_x_end && y <= cg::fieldsize_y_end) {
 				const cg::position pos = { x, y };
@@ -32,6 +34,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the bottom left corner
 			unsigned int x = board_position.x - 1; unsigned int y = board_position.y + 1;
 			while (x >= cg::fieldsize_x_start && y <= cg::fieldsize_y_end) {
 				const cg::position pos = { x, y };
@@ -49,6 +52,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the top right corner
 			unsigned int x = board_position.x + 1; unsigned int y = board_position.y - 1;
 			while (x <= cg::fieldsize_x_end && y >= cg::fieldsize_y_start) {
 				const cg::position pos = { x, y };
@@ -66,6 +70,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the top left corner
 			unsigned int x = board_position.x - 1; unsigned int y = board_position.y - 1;
 			while (x >= cg::fieldsize_x_start && y >= cg::fieldsize_y_start) {
 				const cg::position pos = { x, y };
@@ -83,6 +88,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the right
 			unsigned int x = board_position.x + 1;
 			while (x <= cg::fieldsize_x_end) {
 				const cg::position pos = { x, board_position.y };
@@ -100,6 +106,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk to the left
 			unsigned int x = board_position.x - 1;
 			while (x >= cg::fieldsize_x_start) {
 				const cg::position pos = { x, board_position.y };
@@ -117,6 +124,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk down
 			unsigned int y = board_position.y + 1;
 			while (y <= cg::fieldsize_y_end) {
 				const cg::position pos = { board_position.x, y };
@@ -134,6 +142,7 @@ std::vector<cg::position> queen::possibleMoves(chessboard* chessmen) {
 			}
 		}
 		{
+			//walk up
 			unsigned int y = board_position.y - 1;
 			while (y >= cg::fieldsize_y_start) {
 				const cg::position pos = { board_position.x, y };
