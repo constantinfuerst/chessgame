@@ -92,16 +92,14 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 }
 
 //function expecting a empty new position and a old position with a chessmen that can move to the new position
-void chessfield::movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata, bool register_move) {
+void chessfield::movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata) {
 	if (old_position.x == new_position.x && old_position.y == new_position.y) {
 		return;
 	}
 	for (auto& i : *field) {
 		if (i->getPos().x == old_position.x && i->getPos().y == old_position.y) {
 			if (movedata != nullptr) {
-				if (register_move == TRUE) {
-					movedata->makemove(i.get(), old_position, new_position, i->getHasMoved(), cg::toempty);
-				}
+				movedata->makemove(i.get(), old_position, new_position, i->getHasMoved(), cg::toempty);
 			}
 			i->setPos(new_position);
 			return;
@@ -110,14 +108,12 @@ void chessfield::movetoempty(cg::position& old_position, cg::position& new_posit
 }
 
 //function expecting position with a chessmen on it, moves the chessmen to the side
-void chessfield::movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move) {
+void chessfield::movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
 		if (virtual_field->at(i)->getPos().x == position.x && virtual_field->at(i)->getPos().y == position.y) {
 			if (movedata != nullptr) {
 				const cg::position undef = { 9, 9 };
-				if (register_move == TRUE) {
-					movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->getHasMoved(), cg::toside);
-				}
+				movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->getHasMoved(), cg::toside);
 			}
 			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
 			virtual_field->erase(virtual_field->begin() + i);

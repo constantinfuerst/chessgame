@@ -26,12 +26,17 @@ std::vector<cg::position> chessfield::truePossibleMoves(chessmen* chessmen, ches
 			}
 		}
 
+		if (selected_chessmen->figure() == cg::king) {
+			auto casteling_pos = casteling(selected_chessmen->getPlayer());
+			for (size_t i = 0; i < casteling_pos.size(); i++) {
+				returnpos.push_back(casteling_pos[i].newkpos);
+			}
+		}
+
 		//if we previously added a new chessmen to selected unselect
 		if (clear == TRUE) {
 			selected_chessmen = nullptr;
 		}
-
-		//TODO: Implement a way of checking for a valid casteling move
 	}
 	return returnpos;
 }
@@ -90,7 +95,7 @@ cg::full_game_status chessfield::clickfield(cg::position field, cg::color player
 					//do all the replacing
 					cg::position pos = selected_chessmen->getPos();
 					const cg::color col = selected_chessmen->getPlayer();
-					movetoside(pos, &chessmen_onfield, &chessmen_onside, &changes, TRUE);
+					movetoside(pos, &chessmen_onfield, &chessmen_onside, &changes);
 					createChessmen(getField(), cg::queen, pos, col, TRUE);
 				}
 			}

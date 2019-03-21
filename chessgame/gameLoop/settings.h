@@ -16,7 +16,7 @@
 // WIN_CONSOLE_GUI creates a console debug window and GUI game window
 // WIN_CONSOLE_ASCII creates only a console window with ASCII implementation
 
-#define WIN_DESKTOP_GUI
+#define WIN_CONSOLE_GUI
 
 #define FIELDSIZE 7
 

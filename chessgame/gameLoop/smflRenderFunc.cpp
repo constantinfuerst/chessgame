@@ -64,7 +64,7 @@ void sfmlRenderer::render() {
 			screen_dims.height - ui_height
 		};
 		ui_elements[i]->setColor(sf::Color::White);
-		ui_elements[i]->setScale({ scale.width, scale.width });
+		//ui_elements[i]->setScale({ scale.width, scale.width });
 		ui_elements[i]->setPosition({
 			static_cast<float>(pos.x),
 			static_cast<float>(pos.y)
@@ -198,15 +198,15 @@ void sfmlRenderAsstes::loadAssets() {
 	board_dims.height = chessboard_size.y - (28 * 2);
 
 	//loading UI texture
-	ui_back_txt.loadFromFile(ASSETS_DIR + "images\\back.png");
+	ui_back_txt.loadFromFile(ASSETS_DIR + "images\\back_48px.png");
 	ui_back_spr.setTexture(ui_back_txt);
-	ui_forward_txt.loadFromFile(ASSETS_DIR + "images\\forward.png");
+	ui_forward_txt.loadFromFile(ASSETS_DIR + "images\\forward_48px.png");
 	ui_forward_spr.setTexture(ui_forward_txt);
-	ui_save_txt.loadFromFile(ASSETS_DIR + "images\\save.png");
+	ui_save_txt.loadFromFile(ASSETS_DIR + "images\\save_48px.png");
 	ui_save_spr.setTexture(ui_save_txt);
-	ui_load_txt.loadFromFile(ASSETS_DIR + "images\\load.png");
+	ui_load_txt.loadFromFile(ASSETS_DIR + "images\\load_48px.png");
 	ui_load_spr.setTexture(ui_load_txt);
-	ui_retry_txt.loadFromFile(ASSETS_DIR + "images\\retry.png");
+	ui_retry_txt.loadFromFile(ASSETS_DIR + "images\\retry_48px.png");
 	ui_retry_spr.setTexture(ui_retry_txt);
 
 	ui_elements.reserve(6);

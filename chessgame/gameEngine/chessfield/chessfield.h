@@ -35,8 +35,8 @@ private:
 	moveregister forwardmovetrace;
 
 	static chessboard copyChessboard(chessboard* chessboard_pntr);
-	static void movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata, bool register_move);
-	static void movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata, bool register_move);
+	static void movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata);
+	static void movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata);
 	static chessmen* findChessmen(cg::position position, chessboard* chessboard);
 	void createChessmen(chessboard* chessboard, cg::chessfigure figure, cg::position pos, cg::color color, bool has_moved, move* movedata = nullptr);
 	cg::king_status check_check(cg::color& player, chessboard* chessmen);
@@ -44,7 +44,8 @@ private:
 	cg::move_sucess moveCharacter(cg::position& selectedMove, move* movecounter, cg::theoretical theoretical = cg::oncetheoretical);
 	cg::move_sucess moveCasteling(cg::position& selectedMove, move* movecounter, cg::theoretical theoretical = cg::oncetheoretical);
 	chessmen* findChessmen(cg::position& position);
-	castelingvec casteling(cg::color& player);
+	castelingvec casteling(cg::color player);
+	std::vector<chessmen*> findmultipleChessmen(cg::chessfigure, cg::color);
 	
 public:
 	chessfield();

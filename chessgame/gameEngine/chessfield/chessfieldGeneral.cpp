@@ -71,19 +71,19 @@ void chessfield::stepforward() {
 			move::chessmenMoved* move = &movetraceforward.changes.front();
 			//if a pawnreplacement happened replace the pawn again
 			if (move->move == cg::newcm) {
-				movetoside(move->newPosition, &chessmen_onfield, &chessmen_onside, nullptr, FALSE);
+				movetoside(move->newPosition, &chessmen_onfield, &chessmen_onside, nullptr);
 				createChessmen(getField(), move->figure, move->newPosition, move->player, FALSE);
 				movetraceforward.changes.erase(movetraceforward.changes.begin());
 				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			//if it was a move to an empty field just repeat that move
 			else if (move->move == cg::toempty) {
-				movetoempty(move->oldPosition, move->newPosition, &chessmen_onfield, nullptr, FALSE);
+				movetoempty(move->oldPosition, move->newPosition, &chessmen_onfield, nullptr);
 				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			//if it was a move to the side just repeat that
 			else if (move->move == cg::toside) {
-				movetoside(move->oldPosition, &chessmen_onfield, &chessmen_onside, nullptr, FALSE);
+				movetoside(move->oldPosition, &chessmen_onfield, &chessmen_onside, nullptr);
 				movetraceforward.changes.erase(movetraceforward.changes.begin());
 			}
 			//if the move is unrecognized skip
@@ -127,6 +127,17 @@ chessmen* chessfield::findChessmen(cg::position position, chessboard* chessboard
 	}
 	//throw error if not found
 	throw notfound();
+}
+
+//returns all chessmen of a type and color
+std::vector<chessmen*> chessfield::findmultipleChessmen(cg::chessfigure figure, cg::color player) {
+	std::vector<chessmen*> returnvec;
+	for (auto& i : chessmen_onfield) {
+		if (i->figure() == figure && i->getPlayer() == player) {
+			returnvec.push_back(i.get());
+		}
+	}
+	return returnvec;
 }
 
 //create a copy of a chessboard
