@@ -40,7 +40,7 @@ SUCH DAMAGE.
 // WIN_CONSOLE_GUI creates a console debug window and GUI game window
 // WIN_CONSOLE_ASCII creates only a console window with ASCII implementation
 
-#define WIN_CONSOLE_GUI
+#define WIN_DESKTOP_GUI
 
 //sets the dimensions of the chessboard used, why would you want to change this? No idea ...
 #define FIELDSIZE 7
