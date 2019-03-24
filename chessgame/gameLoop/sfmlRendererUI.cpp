@@ -210,7 +210,7 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 		{
 			//read the name of the savegame from the json data
 			nlohmann::json json;
-			boost::filesystem::fstream json_input;
+			std::ifstream json_input;
 			json_input.open(files[i]);
 			if (!json_input.is_open())
 				break;

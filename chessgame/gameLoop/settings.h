@@ -40,12 +40,14 @@ SUCH DAMAGE.
 // WIN_CONSOLE_GUI creates a console debug window and GUI game window
 // WIN_CONSOLE_ASCII creates only a console window with ASCII implementation
 
-#define WIN_DESKTOP_GUI
+#define WIN_CONSOLE_GUI
 
 //sets the dimensions of the chessboard used, why would you want to change this? No idea ...
 #define FIELDSIZE 7
 
 //define the directories of the game files
-#define GAME_DIR std::string(".")
+//#define GAME_DIR std::string(".")
+#define GAME_DIR std::string("C:\\Users\\Constantin\\source\\repos\\chessgame\\build")
+
 #define ASSETS_DIR GAME_DIR + std::string("\\assets\\")
 #define SAVE_DIR GAME_DIR + std::string("\\saves\\")

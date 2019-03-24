@@ -27,3 +27,7 @@ packages/*
 *.csg
 *.zip
 build/*
+chessgame/chessgame.rc
+chessgame/chessgame.aps
+chessgame/icon.png
+chessgame/resource.h

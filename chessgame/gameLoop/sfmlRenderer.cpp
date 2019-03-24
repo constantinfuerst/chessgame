@@ -187,6 +187,29 @@ bool sfmlRenderer::processUIInput(unsigned int ui_element) const {
 	}
 }
 
+//get the clicked chessfield
+cg::position sfmlRenderer::getclickedfield() const {
+	const sf::Vector2i mousePosition = sf::Mouse::getPosition(*window);
+	cg::position clicked{
+		(mousePosition.x - 28) / field_dims.width,
+		(mousePosition.y - 28) / field_dims.height
+	};
+	if (!chessmen::validpos(clicked))
+		clicked = { cg::fieldsize_x_end + 1, cg::fieldsize_y_end + 1 };
+	return clicked;
+}
+
+//get the clicked ui element
+int sfmlRenderer::getclickedui() const {
+	const sf::Vector2i mousePosition = sf::Mouse::getPosition(*window);
+	//check if the UI was actually clicked
+	if (static_cast<unsigned>(mousePosition.y) < screen_dims.height && mousePosition.y > sfmlRenderAsstes::get()->getBoarddims().height) {
+		//calculate the clicked UI element
+		return ((mousePosition.x + 32) / ui_element_width) - 1;
+	}
+	return -1;
+}
+
 //the renderer loop and entry point of the smfl implementation
 int sfmlRenderer::gameLoop() {
 	//start up the game
@@ -259,12 +282,10 @@ void sfmlRenderer::gameLogic() {
 	}
 	//if we are displaying static UI just display that UI, no need to update the screen
 	if (displayingUI == cg::display_noupdate) {
-		window->setFramerateLimit(15); //update every 32ms to make the fading button effect smooth
 		gui->draw();
 	}
 	//if we are displaying dynamic UI display the UI and render the game (without allowing interaction with the game though
 	else if (displayingUI == cg::display_update) {
-		window->setFramerateLimit(60); //update every 16ms to make the text input smooth
 		window->clear();
 		render();
 		gui->draw();
@@ -272,7 +293,6 @@ void sfmlRenderer::gameLogic() {
 	}
 	//if we are not displaying UI and the game isnt paused enter the "interaction"-phase
 	else if (paused == FALSE) {
-		window->setFramerateLimit(10); //only update every 100ms
 		//get mouse input
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 			lmb_press = TRUE;
@@ -280,11 +300,7 @@ void sfmlRenderer::gameLogic() {
 		//if the mouse button is pressed
 		else if (lmb_press == TRUE) {
 			//get the mouse position and translate that to clicked field
-			const sf::Vector2i mousePosition = sf::Mouse::getPosition(*window);
-			const cg::position clicked = {
-				(mousePosition.x - 28) / field_dims.width,
-				(mousePosition.y - 28) / field_dims.height
-			};
+			const auto clicked = getclickedfield();
 			//if the translated position is a position on the board
 			if (chessmen::validpos(clicked)) {
 				cout("clicked field x:" << clicked.x << " y: " << clicked.y);
@@ -305,13 +321,12 @@ void sfmlRenderer::gameLogic() {
 			//if no boardposition was clicked it must be a UI interaction
 			else {
 				//check if the UI was actually clicked
-				if (static_cast<unsigned>(mousePosition.y) < screen_dims.height && mousePosition.y > sfmlRenderAsstes::get()->getBoarddims().height) {
+				if (getclickedui() != -1) {
 					//calculate the clicked UI element
-					const unsigned int clickedUI = mousePosition.x / ui_element_width;
 					//process the UI input and if that was successfull redraw to display the UI
-					if (processUIInput(clickedUI) == TRUE)
+					if (processUIInput(getclickedui()) == TRUE)
 						redraw = TRUE;
-					cout("UI element " << clickedUI << " clicked");
+					cout("UI element " << getclickedui() << " clicked");
 				}
 			}
 			//now set the pressed state to false to only process one click

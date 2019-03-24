@@ -134,6 +134,7 @@ void chessfield::clean() {
 	backwardmovetrace.reserve(32);
 	forwardmovetrace.reserve(16);
 	last_game_status = cg::next;
+	current_player = cg::white;
 	selected_chessmen = nullptr;
 }
 
@@ -185,7 +186,7 @@ bool chessfield::initSaveGame(const std::string& filename) {
 	clean();
 	//load the json data from file
 	nlohmann::json json;
-	boost::filesystem::fstream json_input;
+	std::ifstream json_input;
 	json_input.open(filename);
 	if (json_input.is_open()) {
 		json_input >> json;
@@ -277,7 +278,7 @@ bool chessfield::initSaveGame(const std::string& filename) {
 bool chessfield::createSaveGame(const std::string& filename, const std::string& gamename) {
 	//open the json and filestream
 	nlohmann::json json;
-	boost::filesystem::ofstream json_output;
+	std::ofstream json_output;
 	json_output.open(filename);
 	if (json_output.is_open()) {
 		//save general data

@@ -35,6 +35,7 @@ bool chessmen::validpos(cg::position position) {
 	}
 }
 
+
 //checks a position for its state (empty, enemy or friendly)
 cg::position_status chessmen::positiocheck(chessboard* chessmen, cg::position pos, cg::color player) {
 	//for every chessmen on the field

@@ -77,6 +77,8 @@ private:
 	void ui_child_addcreatesavegame(cg::gui_window child_window) const;
 	void ui_child_addnewgame(cg::gui_window child_window, std::string message) const;
 
+	cg::position getclickedfield() const;
+	int getclickedui() const;
 	bool processUIInput(unsigned int ui_element) const;
 	void processOutput(cg::full_game_status status) const;
 

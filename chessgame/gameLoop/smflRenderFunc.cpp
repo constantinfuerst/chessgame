@@ -136,6 +136,10 @@ void sfmlRenderer::render() {
 		}
 	}
 
+	for (size_t i = 0; i < game->getField()->size(); i++) {
+		
+	}
+
 	//for every chessmen on the field
 	for (auto& i : *game->getField()) {
 		sf::Sprite* current_sprite = sfmlRenderAsstes::get()->getSprite(i->getPlayer(), i->figure());
