@@ -25,7 +25,7 @@ SUCH DAMAGE.
 #include "pch.h"
 #include "chessfield.h"
 
-//check fot the king being check in a specific chessboard from a specific player
+//check for the king being check in a specific chessboard from a specific player
 cg::king_status chessfield::check_check(cg::color& player, chessboard* chessmen) {
 	//get the current position of the king
 	cg::position* kingpos = nullptr;
@@ -42,7 +42,7 @@ cg::king_status chessfield::check_check(cg::color& player, chessboard* chessmen)
 		//for every chessmen on the field
 		for (size_t i = 0; i < chessmen->size(); i++) {
 			if (chessmen->at(i)->getPlayer() != player) {
-				std::vector <cg::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
+				std::vector<cg::position> possible_moves = truePossibleMoves(chessmen->at(i).get(), chessmen, TRUE);
 				//for every possible move of that chessmen
 				for (auto& possible_move : possible_moves) {
 					//if the chessmen could move to the kings position return check
@@ -59,7 +59,7 @@ cg::king_status chessfield::check_check(cg::color& player, chessboard* chessmen)
 	return cg::not_check;
 }
 
-//get the current status of the king depending on whih player was entered
+//get the current status of the king depending on which player was entered
 cg::king_status chessfield::king_situation(cg::color player) {
 	//for every chessmen on the board
 	for (auto& i : chessmen_onfield) {
@@ -81,7 +81,8 @@ cg::king_status chessfield::king_situation(cg::color player) {
 						continue;
 					}
 				}
-				catch (const std::exception& exception) {}
+				catch (const std::exception& exception) {
+				}
 				auto pos = current_chessmen->getPos();
 				movetoempty(pos, selectedMove, &theoretical_field, nullptr);
 				//if the king is not in check with this theoretical board position, it is not checkmate
@@ -91,9 +92,7 @@ cg::king_status chessfield::king_situation(cg::color player) {
 						return cg::check;
 					}
 					//if not return none
-					else {
-						return cg::not_check;
-					}
+					return cg::not_check;
 				}
 			}
 		}
@@ -104,7 +103,5 @@ cg::king_status chessfield::king_situation(cg::color player) {
 		return cg::stale;
 	}
 	//else its a checkmate
-	else {
-		return cg::checkmate;
-	}
+	return cg::checkmate;
 }

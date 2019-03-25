@@ -43,7 +43,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			//walk to the right
 			unsigned int x = board_position.x + 1;
 			while (x <= cg::fieldsize_x_end) {
-				const cg::position pos = { x, board_position.y };
+				const cg::position pos = {x, board_position.y};
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -61,7 +61,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			//walk to the left
 			unsigned int x = board_position.x - 1;
 			while (x >= cg::fieldsize_x_start) {
-				const cg::position pos = { x, board_position.y };
+				const cg::position pos = {x, board_position.y};
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -79,7 +79,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			//walk to the bottom
 			unsigned int y = board_position.y + 1;
 			while (y <= cg::fieldsize_y_end) {
-				const cg::position pos = { board_position.x, y };
+				const cg::position pos = {board_position.x, y};
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}
@@ -97,7 +97,7 @@ std::vector<cg::position> rook::possibleMoves(chessboard* chessmen) {
 			//walk to the top
 			unsigned int y = board_position.y - 1;
 			while (y >= cg::fieldsize_y_start) {
-				const cg::position pos = { board_position.x, y };
+				const cg::position pos = {board_position.x, y};
 				if (positiocheck(chessmen, pos, player_color) == cg::empty_pos && validpos(pos)) {
 					returnpos.push_back(pos);
 				}

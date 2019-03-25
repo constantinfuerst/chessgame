@@ -26,18 +26,18 @@ SUCH DAMAGE.
 #include "chessfield.h"
 
 //proxy between the actual move functions, can be used with a clone of onfield (-> theoretical) or to actually execute a move
-cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* movecounter, cg::theoretical theoretical) {
+cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* movecounter, const cg::theoretical theoretical) {
 	bool possible = FALSE;
 	//if it is not just theoretical
 	if (theoretical != cg::onlytheoretical) {
-		//check if casteling would work and if so return true
+		//check if castling would work and if so return true
 		if (moveCasteling(selectedMove, movecounter) == cg::sucess) {
 			return cg::sucess;
 		}
 	}
-	//we are executing only theoretically
+		//we are executing only theoretically
 	else {
-		//check if casteling would work theoretically and return
+		//check if castling would work theoretically and return
 		if (moveCasteling(selectedMove, nullptr, cg::onlytheoretical) == cg::sucess) {
 			return cg::sucess;
 		}
@@ -45,7 +45,8 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 	//for every move of the selected chessmen
 	for (size_t i = 0; i < selected_chessmen->possibleMoves(&chessmen_onfield).size(); i++) {
 		//if a move matching selectedMove then the entered move is possible
-		if (selected_chessmen->possibleMoves(&chessmen_onfield)[i].x == selectedMove.x && selected_chessmen->possibleMoves(&chessmen_onfield)[i].y == selectedMove.y) {
+		if (selected_chessmen->possibleMoves(&chessmen_onfield)[i].x == selectedMove.x && selected_chessmen->
+			possibleMoves(&chessmen_onfield)[i].y == selectedMove.y) {
 			possible = TRUE;
 			break;
 		}
@@ -67,7 +68,7 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 			theoretical_field = &fieldcopy;
 			theoretical_side = &sidecopy;
 		}
-		//if we are actually executing the move
+			//if we are actually executing the move
 		else {
 			//set the pointers to the actual fields
 			theoretical_field = &chessmen_onfield;
@@ -84,14 +85,15 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 				}
 			}
 		}
-		catch (const std::exception& exception) {}
+		catch (const std::exception& exception) {
+		}
 		auto pos = selected_chessmen->getPos();
 		auto col = selected_chessmen->getPlayer();
 		//if we are theoretical execute the move theoretically
 		if (theoretical != cg::nontheoretical) {
 			movetoempty(pos, selectedMove, theoretical_field, nullptr);
 		}
-		//if not the execute it actually
+			//if not the execute it actually
 		else {
 			movetoempty(pos, selectedMove, theoretical_field, movecounter);
 		}
@@ -101,22 +103,19 @@ cg::move_sucess chessfield::moveCharacter(cg::position& selectedMove, move* move
 			return cg::wouldbecheck;
 		}
 		//if we were just checking for the move being valid then execute the valid move now
-		else if (theoretical == cg::oncetheoretical) {
+		if (theoretical == cg::oncetheoretical) {
 			moveCharacter(selectedMove, movecounter, cg::nontheoretical);
 			return cg::sucess;
 		}
-		else {
-			return cg::sucess;
-		}
+		return cg::sucess;
 	}
 	//if we cant execute the move it is impossible, return
-	else {
-		return cg::impossible;
-	}
+	return cg::impossible;
 }
 
 //function expecting a empty new position and a old position with a chessmen that can move to the new position
-void chessfield::movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata) {
+void chessfield::movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field,
+                             move* movedata) {
 	if (old_position.x == new_position.x && old_position.y == new_position.y) {
 		return;
 	}
@@ -132,12 +131,14 @@ void chessfield::movetoempty(cg::position& old_position, cg::position& new_posit
 }
 
 //function expecting position with a chessmen on it, moves the chessmen to the side
-void chessfield::movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata) {
+void chessfield::movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side,
+                            move* movedata) {
 	for (size_t i = 0; i < virtual_field->size(); i++) {
 		if (virtual_field->at(i)->getPos().x == position.x && virtual_field->at(i)->getPos().y == position.y) {
 			if (movedata != nullptr) {
-				const cg::position undef = { 9, 9 };
-				movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->getHasMoved(), cg::toside);
+				const cg::position undef = {9, 9};
+				movedata->makemove(virtual_field->at(i).get(), position, undef, virtual_field->at(i)->getHasMoved(),
+				                   cg::toside);
 			}
 			virtual_side->push_back(std::unique_ptr<chessmen>(virtual_field->at(i)->clone()));
 			virtual_field->erase(virtual_field->begin() + i);
@@ -147,7 +148,7 @@ void chessfield::movetoside(cg::position& position, chessboard* virtual_field, c
 }
 
 //function creating a chessmen on a specified position
-void chessfield::createChessmen(chessboard* chessboard, cg::chessfigure figure, cg::position pos, cg::color color, bool has_moved, move* movedata) {
+void chessfield::createChessmen(chessboard* chessboard, const cg::chessfigure figure, cg::position pos, cg::color color, bool has_moved, move* movedata) {
 	if (figure == cg::pawn)
 		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<pawn>(color, pos, has_moved)));
 	else if (figure == cg::rook)
@@ -162,7 +163,7 @@ void chessfield::createChessmen(chessboard* chessboard, cg::chessfigure figure, 
 		chessboard->push_back(std::unique_ptr<chessmen>(std::make_unique<king>(color, pos, has_moved)));
 	else
 		return;
-	const cg::position undef = { 9, 9 };
+	const cg::position undef = {9, 9};
 	if (movedata != nullptr) {
 		movedata->makemove(undef, pos, color, figure, TRUE, cg::newcm);
 		forwardmovetrace.clear();

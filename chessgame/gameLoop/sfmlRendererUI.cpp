@@ -48,8 +48,8 @@ void sfmlRenderer::closeChild() const {
 }
 
 //create a child tgui window for a specific content type
-void sfmlRenderer::ui_child_create(cg::ui_type type, std::string message) const {
-	//if we are allready displaying UI prevent overlap by returning
+void sfmlRenderer::ui_child_create(const cg::ui_type type, std::string message) const {
+	//if we are already displaying UI prevent overlap by returning
 	if (displayingUI != cg::nodisplay) {
 		return;
 	}
@@ -77,10 +77,10 @@ void sfmlRenderer::ui_child_create(cg::ui_type type, std::string message) const 
 		return;
 	}
 
-	//now create the child window and fill the gui_window struct to pass on to the ui content functions
+	//now create the child window and fill the gui_window struct to pass on to the UI content functions
 	auto child = tgui::ChildWindow::create();
 	cg::gui_window ui_window = {
-		tgui::Theme{ ASSETS_DIR + "guirenderer\\TransparentGrey.txt" },
+		tgui::Theme{ASSETS_DIR + "guirenderer\\TransparentGrey.txt"},
 		child,
 		width,
 		height,
@@ -170,7 +170,7 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 
 	std::vector<std::string> files = getFiles();
 
-	//if the buttons arent yet constructed do so
+	//if the buttons aren't yet constructed do so
 	if (constructed == FALSE) {
 		//add button for going up through the files
 		upbutton->setRenderer(child_window.theme.getRenderer("Button"));
@@ -187,7 +187,8 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 		//add button for going down through the files
 		child_window.child_window->add(upbutton);
 		downbutton->setRenderer(child_window.theme.getRenderer("Button"));
-		downbutton->setPosition(child_window.width - (2 * child_window.padding), child_window.height - child_window.padding);
+		downbutton->setPosition(child_window.width - (2 * child_window.padding),
+		                        child_window.height - child_window.padding);
 		downbutton->setText("down");
 		downbutton->setSize(2 * child_window.padding, child_window.padding / 2);
 		downbutton->connect("pressed", [=]() {
@@ -208,7 +209,7 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 		unsigned int btny = ((i - index) * buttonheight) + 10;
 		std::string gamename;
 		{
-			//read the name of the savegame from the json data
+			//read the name of the save from the json data
 			nlohmann::json json;
 			std::ifstream json_input;
 			json_input.open(files[i]);
@@ -230,7 +231,7 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 			this->closeChild();
 		});
 		child_window.child_window->add(button);
-		//when we reached the 5th gamefile break
+		//when we reached the 5th file break
 		if (i - index == 4)
 			break;
 	}
@@ -253,8 +254,8 @@ void sfmlRenderer::ui_child_addcreatesavegame(cg::gui_window child_window) const
 	label->setTextSize(child_window.padding / 2);
 	child_window.child_window->add(label);
 	//create the filename input
-	filename->setSize({ child_window.width - (child_window.padding * 2), child_window.padding });
-	filename->setPosition({ child_window.padding, child_window.padding * 2 });
+	filename->setSize({child_window.width - (child_window.padding * 2), child_window.padding});
+	filename->setPosition({child_window.padding, child_window.padding * 2});
 	filename->setDefaultText("Filename");
 	child_window.child_window->add(filename);
 	//create the accept/save button
@@ -271,7 +272,7 @@ void sfmlRenderer::ui_child_addcreatesavegame(cg::gui_window child_window) const
 }
 
 //function used to populate a tgui child window
-//asks the user to confirm whether to restart the game with a changable message
+//asks the user to confirm whether to restart the game with a changeable message
 void sfmlRenderer::ui_child_addnewgame(cg::gui_window child_window, std::string message) const {
 	static auto label = tgui::Label::create();
 	static auto yesbutton = tgui::Button::create();
@@ -301,7 +302,7 @@ void sfmlRenderer::ui_child_addnewgame(cg::gui_window child_window, std::string 
 		this->closeChild();
 	});
 	child_window.child_window->add(yesbutton);
-	//create a no/dont reload button
+	//create a no/don't reload button
 	nobutton->setRenderer(child_window.theme.getRenderer("Button"));
 	nobutton->setPosition(buttonwidth, child_window.height - buttonheight);
 	nobutton->setText("no");

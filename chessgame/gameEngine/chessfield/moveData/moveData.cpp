@@ -26,7 +26,7 @@ SUCH DAMAGE.
 #include "moveData.h"
 
 //create a move and add it to the current changes counter
-void move::makemove(cg::position oldPosition, cg::position newPosition, cg::color player, cg::chessfigure figure, bool hasmovedold, cg::moveType move) {
+void move::makemove(const cg::position oldPosition, const cg::position newPosition, const cg::color player, const cg::chessfigure figure, const bool hasmovedold, const cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
 	change.move = move;
@@ -38,7 +38,7 @@ void move::makemove(cg::position oldPosition, cg::position newPosition, cg::colo
 }
 
 //create a move and add it to the current changes counter
-void move::makemove(chessmen* chessmen, cg::position oldPosition, cg::position newPosition, bool hasmovedold, cg::moveType move) {
+void move::makemove(chessmen* chessmen, const cg::position oldPosition, const cg::position newPosition, const bool hasmovedold, const cg::moveType move) {
 	chessmenMoved change;
 	change.hasmovedold = hasmovedold;
 	change.move = move;

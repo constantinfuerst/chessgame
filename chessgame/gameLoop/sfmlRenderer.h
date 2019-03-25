@@ -35,8 +35,8 @@ SUCH DAMAGE.
 class sfmlRenderAsstes final {
 private:
 	cg::spr_ptr_vec ui_elements;
-	cg::idim board_dims = { 0, 0 };
-	cg::idim true_board_dims = { 0,0 };
+	cg::idim board_dims = {0, 0};
+	cg::idim true_board_dims = {0, 0};
 	std::vector<cg::chessmen_sprite> sprites;
 
 public:
@@ -62,17 +62,17 @@ private:
 	mutable bool paused = FALSE;
 	//game status evaluator
 	mutable cg::game_status game_status;
-	//mousebutton
+	//mouse button
 	bool lmb_press = FALSE;
 
 	static std::vector<std::string> getFiles();
 
 	void createSavegame(tgui::EditBox::Ptr filename) const;
-	void loadSavegame(std::string filename) const;
+	void loadSavegame(const std::string& filename) const;
 
 	void closeChild() const;
 	void ui_child_create(cg::ui_type type, std::string message = "") const;
-	void ui_child_addmessage(cg::gui_window child_window, const std::string & message) const;
+	void ui_child_addmessage(cg::gui_window child_window, const std::string& message) const;
 	void ui_child_addloadsavegame(cg::gui_window child_window, int index) const;
 	void ui_child_addcreatesavegame(cg::gui_window child_window) const;
 	void ui_child_addnewgame(cg::gui_window child_window, std::string message) const;

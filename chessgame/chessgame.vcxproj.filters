@@ -36,4 +36,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="gameLogic">
+      <UniqueIdentifier>{5bd79800-1415-4e76-9ff4-24e7e0a26aca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{f6f73794-b8c3-44fc-9898-584d534af9e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

@@ -29,14 +29,14 @@ SUCH DAMAGE.
 #include "gameEngine/chessmen/chessmen.h"
 #include "moveData/moveData.h"
 
-struct notfound:std::exception {
+struct notfound final : std::exception {
 	notfound() = default;
 };
 
 class chessfield {
 public:
-	typedef std::vector <std::unique_ptr<chessmen>> chessboard;
-	typedef std::vector <std::unique_ptr<move>> moveregister;
+	typedef std::vector<std::unique_ptr<chessmen>> chessboard;
+	typedef std::vector<std::unique_ptr<move>> moveregister;
 
 	chessmen* selected_chessmen = nullptr;
 	cg::color current_player;
@@ -62,19 +62,22 @@ private:
 	static void movetoside(cg::position& position, chessboard* virtual_field, chessboard* virtual_side, move* movedata);
 	static void movetoempty(cg::position& old_position, cg::position& new_position, chessboard* field, move* movedata);
 	static chessmen* findChessmen(cg::position position, chessboard* chessboard);
-	void createChessmen(chessboard* chessboard, cg::chessfigure figure, cg::position pos, cg::color color, bool has_moved, move* movedata = nullptr);
+	void createChessmen(chessboard* chessboard, cg::chessfigure figure, cg::position pos, cg::color color,
+	                    bool has_moved, move* movedata = nullptr);
 	cg::king_status check_check(cg::color& player, chessboard* chessmen);
 	cg::king_status king_situation(cg::color player);
-	cg::move_sucess moveCharacter(cg::position& selectedMove, move* movecounter, cg::theoretical theoretical = cg::oncetheoretical);
-	cg::move_sucess moveCasteling(cg::position& selectedMove, move* movecounter, cg::theoretical theoretical = cg::oncetheoretical);
+	cg::move_sucess moveCharacter(cg::position& selectedMove, move* movecounter,
+	                              cg::theoretical theoretical = cg::oncetheoretical);
+	cg::move_sucess moveCasteling(cg::position& selectedMove, move* movecounter,
+	                              cg::theoretical theoretical = cg::oncetheoretical);
 	chessmen* findChessmen(cg::position& position);
 	castelingvec casteling(cg::color player);
 	std::vector<chessmen*> findmultipleChessmen(cg::chessfigure, cg::color);
-	
+
 public:
 	chessfield();
 	~chessfield();
-	//this is what the gameloop interacts with
+	//this is what the game loop interacts with
 	cg::full_game_status clickfield(cg::position field, cg::color player);
 	void initGame();
 	void quit();

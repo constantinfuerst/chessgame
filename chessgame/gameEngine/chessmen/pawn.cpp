@@ -38,10 +38,10 @@ cg::chessfigure pawn::figure() {
 //returns the legal moves of a pawn on a specific board
 std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 	std::vector<cg::position> returnpos;
-	cg::position hitleft = { 0,0 };
-	cg::position hitright = { 0,0 };
-	cg::position onestep = { 0,0 };
-	cg::position twostep = { 0,0 };
+	cg::position hitleft;
+	cg::position hitright;
+	cg::position onestep;
+	cg::position twostep;
 
 	//set the moves of a pawn depending on which color it is
 	if (player_color == cg::black) {
@@ -68,7 +68,8 @@ std::vector<cg::position> pawn::possibleMoves(chessboard* chessmen) {
 	if (board_position.y <= cg::fieldsize_y_end && board_position.y >= cg::fieldsize_y_start) {
 		//if the pawn hasnt moved yet and the fields are emopty it can move to fields forward
 		if (hasMoved == FALSE) {
-			if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && positiocheck(chessmen, twostep, player_color) == cg::empty_pos && validpos(twostep)) {
+			if (positiocheck(chessmen, onestep, player_color) == cg::empty_pos && positiocheck(
+				chessmen, twostep, player_color) == cg::empty_pos && validpos(twostep)) {
 				returnpos.push_back(twostep);
 			}
 		}
