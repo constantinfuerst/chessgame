@@ -209,14 +209,19 @@ void sfmlRenderer::ui_child_addloadsavegame(cg::gui_window child_window, int ind
 		unsigned int btny = ((i - index) * buttonheight) + 10;
 		std::string gamename;
 		{
-			//read the name of the save from the json data
 			nlohmann::json json;
 			std::ifstream json_input;
+			//read the name of the save from the json data
 			json_input.open(files[i]);
 			if (!json_input.is_open())
 				break;
-			json_input >> json;
-			gamename = json["name"].get<std::string>();
+			try {
+				json_input >> json;
+				gamename = json["name"].get<std::string>();
+			}
+			catch (const std::exception& exception) {
+				gamename = "undefined";
+			}
 			json_input.close();
 		}
 		button->setSize(buttonwidth, buttonheight);

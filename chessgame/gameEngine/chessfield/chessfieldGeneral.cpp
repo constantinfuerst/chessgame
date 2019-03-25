@@ -184,107 +184,112 @@ bool chessfield::initSaveGame(const std::string& filename) {
 	//clean the gamestate
 	clean();
 	//load the json data from file
-	nlohmann::json json;
-	std::ifstream json_input;
-	json_input.open(filename);
-	if (json_input.is_open()) {
-		json_input >> json;
-		//set the current player
-		current_player = json["player"].get<cg::color>();
-		//load the chessmen on the main field
-		for (int i = 0; i < json["board"]["cmof"]["count"].get<int>(); i++) {
-			createChessmen(
-				&chessmen_onfield,
-				json["board"]["cmof"]["cm" + std::to_string(i)]["type"].get<cg::chessfigure>(),
+	try {
+		nlohmann::json json;
+		std::ifstream json_input;
+		json_input.open(filename);
+		if (json_input.is_open()) {
+			json_input >> json;
+			//set the current player
+			current_player = json["player"].get<cg::color>();
+			//load the chessmen on the main field
+			for (int i = 0; i < json["board"]["cmof"]["count"].get<int>(); i++) {
+				createChessmen(
+					&chessmen_onfield,
+					json["board"]["cmof"]["cm" + std::to_string(i)]["type"].get<cg::chessfigure>(),
 					{
 						json["board"]["cmof"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
 						json["board"]["cmof"]["cm" + std::to_string(i)]["posy"].get<unsigned int>()
 					},
-				json["board"]["cmof"]["cm" + std::to_string(i)]["colo"].get<cg::color>(),
-				json["board"]["cmof"]["cm" + std::to_string(i)]["move"].get<bool>()
-			);
-		}
-		//load the chessmen on the side
-		for (int i = 0; i < json["board"]["cmos"]["count"].get<int>(); i++) {
-			createChessmen(
-				&chessmen_onside,
-				json["board"]["cmos"]["cm" + std::to_string(i)]["type"].get<cg::chessfigure>(),
+					json["board"]["cmof"]["cm" + std::to_string(i)]["colo"].get<cg::color>(),
+					json["board"]["cmof"]["cm" + std::to_string(i)]["move"].get<bool>()
+				);
+			}
+			//load the chessmen on the side
+			for (int i = 0; i < json["board"]["cmos"]["count"].get<int>(); i++) {
+				createChessmen(
+					&chessmen_onside,
+					json["board"]["cmos"]["cm" + std::to_string(i)]["type"].get<cg::chessfigure>(),
 					{
 						json["board"]["cmos"]["cm" + std::to_string(i)]["posx"].get<unsigned int>(),
 						json["board"]["cmos"]["cm" + std::to_string(i)]["posy"].get<unsigned int>()
 					},
-				json["board"]["cmos"]["cm" + std::to_string(i)]["colo"].get<cg::color>(),
-				json["board"]["cmos"]["cm" + std::to_string(i)]["move"].get<bool>()
-			);
-		}
-		//if a chessmen was selected when saving the game select it
-		if (json["board"]["cmsl"]["count"].get<int>() == 1) {
-			cg::position pos = {
-				json["board"]["cmsl"]["cm0"]["posx"].get<unsigned int>(),
-				json["board"]["cmsl"]["cm0"]["posy"].get<unsigned int>()
-			};
-			selected_chessmen = findChessmen(pos);
-		}
-		//initialize the undo-moves stored
-		for (int i = 0; i < json["movetracebackward"]["moves"].get<int>(); i++) {
-			move movedata;
-			movedata.current_player = json["movetracebackward"]["move" + std::to_string(i)]["player"].get<cg::color>();
-			for (int j = 0; j < json["movetracebackward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
-				move::chessmenMoved changes;
-				changes.figure = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"type"].get<cg::chessfigure>();
-				changes.move = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"mvetype"].get<cg::moveType>();
-				changes.player = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"colo"].get<cg::color>();
-				changes.newPosition = {
-					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get
-					<unsigned int>(),
-					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get
-					<unsigned int>()
-				};
-				changes.oldPosition = {
-					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get
-					<unsigned int>(),
-					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get
-					<unsigned int>()
-				};
-				movedata.pushmove(changes);
+					json["board"]["cmos"]["cm" + std::to_string(i)]["colo"].get<cg::color>(),
+					json["board"]["cmos"]["cm" + std::to_string(i)]["move"].get<bool>()
+				);
 			}
-			backwardmovetrace.push_back(std::make_unique<move>(movedata));
-		}
-		//initialize the undo-undo-moves stored
-		for (int i = 0; i < json["movetraceforward"]["moves"].get<int>(); i++) {
-			move movedata;
-			movedata.current_player = json["movetraceforward"]["move" + std::to_string(i)]["player"].get<cg::color>();
-			for (int j = 0; j < json["movetraceforward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
-				move::chessmenMoved changes;
-				changes.figure = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"type"].get<cg::chessfigure>();
-				changes.move = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"mvetype"].get<cg::moveType>();
-				changes.player = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
-					"colo"].get<cg::color>();
-				changes.newPosition = {
-					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get<
-						unsigned int>(),
-					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get<
-						unsigned int>()
+			//if a chessmen was selected when saving the game select it
+			if (json["board"]["cmsl"]["count"].get<int>() == 1) {
+				cg::position pos = {
+					json["board"]["cmsl"]["cm0"]["posx"].get<unsigned int>(),
+					json["board"]["cmsl"]["cm0"]["posy"].get<unsigned int>()
 				};
-				changes.oldPosition = {
-					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get<
-						unsigned int>(),
-					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get<
-						unsigned int>()
-				};
-				movedata.pushmove(changes);
+				selected_chessmen = findChessmen(pos);
 			}
-			forwardmovetrace.push_back(std::make_unique<move>(movedata));
+			//initialize the undo-moves stored
+			for (int i = 0; i < json["movetracebackward"]["moves"].get<int>(); i++) {
+				move movedata;
+				movedata.current_player = json["movetracebackward"]["move" + std::to_string(i)]["player"].get<cg::color>();
+				for (int j = 0; j < json["movetracebackward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
+					move::chessmenMoved changes;
+					changes.figure = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+						"type"].get<cg::chessfigure>();
+						changes.move = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+							"mvetype"].get<cg::moveType>();
+							changes.player = json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+								"colo"].get<cg::color>();
+								changes.newPosition = {
+									json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get
+									<unsigned int>(),
+									json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get
+									<unsigned int>()
+								};
+								changes.oldPosition = {
+									json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get
+									<unsigned int>(),
+									json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get
+									<unsigned int>()
+								};
+								movedata.pushmove(changes);
+				}
+				backwardmovetrace.push_back(std::make_unique<move>(movedata));
+			}
+			//initialize the undo-undo-moves stored
+			for (int i = 0; i < json["movetraceforward"]["moves"].get<int>(); i++) {
+				move movedata;
+				movedata.current_player = json["movetraceforward"]["move" + std::to_string(i)]["player"].get<cg::color>();
+				for (int j = 0; j < json["movetraceforward"]["move" + std::to_string(i)]["partmoves"].get<int>(); j++) {
+					move::chessmenMoved changes;
+					changes.figure = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+						"type"].get<cg::chessfigure>();
+						changes.move = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+							"mvetype"].get<cg::moveType>();
+							changes.player = json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)][
+								"colo"].get<cg::color>();
+								changes.newPosition = {
+									json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"].get<
+										unsigned int>(),
+									json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"].get<
+										unsigned int>()
+								};
+								changes.oldPosition = {
+									json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"].get<
+										unsigned int>(),
+									json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"].get<
+										unsigned int>()
+								};
+								movedata.pushmove(changes);
+				}
+				forwardmovetrace.push_back(std::make_unique<move>(movedata));
+			}
+			//close the json
+			json_input.close();
 		}
-		//close the json
-		json_input.close();
+		else {
+			return FALSE;
+		}
 	}
-	else {
+	catch (const std::exception& exception) {
 		return FALSE;
 	}
 	return TRUE;
@@ -292,94 +297,99 @@ bool chessfield::initSaveGame(const std::string& filename) {
 
 //writes the current state of the game to a ".csg" file (any extension is accepted)
 bool chessfield::createSaveGame(const std::string& filename, const std::string& gamename) {
-	//open the json and filestream
-	nlohmann::json json;
-	std::ofstream json_output;
-	json_output.open(filename);
-	if (json_output.is_open()) {
-		//save general data
-		json["name"] = gamename;
-		json["player"] = current_player;
-		json["board"]["cmof"]["count"] = chessmen_onfield.size();
-		//save chessmen on field
-		for (size_t i = 0; i < chessmen_onfield.size(); i++) {
-			json["board"]["cmof"]["cm" + std::to_string(i)]["type"] = chessmen_onfield[i]->figure();
-			json["board"]["cmof"]["cm" + std::to_string(i)]["posx"] = chessmen_onfield[i]->getPos().x;
-			json["board"]["cmof"]["cm" + std::to_string(i)]["posy"] = chessmen_onfield[i]->getPos().y;
-			json["board"]["cmof"]["cm" + std::to_string(i)]["colo"] = chessmen_onfield[i]->getPlayer();
-			json["board"]["cmof"]["cm" + std::to_string(i)]["move"] = chessmen_onfield[i]->getHasMoved();
-		}
-		//save chessmen on side
-		json["board"]["cmos"]["count"] = chessmen_onside.size();
-		for (size_t i = 0; i < chessmen_onside.size(); i++) {
-			json["board"]["cmos"]["cm" + std::to_string(i)]["type"] = chessmen_onside[i]->figure();
-			json["board"]["cmos"]["cm" + std::to_string(i)]["posx"] = chessmen_onside[i]->getPos().x;
-			json["board"]["cmos"]["cm" + std::to_string(i)]["posy"] = chessmen_onside[i]->getPos().y;
-			json["board"]["cmos"]["cm" + std::to_string(i)]["colo"] = chessmen_onside[i]->getPlayer();
-			json["board"]["cmos"]["cm" + std::to_string(i)]["move"] = chessmen_onside[i]->getHasMoved();
-		}
-		//save a selected chessmen if any
-		if (selected_chessmen != nullptr) {
-			json["board"]["cmsl"]["count"] = 1;
-			json["board"]["cmsl"]["cm0"]["type"] = selected_chessmen->figure();
-			json["board"]["cmsl"]["cm0"]["posx"] = selected_chessmen->getPos().x;
-			json["board"]["cmsl"]["cm0"]["posy"] = selected_chessmen->getPos().y;
-			json["board"]["cmsl"]["cm0"]["colo"] = selected_chessmen->getPlayer();
-			json["board"]["cmsl"]["cm0"]["move"] = selected_chessmen->getHasMoved();
-		}
+	try {
+		//open the json and filestream
+		nlohmann::json json;
+		std::ofstream json_output;
+		json_output.open(filename);
+		if (json_output.is_open()) {
+			//save general data
+			json["name"] = gamename;
+			json["player"] = current_player;
+			json["board"]["cmof"]["count"] = chessmen_onfield.size();
+			//save chessmen on field
+			for (size_t i = 0; i < chessmen_onfield.size(); i++) {
+				json["board"]["cmof"]["cm" + std::to_string(i)]["type"] = chessmen_onfield[i]->figure();
+				json["board"]["cmof"]["cm" + std::to_string(i)]["posx"] = chessmen_onfield[i]->getPos().x;
+				json["board"]["cmof"]["cm" + std::to_string(i)]["posy"] = chessmen_onfield[i]->getPos().y;
+				json["board"]["cmof"]["cm" + std::to_string(i)]["colo"] = chessmen_onfield[i]->getPlayer();
+				json["board"]["cmof"]["cm" + std::to_string(i)]["move"] = chessmen_onfield[i]->getHasMoved();
+			}
+			//save chessmen on side
+			json["board"]["cmos"]["count"] = chessmen_onside.size();
+			for (size_t i = 0; i < chessmen_onside.size(); i++) {
+				json["board"]["cmos"]["cm" + std::to_string(i)]["type"] = chessmen_onside[i]->figure();
+				json["board"]["cmos"]["cm" + std::to_string(i)]["posx"] = chessmen_onside[i]->getPos().x;
+				json["board"]["cmos"]["cm" + std::to_string(i)]["posy"] = chessmen_onside[i]->getPos().y;
+				json["board"]["cmos"]["cm" + std::to_string(i)]["colo"] = chessmen_onside[i]->getPlayer();
+				json["board"]["cmos"]["cm" + std::to_string(i)]["move"] = chessmen_onside[i]->getHasMoved();
+			}
+			//save a selected chessmen if any
+			if (selected_chessmen != nullptr) {
+				json["board"]["cmsl"]["count"] = 1;
+				json["board"]["cmsl"]["cm0"]["type"] = selected_chessmen->figure();
+				json["board"]["cmsl"]["cm0"]["posx"] = selected_chessmen->getPos().x;
+				json["board"]["cmsl"]["cm0"]["posy"] = selected_chessmen->getPos().y;
+				json["board"]["cmsl"]["cm0"]["colo"] = selected_chessmen->getPlayer();
+				json["board"]["cmsl"]["cm0"]["move"] = selected_chessmen->getHasMoved();
+			}
 			//if none is selected just set the count to 0
+			else {
+				json["board"]["cmsl"]["count"] = 0;
+			}
+			//save any backwards moves
+			json["movetracebackward"]["moves"] = backwardmovetrace.size();
+			for (size_t i = 0; i < backwardmovetrace.size(); i++) {
+				json["movetracebackward"]["move" + std::to_string(i)]["partmoves"] = backwardmovetrace[i]->changes.size();
+				json["movetracebackward"]["move" + std::to_string(i)]["player"] = backwardmovetrace[i]->current_player;
+				for (size_t j = 0; j < backwardmovetrace[i]->changes.size(); j++) {
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] =
+						backwardmovetrace[i]->changes[j].figure;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] =
+						backwardmovetrace[i]->changes[j].player;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] =
+						backwardmovetrace[i]->changes[j].move;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] =
+						backwardmovetrace[i]->changes[j].oldPosition.x;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] =
+						backwardmovetrace[i]->changes[j].oldPosition.y;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] =
+						backwardmovetrace[i]->changes[j].newPosition.x;
+					json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] =
+						backwardmovetrace[i]->changes[j].newPosition.y;
+				}
+			}
+			//save any forwards moves
+			json["movetraceforward"]["moves"] = forwardmovetrace.size();
+			for (size_t i = 0; i < forwardmovetrace.size(); i++) {
+				json["movetraceforward"]["move" + std::to_string(i)]["partmoves"] = forwardmovetrace[i]->changes.size();
+				json["movetraceforward"]["move" + std::to_string(i)]["player"] = forwardmovetrace[i]->current_player;
+				for (size_t j = 0; j < forwardmovetrace[i]->changes.size(); j++) {
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] =
+						forwardmovetrace[i]->changes[j].figure;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] =
+						forwardmovetrace[i]->changes[j].player;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] =
+						forwardmovetrace[i]->changes[j].move;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] =
+						forwardmovetrace[i]->changes[j].oldPosition.x;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] =
+						forwardmovetrace[i]->changes[j].oldPosition.y;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] =
+						forwardmovetrace[i]->changes[j].newPosition.x;
+					json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] =
+						forwardmovetrace[i]->changes[j].newPosition.y;
+				}
+			}
+			//save to output file and close
+			json_output << json;
+			json_output.close();
+		}
 		else {
-			json["board"]["cmsl"]["count"] = 0;
+			return FALSE;
 		}
-		//save any backwards moves
-		json["movetracebackward"]["moves"] = backwardmovetrace.size();
-		for (size_t i = 0; i < backwardmovetrace.size(); i++) {
-			json["movetracebackward"]["move" + std::to_string(i)]["partmoves"] = backwardmovetrace[i]->changes.size();
-			json["movetracebackward"]["move" + std::to_string(i)]["player"] = backwardmovetrace[i]->current_player;
-			for (size_t j = 0; j < backwardmovetrace[i]->changes.size(); j++) {
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] =
-					backwardmovetrace[i]->changes[j].figure;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] =
-					backwardmovetrace[i]->changes[j].player;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] =
-					backwardmovetrace[i]->changes[j].move;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] =
-					backwardmovetrace[i]->changes[j].oldPosition.x;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] =
-					backwardmovetrace[i]->changes[j].oldPosition.y;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] =
-					backwardmovetrace[i]->changes[j].newPosition.x;
-				json["movetracebackward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] =
-					backwardmovetrace[i]->changes[j].newPosition.y;
-			}
-		}
-		//save any forwards moves
-		json["movetraceforward"]["moves"] = forwardmovetrace.size();
-		for (size_t i = 0; i < forwardmovetrace.size(); i++) {
-			json["movetraceforward"]["move" + std::to_string(i)]["partmoves"] = forwardmovetrace[i]->changes.size();
-			json["movetraceforward"]["move" + std::to_string(i)]["player"] = forwardmovetrace[i]->current_player;
-			for (size_t j = 0; j < forwardmovetrace[i]->changes.size(); j++) {
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["type"] =
-					forwardmovetrace[i]->changes[j].figure;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["colo"] =
-					forwardmovetrace[i]->changes[j].player;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["mvetype"] =
-					forwardmovetrace[i]->changes[j].move;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposx"] =
-					forwardmovetrace[i]->changes[j].oldPosition.x;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["oldposy"] =
-					forwardmovetrace[i]->changes[j].oldPosition.y;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposx"] =
-					forwardmovetrace[i]->changes[j].newPosition.x;
-				json["movetraceforward"]["move" + std::to_string(i)]["partmove" + std::to_string(j)]["newposy"] =
-					forwardmovetrace[i]->changes[j].newPosition.y;
-			}
-		}
-		//save to output file and close
-		json_output << json;
-		json_output.close();
 	}
-	else {
+	catch (const std::exception& exception) {
 		return FALSE;
 	}
 	return TRUE;
