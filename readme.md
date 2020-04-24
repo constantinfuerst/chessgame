@@ -1,9 +1,6 @@
 # chessgame with sfml and ascii renderer
-PROGRAMM METADATA:
-
-    name:           chessgame
-	description:    chessgame project I made to learn OOP, using sfml combined with tgui or a console as output
-	copyright:      (c) 2019 Constantin Fürst constantin@fuersten.info
+Chessgame project I made to learn OOP, using sfml combined with tgui or a console as output.
+Supports unlimited savegames to file, undo/redo actions and reset - these are only available with the SFML rendered version, utilizing the consoleASCII renderer does not allow any of the above.
 
 IMAGE SOURCES:
 
